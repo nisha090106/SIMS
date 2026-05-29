@@ -1,0 +1,88 @@
+export async function up(queryInterface, Sequelize) {
+  await queryInterface.bulkInsert('inventory', [
+    {
+      product_id: 1,
+      warehouse_id: 1,
+      quantity: 50,
+      batch_no: 'BATCH-001-2026',
+      expiry_date: null,
+      location: 'Rack A1',
+      created_at: new Date(),
+      updated_at: new Date(),
+    },
+    {
+      product_id: 2,
+      warehouse_id: 1,
+      quantity: 150,
+      batch_no: 'BATCH-002-2026',
+      expiry_date: null,
+      location: 'Rack B2',
+      created_at: new Date(),
+      updated_at: new Date(),
+    },
+    {
+      product_id: 3,
+      warehouse_id: 1,
+      quantity: 500,
+      batch_no: 'BATCH-003-2026',
+      expiry_date: null,
+      location: 'Shelf C1',
+      created_at: new Date(),
+      updated_at: new Date(),
+    },
+    {
+      product_id: 4,
+      warehouse_id: 2,
+      quantity: 200,
+      batch_no: 'BATCH-004-2026',
+      expiry_date: null,
+      location: 'Rack A2',
+      created_at: new Date(),
+      updated_at: new Date(),
+    },
+    {
+      product_id: 5,
+      warehouse_id: 2,
+      quantity: 75,
+      batch_no: 'BATCH-005-2026',
+      expiry_date: null,
+      location: 'Shelf B1',
+      created_at: new Date(),
+      updated_at: new Date(),
+    },
+    {
+      product_id: 6,
+      warehouse_id: 3,
+      quantity: 25,
+      batch_no: 'BATCH-006-2026',
+      expiry_date: null,
+      location: 'Rack C1',
+      created_at: new Date(),
+      updated_at: new Date(),
+    },
+    {
+      product_id: 7,
+      warehouse_id: 1,
+      quantity: 300,
+      batch_no: 'BATCH-007-2026',
+      expiry_date: null,
+      location: 'Bin D1',
+      created_at: new Date(),
+      updated_at: new Date(),
+    },
+    {
+      product_id: 8,
+      warehouse_id: 3,
+      quantity: 400,
+      batch_no: 'BATCH-008-2026',
+      expiry_date: null,
+      location: 'Bin E1',
+      created_at: new Date(),
+      updated_at: new Date(),
+    },
+  ]);
+}
+
+export async function down(queryInterface, Sequelize) {
+  await queryInterface.bulkDelete('inventory', null, {});
+}

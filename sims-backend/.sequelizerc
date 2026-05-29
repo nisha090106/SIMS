@@ -1,0 +1,6 @@
+export default {
+  'config': './src/config/database.js',
+  'models-path': './src/models/',
+  'seeders-path': './seeders/',
+  'migrations-path': './migrations/',
+};
