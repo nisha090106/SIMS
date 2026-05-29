@@ -171,27 +171,6 @@ Sample data includes:
 - Admin user: `admin@sims.com`
 - Manager user: `manager@sims.com`
 
-## 🔒 Environment Variables
-
-### Backend (.env)
-```
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=sims_db
-DB_USER=sims_user
-DB_PASSWORD=sims_password_123
-PORT=5000
-NODE_ENV=development
-JWT_SECRET=your_secret_key
-CORS_ORIGIN=http://localhost:5173
-```
-
-### Frontend (.env)
-```
-VITE_API_BASE_URL=http://localhost:5000/api
-VITE_APP_NAME=SIMS
-```
-
 ## 📝 Available Scripts
 
 ### Backend
@@ -261,7 +240,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 👥 Authors
 
-- Your Name - Initial work
+- Your Name - Nisha Pragane 
 
 ## 🙏 Acknowledgments
 
