@@ -1,0 +1,75 @@
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+.yarn
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+.dist
+out/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.prettierignore
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temp files
+tmp/
+temp/
+*.tmp
+
+# Database
+*.sql
+!scripts/init.sql
+
+# Uploads
+uploads/
+
+# Docker
+docker-compose.override.yml
+
+# IDE specific
+venv/
+env/
+.venv
+
+# Miscellaneous
+.cache/
+.pm2/

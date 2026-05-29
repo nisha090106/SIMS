@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: sims-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_123
+      MYSQL_DATABASE: sims_db
+      MYSQL_USER: sims_user
+      MYSQL_PASSWORD: sims_password_123
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - sims-network
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      timeout: 5s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: sims-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: sims_user
+      PMA_PASSWORD: sims_password_123
+      PMA_ROOT_PASSWORD: root_password_123
+    ports:
+      - '8080:80'
+    depends_on:
+      - mysql
+    networks:
+      - sims-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  sims-network:
+    driver: bridge
