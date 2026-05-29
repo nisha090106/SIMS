@@ -234,10 +234,6 @@ Sample data includes:
 3. Push to branch (`git push origin feature/amazing-feature`)
 4. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 👥 Authors
 
 - Your Name - Nisha Pragane 
