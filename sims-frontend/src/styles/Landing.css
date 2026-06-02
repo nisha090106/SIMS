@@ -1,0 +1,461 @@
+/* Landing Page Animations & Styles */
+
+/* Fade-in and Slide-up animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(102, 126, 234, 0.4);
+  }
+}
+
+@keyframes counter-increment {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fadeInUp {
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Navbar Styling */
+.navbar {
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid #f3f4f6;
+  transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+}
+
+.nav-link {
+  color: #374151;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: 1rem;
+}
+
+.nav-link:hover {
+  color: #667eea;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  padding: 40px 0 60px 0;
+}
+
+.hero-content {
+  animation-delay: 0s;
+}
+
+.hero-visual {
+  animation-delay: 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Hero Mockup Dashboard */
+.hero-mockup {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.15);
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.mockup-header {
+  background: #f3f4f6;
+  padding: 12px;
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.mockup-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d1d5db;
+}
+
+.mockup-body {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.mockup-card {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.mockup-card-header {
+  height: 20px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.mockup-card-bar {
+  height: 10px;
+  background: #d1d5db;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.mockup-card-bar.short {
+  width: 60%;
+}
+
+/* Features Section */
+.features-section {
+  background: #ffffff;
+  padding: 80px 0;
+}
+
+.feature-card {
+  background: white;
+  padding: 32px 24px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+  text-align: center;
+  animation-fill-mode: both;
+}
+
+.feature-card:hover {
+  border-color: #667eea;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  display: inline-flex;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.feature-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.feature-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.feature-description {
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Stats Section */
+.stats-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 80px 0;
+  color: white;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 40px 32px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+  backdrop-filter: blur(10px);
+  animation-fill-mode: both;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.stat-label {
+  font-size: 1rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+/* How It Works Section */
+.how-it-works-section {
+  background: white;
+  padding: 80px 0;
+}
+
+.step-card {
+  position: relative;
+  padding: 32px 24px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  animation-fill-mode: both;
+}
+
+.step-number {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #667eea;
+  opacity: 0.2;
+  margin-bottom: 16px;
+}
+
+.step-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.step-description {
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.step-connector {
+  position: absolute;
+  top: 50%;
+  right: -28px;
+  width: 24px;
+  height: 2px;
+  background: linear-gradient(90deg, #667eea 0%, transparent 100%);
+}
+
+@media (max-width: 768px) {
+  .step-connector {
+    display: none;
+  }
+}
+
+/* Pricing Section */
+.pricing-section {
+  background: #f9fafb;
+  padding: 80px 0;
+}
+
+.pricing-card {
+  background: white;
+  padding: 40px 32px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.pricing-card:hover {
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.1);
+  transform: translateY(-5px);
+}
+
+.pricing-card.highlight {
+  border-color: #667eea;
+  box-shadow: 0 20px 50px rgba(102, 126, 234, 0.15);
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .pricing-card.highlight {
+    transform: scale(1);
+  }
+}
+
+.pricing-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.pricing-price {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 24px;
+}
+
+.pricing-features {
+  list-style: none;
+  padding: 24px 0;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 24px;
+}
+
+.pricing-feature {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.pricing-cta {
+  display: inline-block;
+  width: 100%;
+  padding: 12px 24px;
+  background: #667eea;
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.pricing-cta:hover {
+  background: #764ba2;
+  transform: translateY(-2px);
+}
+
+.pricing-card.highlight .pricing-cta {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* CTA Section */
+.cta-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 80px 40px;
+  text-align: center;
+  color: white;
+}
+
+/* Footer */
+.footer {
+  background: #111827;
+  color: #9ca3af;
+  padding: 48px 0 24px 0;
+}
+
+.footer h4 {
+  color: white;
+}
+
+.footer a {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: #667eea;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 20px 0 40px 0;
+  }
+
+  .features-section,
+  .stats-section,
+  .how-it-works-section,
+  .pricing-section,
+  .cta-section {
+    padding: 40px 0;
+  }
+
+  .feature-card,
+  .stat-card,
+  .step-card,
+  .pricing-card {
+    padding: 24px;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+  }
+
+  .hero-mockup {
+    max-width: 280px;
+  }
+
+  .mockup-body {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .mockup-card {
+    padding: 12px;
+  }
+}
+
+/* Accessibility - Focus states */
+button:focus,
+a:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Loading state for future enhancements */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}

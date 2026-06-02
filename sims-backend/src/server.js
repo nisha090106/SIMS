@@ -7,10 +7,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import logger from './config/logger.js';
 import sequelize from './models/index.js';
-import authRoutes from './routes/authRoutes.js';
+import authRoutes from './routes/auth.js';
 import productRoutes from './routes/productRoutes.js';
 import warehouseRoutes from './routes/warehouseRoutes.js';
 import inventoryRoutes from './routes/inventoryRoutes.js';
+import reportRoutes from './routes/reports.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
 import { requestLogger, responseTime } from './middlewares/loggingMiddleware.js';
 
@@ -31,12 +32,31 @@ app.use(requestLogger);
 app.use(responseTime);
 
 // CORS Configuration
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+  process.env.CORS_ORIGIN,
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+      if (!origin) return callback(null, true);
+      
+      const isLocalhost = /^http:\/\/localhost:\d+$/.test(origin) || /^http:\/\/127\.0\.0\.1:\d+$/.test(origin);
+      if (allowedOrigins.includes(origin) || isLocalhost) {
+        return callback(null, true);
+      }
+      
+      return callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -64,6 +84,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/warehouses', warehouseRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/reports', reportRoutes);
 
 // 404 Handler
 app.use(notFoundHandler);

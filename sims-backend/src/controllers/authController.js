@@ -6,7 +6,7 @@ export class AuthController {
   // Register
   static async register(req, res, next) {
     try {
-      const { email, password, full_name, department } = req.body;
+      const { email, password, full_name, role, department } = req.body;
 
       // Validate input
       if (!email || !password || !full_name) {
@@ -16,8 +16,29 @@ export class AuthController {
         });
       }
 
-      const result = await AuthService.register(email, password, full_name, department);
-      res.status(201).json(result);
+      const result = await AuthService.register(email, password, full_name, role, department);
+      const user = result.data;
+      
+      // Log registration action (use standard 'create' to match enum constraints)
+      if (user && user.user_id) {
+        await AuditLog.create({
+          user_id: user.user_id,
+          action: 'create',
+          table_name: 'users',
+          changes: JSON.stringify({ email, full_name, role, department }),
+          ip_address: req.ip,
+        }).catch((err) => logger.error('Audit log error:', err));
+      }
+
+      res.status(201).json({
+        message: 'User registered successfully',
+        user: {
+          id: user.user_id,
+          full_name: user.full_name,
+          email: user.email,
+          role: user.role,
+        },
+      });
     } catch (error) {
       logger.error(`Register controller error: ${error.message}`);
       res.status(400).json({
@@ -41,15 +62,27 @@ export class AuthController {
       }
 
       const result = await AuthService.login(email, password);
+      const { accessToken, refreshToken, user } = result.data;
 
       // Log login action
       await AuditLog.create({
-        user_id: result.data.user.user_id,
+        user_id: user.user_id,
         action: 'login',
+        table_name: 'users',
         ip_address: req.ip,
       }).catch((err) => logger.error('Audit log error:', err));
 
-      res.status(200).json(result);
+      res.status(200).json({
+        message: 'Login successful',
+        user: {
+          id: user.user_id,
+          full_name: user.full_name,
+          email: user.email,
+          role: user.role,
+        },
+        accessToken,
+        refreshToken,
+      });
     } catch (error) {
       logger.error(`Login controller error: ${error.message}`);
       res.status(401).json({
@@ -62,18 +95,19 @@ export class AuthController {
   // Logout
   static async logout(req, res, next) {
     try {
-      const userId = req.user.user_id;
-
-      const result = await AuthService.logout(userId);
+      const userId = req.user.user_id || req.user.id;
 
       // Log logout action
       await AuditLog.create({
         user_id: userId,
         action: 'logout',
+        table_name: 'users',
         ip_address: req.ip,
       }).catch((err) => logger.error('Audit log error:', err));
 
-      res.status(200).json(result);
+      res.status(200).json({
+        message: 'Logged out successfully',
+      });
     } catch (error) {
       logger.error(`Logout controller error: ${error.message}`);
       res.status(400).json({
@@ -95,8 +129,10 @@ export class AuthController {
         });
       }
 
-      const result = AuthService.refreshAccessToken(refreshToken);
-      res.status(200).json(result);
+      const result = await AuthService.refreshAccessToken(refreshToken);
+      res.status(200).json({
+        accessToken: result.data.accessToken,
+      });
     } catch (error) {
       logger.error(`Refresh token error: ${error.message}`);
       res.status(401).json({
@@ -109,9 +145,8 @@ export class AuthController {
   // Get profile
   static async getProfile(req, res, next) {
     try {
-      const userId = req.user.user_id;
-      const result = await AuthService.getUserProfile(userId);
-      res.status(200).json(result);
+      // Return logged-in user's profile from req.user
+      res.status(200).json(req.user);
     } catch (error) {
       logger.error(`Get profile error: ${error.message}`);
       res.status(400).json({

@@ -49,7 +49,7 @@ Warehouse.hasMany(Inventory, { foreignKey: 'warehouse_id', as: 'inventory' });
 
 // Product associations
 Product.hasMany(Inventory, { foreignKey: 'product_id', as: 'inventory' });
-Product.hasMany(PurchaseOrder, { through: 'purchase_order_items', as: 'purchase_orders' });
+Product.belongsToMany(PurchaseOrder, { through: 'purchase_order_items', as: 'purchase_orders' });
 
 // Inventory associations
 Inventory.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
@@ -61,6 +61,7 @@ Supplier.hasMany(PurchaseOrder, { foreignKey: 'supplier_id', as: 'purchase_order
 // PurchaseOrder associations
 PurchaseOrder.belongsTo(Supplier, { foreignKey: 'supplier_id', as: 'supplier' });
 PurchaseOrder.belongsTo(User, { foreignKey: 'created_by', as: 'created_by_user' });
+PurchaseOrder.belongsToMany(Product, { through: 'purchase_order_items', as: 'products' });
 
 // SalesOrder associations
 SalesOrder.belongsTo(User, { foreignKey: 'created_by', as: 'created_by_user' });

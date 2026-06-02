@@ -1,0 +1,291 @@
+.inventory-container {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+}
+
+.inventory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inventory-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1e293b;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.summary-cards {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.summary-cards .card {
+  flex: 1;
+  min-width: 200px;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.summary-cards .card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.summary-cards .card .card-value {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.text-warning {
+  color: #f59e0b !important;
+}
+
+.text-danger {
+  color: #ef4444 !important;
+}
+
+.inventory-toolbar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.search-input {
+  flex: 1;
+  min-width: 250px;
+  padding: 0.5rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.filter-select {
+  padding: 0.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  min-width: 150px;
+}
+
+.results-count {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-left: auto;
+}
+
+.table-wrapper {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow-x: auto;
+}
+
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.inventory-table th, .inventory-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.inventory-table th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+}
+
+.zebra-table tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.zebra-table tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.normal {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.status-badge.low_stock {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.out_of_stock {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.btn-outline:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Common Modal Styles are already in Products.css, 
+   but including here if they aren't globally scoped */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #1e293b;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: white;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.btn-secondary:hover {
+  background: #cbd5e1;
+}
+
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: #10b981;
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  z-index: 2000;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.alert-error {
+  background: #fee2e2;
+  color: #ef4444;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}

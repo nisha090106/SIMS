@@ -5,14 +5,22 @@ import { asyncHandler } from '../middlewares/errorHandler.js';
 
 const router = express.Router();
 
-// Public routes (auth required)
-router.get('/', authMiddleware, asyncHandler(InventoryController.getAllInventory));
-router.get('/:id', authMiddleware, asyncHandler(InventoryController.getInventoryById));
-router.get('/summary/overview', authMiddleware, asyncHandler(InventoryController.getInventorySummary));
-router.get('/alerts/low-stock', authMiddleware, asyncHandler(InventoryController.getLowStockItems));
+// GET /api/inventory/summary
+router.get('/summary', authMiddleware, asyncHandler(InventoryController.getInventorySummary));
 
-// Protected routes (manager and staff can create/update)
-router.post('/', authMiddleware, authorize('admin', 'manager', 'staff'), asyncHandler(InventoryController.createInventory));
-router.put('/:id', authMiddleware, authorize('admin', 'manager', 'staff'), asyncHandler(InventoryController.updateInventory));
+// GET /api/inventory/low-stock
+router.get('/low-stock', authMiddleware, asyncHandler(InventoryController.getLowStock));
+
+// GET /api/inventory
+router.get('/', authMiddleware, asyncHandler(InventoryController.getInventory));
+
+// PUT /api/inventory/:id
+router.put('/:id', authMiddleware, authorize('admin', 'manager'), asyncHandler(InventoryController.updateStock));
+
+// POST /api/inventory/transfer
+router.post('/transfer', authMiddleware, authorize('admin', 'manager'), asyncHandler(InventoryController.transferStock));
+
+// POST /api/inventory/adjust
+router.post('/adjust', authMiddleware, authorize('admin', 'manager'), asyncHandler(InventoryController.adjustInventory));
 
 export default router;

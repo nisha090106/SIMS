@@ -1,0 +1,549 @@
+/* Premium Split-Screen Login Style */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  background-color: #0b0f19;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+.login-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  width: 100vw;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   LEFT SIDE: BRAND PANEL SHOWCASE
+   ========================================================================== */
+
+.login-brand-side {
+  position: relative;
+  background: radial-gradient(circle at 0% 0%, #1e1b4b 0%, #0f0728 50%, #03000a 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8% 10%;
+  color: #ffffff;
+  overflow: hidden;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Ambient glowing orbs inside brand panel */
+.login-brand-side::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+.login-brand-side::after {
+  content: '';
+  position: absolute;
+  bottom: -10%;
+  right: -10%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.brand-overlay {
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 0V1.5M1.5 1.5H0M1.5 1.5H30M1.5 1.5V30' stroke='rgba(255,255,255,0.02)' stroke-width='1'/%3E%3C/svg%3E") repeat;
+  pointer-events: none;
+}
+
+.brand-content {
+  position: relative;
+  z-index: 10;
+  animation: fadeSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.brand-logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.brand-logo-icon {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+}
+
+.brand-logo-text {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-heading {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  letter-spacing: -1px;
+}
+
+.text-highlight {
+  background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-tagline {
+  font-size: 16px;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  max-width: 480px;
+}
+
+/* Feature List (Sleek rows) */
+.brand-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 50px;
+}
+
+.brand-feature-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.bf-icon-box {
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #818cf8;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.brand-feature-item:hover .bf-icon-box {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #a855f7;
+  transform: scale(1.05);
+}
+
+.brand-feature-item h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f8fafc;
+  margin: 0 0 4px 0;
+}
+
+.brand-feature-item p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Metagrid stats */
+.brand-meta-stats {
+  display: flex;
+  gap: 40px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  max-width: 400px;
+}
+
+.b-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.b-stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.b-stat-lbl {
+  font-size: 12px;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   RIGHT SIDE: FORM PANEL
+   ========================================================================== */
+
+.login-form-side {
+  background-color: #0b0f19;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  position: relative;
+}
+
+.form-container-wrapper {
+  width: 100%;
+  max-width: 440px;
+  animation: fadeSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.form-header {
+  margin-bottom: 36px;
+}
+
+.form-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.5px;
+}
+
+.form-header p {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Styled Forms */
+.login-styled-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.custom-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.custom-input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.3px;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  color: #475569;
+  pointer-events: none;
+  transition: color 0.3s ease;
+}
+
+.field-control {
+  width: 100%;
+  padding: 13px 14px 13px 44px;
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #f8fafc;
+  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.field-control::placeholder {
+  color: #475569;
+}
+
+.field-control:focus {
+  outline: none;
+  border-color: #6366f1;
+  background-color: #111827;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.field-control:focus + .input-icon,
+.input-with-icon:focus-within .input-icon {
+  color: #6366f1;
+}
+
+.field-control.has-error {
+  border-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.02);
+}
+
+.field-control.has-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.validation-error-msg {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Gradient Submit Button */
+.login-gradient-submit-btn {
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.login-gradient-submit-btn:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 26px rgba(99, 102, 241, 0.35);
+  filter: brightness(1.08);
+}
+
+.login-gradient-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-gradient-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Spinner inside button */
+.button-loading-spinner-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.anim-spin-loader {
+  animation: spinAround 1s linear infinite;
+  width: 18px;
+  height: 18px;
+  color: #ffffff;
+}
+
+.anim-spin-loader .circle-bg {
+  opacity: 0.25;
+}
+
+.anim-spin-loader .spinner-arc {
+  opacity: 0.75;
+}
+
+@keyframes spinAround {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Credentials Panel (Interactive Demo Accounts) */
+.quick-login-credentials-panel {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #818cf8;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.credentials-badges-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.demo-account-badge {
+  background: #1f2937;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.demo-account-badge:hover {
+  transform: translateY(-1px);
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.25);
+}
+
+.demo-account-badge:active {
+  transform: translateY(0);
+}
+
+.badge-role {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.demo-account-badge:hover .badge-role {
+  color: #818cf8;
+}
+
+.badge-details {
+  font-size: 12px;
+  color: #cbd5e1;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+/* Nav Redirect footer */
+.login-navigation-footer-links {
+  text-align: center;
+  margin-top: 15px;
+  border-top: 1px solid #1f2937;
+  padding-top: 20px;
+}
+
+.login-navigation-footer-links p {
+  color: #64748b;
+  font-size: 13px;
+  margin: 0;
+}
+
+.highlight-redirect-link {
+  color: #818cf8;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.highlight-redirect-link:hover {
+  color: #a855f7;
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   RESPONSIVENESS AND COLLAPSIBLE ADAPTATIONS
+   ========================================================================== */
+
+/* Screen heights restriction adaptation */
+@media (max-height: 800px) {
+  .brand-logo-wrapper {
+    margin-bottom: 25px;
+  }
+  .brand-heading {
+    font-size: 32px;
+  }
+  .brand-tagline {
+    margin-bottom: 25px;
+  }
+  .brand-features-list {
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+  .quick-login-credentials-panel {
+    margin-top: 5px;
+  }
+}
+
+/* Grid collapsing rules - tablet and below */
+@media (max-width: 1024px) {
+  .login-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .login-brand-side {
+    display: none; /* Hide brand panel on smaller screens for clean density */
+  }
+
+  .login-form-side {
+    padding: 60px 24px;
+    min-height: 100vh;
+  }
+
+  .form-container-wrapper {
+    max-width: 400px;
+  }
+}
+
+/* Mobile screen constraints */
+@media (max-width: 480px) {
+  .login-form-side {
+    padding: 40px 16px;
+  }
+
+  .form-header h2 {
+    font-size: 24px;
+  }
+
+  .credentials-badges-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-account-badge {
+    padding: 8px 10px;
+  }
+}
+
+/* Animations definition */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

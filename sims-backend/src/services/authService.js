@@ -13,8 +13,10 @@ export class AuthService {
     return jwt.sign(
       {
         user_id: user.user_id,
+        id: user.user_id,
         email: user.email,
         role: user.role,
+        full_name: user.full_name,
       },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRE }
@@ -26,6 +28,7 @@ export class AuthService {
     return jwt.sign(
       {
         user_id: user.user_id,
+        id: user.user_id,
       },
       JWT_SECRET,
       { expiresIn: REFRESH_TOKEN_EXPIRE }
@@ -43,7 +46,7 @@ export class AuthService {
   }
 
   // Register user
-  static async register(email, password, full_name, department = null) {
+  static async register(email, password, full_name, role = 'staff', department = null) {
     try {
       // Check if user already exists
       const existingUser = await User.findOne({ where: { email } });
@@ -51,22 +54,27 @@ export class AuthService {
         throw new Error('Email already registered');
       }
 
+      // Validate role
+      const validRoles = ['admin', 'manager', 'staff'];
+      const userRole = validRoles.includes(role) ? role : 'staff';
+
       // Create new user
       const user = await User.create({
         email,
         password,
         full_name,
         department,
-        role: 'staff',
+        role: userRole,
         status: 'active',
       });
 
-      logger.info(`New user registered: ${email}`);
+      logger.info(`New user registered: ${email} with role ${userRole}`);
 
       return {
         success: true,
         data: {
           user_id: user.user_id,
+          id: user.user_id,
           email: user.email,
           full_name: user.full_name,
           role: user.role,
@@ -114,6 +122,7 @@ export class AuthService {
           refreshToken,
           user: {
             user_id: user.user_id,
+            id: user.user_id,
             email: user.email,
             full_name: user.full_name,
             role: user.role,
@@ -128,16 +137,17 @@ export class AuthService {
   }
 
   // Refresh access token
-  static refreshAccessToken(refreshToken) {
+  static async refreshAccessToken(refreshToken) {
     try {
       const decoded = jwt.verify(refreshToken, JWT_SECRET);
-      const newAccessToken = jwt.sign(
-        {
-          user_id: decoded.user_id,
-        },
-        JWT_SECRET,
-        { expiresIn: JWT_EXPIRE }
-      );
+      const userId = decoded.user_id || decoded.id;
+      
+      const user = await User.findByPk(userId);
+      if (!user || user.status !== 'active') {
+        throw new Error('User not found or inactive');
+      }
+
+      const newAccessToken = this.generateToken(user);
 
       return {
         success: true,

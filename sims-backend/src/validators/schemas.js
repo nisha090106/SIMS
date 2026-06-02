@@ -2,9 +2,18 @@ import Joi from 'joi';
 
 export const authValidators = {
   register: Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().min(6).required(),
-    full_name: Joi.string().min(2).required(),
+    email: Joi.string().email().required().messages({
+      'string.email': 'Please enter a valid email address',
+      'any.required': 'Email is required',
+    }),
+    password: Joi.string().min(8).required().messages({
+      'string.min': 'Password must be at least 8 characters',
+      'any.required': 'Password is required',
+    }),
+    full_name: Joi.string().min(2).required().messages({
+      'string.min': 'Full name must be at least 2 characters',
+      'any.required': 'Full name is required',
+    }),
     department: Joi.string().optional(),
   }),
 
@@ -21,23 +30,23 @@ export const authValidators = {
 export const productValidators = {
   create: Joi.object({
     sku: Joi.string().max(50).required(),
-    name: Joi.string().max(150).required(),
-    description: Joi.string().optional(),
+    name: Joi.string().min(2).max(150).required(),
+    description: Joi.string().allow(null, '').optional(),
     category: Joi.string().max(50).required(),
-    unit: Joi.string().max(20).optional(),
-    reorder_level: Joi.number().integer().optional(),
-    reorder_qty: Joi.number().integer().optional(),
+    unit: Joi.string().max(20).allow(null, '').optional(),
+    reorder_level: Joi.number().integer().min(0).required(),
+    reorder_qty: Joi.number().integer().min(0).optional(),
     unit_price: Joi.number().positive().required(),
   }),
 
   update: Joi.object({
     sku: Joi.string().max(50).optional(),
-    name: Joi.string().max(150).optional(),
-    description: Joi.string().optional(),
+    name: Joi.string().min(2).max(150).optional(),
+    description: Joi.string().allow(null, '').optional(),
     category: Joi.string().max(50).optional(),
-    unit: Joi.string().max(20).optional(),
-    reorder_level: Joi.number().integer().optional(),
-    reorder_qty: Joi.number().integer().optional(),
+    unit: Joi.string().max(20).allow(null, '').optional(),
+    reorder_level: Joi.number().integer().min(0).optional(),
+    reorder_qty: Joi.number().integer().min(0).optional(),
     unit_price: Joi.number().positive().optional(),
   }),
 };
