@@ -42,7 +42,7 @@ export default (sequelize) => {
       tableName: 'sales_orders',
       timestamps: true,
       underscored: true,
-    }
+    },
   );
 
   return SalesOrder;

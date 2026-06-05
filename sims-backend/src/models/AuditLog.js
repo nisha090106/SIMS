@@ -35,7 +35,7 @@ export default (sequelize) => {
       tableName: 'audit_logs',
       timestamps: false,
       underscored: true,
-    }
+    },
   );
 
   return AuditLog;

@@ -11,7 +11,10 @@ import authRoutes from './routes/auth.js';
 import productRoutes from './routes/productRoutes.js';
 import warehouseRoutes from './routes/warehouseRoutes.js';
 import inventoryRoutes from './routes/inventoryRoutes.js';
+import supplierRoutes from './routes/suppliers.js';
+import purchaseRoutes from './routes/purchaseRoutes.js';
 import reportRoutes from './routes/reports.js';
+import importRoutes from './routes/imports.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
 import { requestLogger, responseTime } from './middlewares/loggingMiddleware.js';
 
@@ -55,7 +58,7 @@ app.use(
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-  })
+  }),
 );
 
 // Rate Limiting
@@ -84,7 +87,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/warehouses', warehouseRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/suppliers', supplierRoutes);
+app.use('/api/purchase-orders', purchaseRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/imports', importRoutes);
 
 // 404 Handler
 app.use(notFoundHandler);
@@ -110,13 +116,13 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       logger.info(`Server is running on port ${PORT}`);
-      console.log(`\n✅ Server running at http://localhost:${PORT}`);
-      console.log(`🏥 Health check at http://localhost:${PORT}/health`);
-      console.log(`🔐 Auth endpoints at http://localhost:${PORT}/api/auth\n`);
+      console.log(`\nServer running at http://localhost:${PORT}`);
+      console.log(` Health check at http://localhost:${PORT}/health`);
+      console.log(` Auth endpoints at http://localhost:${PORT}/api/auth\n`);
     });
   } catch (error) {
     logger.error('Server startup failed:', error);
-    console.error('❌ Server startup error:', error.message);
+    console.error('Server startup error:', error.message);
     process.exit(1);
   }
 };

@@ -33,11 +33,11 @@ export class InventoryController {
       } else if (status === 'low') {
         where.quantity = {
           [Op.gt]: 0,
-          [Op.lte]: sequelize.col('product.reorder_level')
+          [Op.lte]: sequelize.col('product.reorder_level'),
         };
       } else if (status === 'normal') {
         where.quantity = {
-          [Op.gt]: sequelize.col('product.reorder_level')
+          [Op.gt]: sequelize.col('product.reorder_level'),
         };
       }
 
@@ -79,7 +79,7 @@ export class InventoryController {
           warehouse_name: item.warehouse.name,
           quantity: item.quantity,
           reorder_level: item.product.reorder_level,
-          status: itemStatus
+          status: itemStatus,
         };
       });
 
@@ -90,7 +90,7 @@ export class InventoryController {
           total: count,
           page,
           totalPages: Math.ceil(count / limit),
-        }
+        },
       });
     } catch (error) {
       logger.error(`Get inventory error: ${error.message}`);
@@ -104,8 +104,8 @@ export class InventoryController {
       const lowStockItems = await Inventory.findAll({
         where: {
           quantity: {
-            [Op.lte]: sequelize.col('product.reorder_level')
-          }
+            [Op.lte]: sequelize.col('product.reorder_level'),
+          },
         },
         include: [
           {
@@ -117,7 +117,7 @@ export class InventoryController {
             model: Warehouse,
             as: 'warehouse',
             attributes: ['warehouse_id', 'name', 'location'],
-          }
+          },
         ],
         limit: 50,
       });
@@ -146,8 +146,8 @@ export class InventoryController {
       const allInventory = await Inventory.findAll({
         include: [
           { model: Product, as: 'product', attributes: ['product_id', 'unit_price', 'reorder_level'] },
-          { model: Warehouse, as: 'warehouse', attributes: ['warehouse_id', 'name'] }
-        ]
+          { model: Warehouse, as: 'warehouse', attributes: ['warehouse_id', 'name'] },
+        ],
       });
 
       let totalItems = 0;
@@ -246,7 +246,7 @@ export class InventoryController {
 
       const sourceInv = await Inventory.findOne({
         where: { product_id, warehouse_id: from_warehouse_id },
-        transaction: t
+        transaction: t,
       });
 
       if (!sourceInv || sourceInv.quantity < quantity) {
@@ -255,7 +255,7 @@ export class InventoryController {
 
       let destInv = await Inventory.findOne({
         where: { product_id, warehouse_id: to_warehouse_id },
-        transaction: t
+        transaction: t,
       });
 
       const oldSourceQty = sourceInv.quantity;
@@ -273,7 +273,7 @@ export class InventoryController {
         destInv = await Inventory.create({
           product_id,
           warehouse_id: to_warehouse_id,
-          quantity: newDestQty
+          quantity: newDestQty,
         }, { transaction: t });
       }
 
@@ -287,7 +287,7 @@ export class InventoryController {
           from_warehouse_id,
           to_warehouse_id,
           quantity,
-          reason
+          reason,
         },
         ip_address: req.ip,
       }, { transaction: t });
@@ -299,8 +299,8 @@ export class InventoryController {
         data: {
           message: 'Stock transferred successfully',
           from: { warehouse: from_warehouse_id, newQty: newSourceQty },
-          to: { warehouse: to_warehouse_id, newQty: newDestQty }
-        }
+          to: { warehouse: to_warehouse_id, newQty: newDestQty },
+        },
       });
     } catch (error) {
       await t.rollback();
@@ -352,7 +352,7 @@ export class InventoryController {
           inventory_id,
           oldQty,
           newQty,
-          reason
+          reason,
         },
         ip_address: req.ip,
       });

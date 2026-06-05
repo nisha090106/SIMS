@@ -49,7 +49,7 @@ export default (sequelize) => {
       tableName: 'suppliers',
       timestamps: true,
       underscored: true,
-    }
+    },
   );
 
   return Supplier;

@@ -20,9 +20,9 @@ export class AuthController {
       const user = result.data;
       
       // Log registration action (use standard 'create' to match enum constraints)
-      if (user && user.user_id) {
+      if (user && user.id) {
         await AuditLog.create({
-          user_id: user.user_id,
+          user_id: user.id,
           action: 'create',
           table_name: 'users',
           changes: JSON.stringify({ email, full_name, role, department }),
@@ -33,7 +33,7 @@ export class AuthController {
       res.status(201).json({
         message: 'User registered successfully',
         user: {
-          id: user.user_id,
+          id: user.id,
           full_name: user.full_name,
           email: user.email,
           role: user.role,
@@ -66,7 +66,7 @@ export class AuthController {
 
       // Log login action
       await AuditLog.create({
-        user_id: user.user_id,
+        user_id: user.id,
         action: 'login',
         table_name: 'users',
         ip_address: req.ip,
@@ -75,7 +75,7 @@ export class AuthController {
       res.status(200).json({
         message: 'Login successful',
         user: {
-          id: user.user_id,
+          id: user.id,
           full_name: user.full_name,
           email: user.email,
           role: user.role,

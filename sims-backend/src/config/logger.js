@@ -22,7 +22,7 @@ const logger = winston.createLogger({
     winston.format.printf(({ timestamp, level, message, ...meta }) => {
       let metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
       return `${timestamp} [${level.toUpperCase()}]: ${message} ${metaStr}`;
-    })
+    }),
   ),
   defaultMeta: { service: 'sims-backend' },
   transports: [
@@ -44,9 +44,9 @@ if (process.env.NODE_ENV !== 'production') {
         winston.format.colorize(),
         winston.format.printf(({ timestamp, level, message }) => {
           return `${timestamp} [${level}]: ${message}`;
-        })
+        }),
       ),
-    })
+    }),
   );
 }
 

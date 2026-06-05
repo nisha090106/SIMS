@@ -52,7 +52,7 @@ export class ProductController {
           total,
           page,
           totalPages: Math.ceil(total / limit),
-        }
+        },
       });
     } catch (error) {
       logger.error(`Get products error: ${error.message}`);
@@ -75,9 +75,9 @@ export class ProductController {
             include: [
               {
                 association: 'warehouse',
-                attributes: ['name']
-              }
-            ]
+                attributes: ['name'],
+              },
+            ],
           },
         ],
       });

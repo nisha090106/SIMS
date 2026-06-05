@@ -10,16 +10,17 @@ const REFRESH_TOKEN_EXPIRE = '30d';
 export class AuthService {
   // Generate JWT token
   static generateToken(user) {
+    const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
     return jwt.sign(
       {
-        user_id: user.user_id,
-        id: user.user_id,
+        user_id: user.id,
+        id: user.id,
         email: user.email,
         role: user.role,
-        full_name: user.full_name,
+        full_name: fullName,
       },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRE }
+      { expiresIn: JWT_EXPIRE },
     );
   }
 
@@ -27,11 +28,11 @@ export class AuthService {
   static generateRefreshToken(user) {
     return jwt.sign(
       {
-        user_id: user.user_id,
-        id: user.user_id,
+        user_id: user.id,
+        id: user.id,
       },
       JWT_SECRET,
-      { expiresIn: REFRESH_TOKEN_EXPIRE }
+      { expiresIn: REFRESH_TOKEN_EXPIRE },
     );
   }
 
@@ -54,6 +55,11 @@ export class AuthService {
         throw new Error('Email already registered');
       }
 
+      // Parse full_name into first_name and last_name
+      const nameParts = full_name.trim().split(/\s+/);
+      const first_name = nameParts[0] || '';
+      const last_name = nameParts.slice(1).join(' ') || '';
+
       // Validate role
       const validRoles = ['admin', 'manager', 'staff'];
       const userRole = validRoles.includes(role) ? role : 'staff';
@@ -62,21 +68,22 @@ export class AuthService {
       const user = await User.create({
         email,
         password,
-        full_name,
-        department,
+        first_name,
+        last_name,
         role: userRole,
         status: 'active',
       });
 
+      const fullName = `${user.first_name} ${user.last_name}`.trim();
       logger.info(`New user registered: ${email} with role ${userRole}`);
 
       return {
         success: true,
         data: {
-          user_id: user.user_id,
-          id: user.user_id,
+          user_id: user.id,
+          id: user.id,
           email: user.email,
-          full_name: user.full_name,
+          full_name: fullName,
           role: user.role,
         },
       };
@@ -107,12 +114,13 @@ export class AuthService {
       }
 
       // Update last login
-      await user.update({ last_login: new Date() });
+      await user.update({ updated_at: new Date() });
 
       // Generate tokens
       const accessToken = this.generateToken(user);
       const refreshToken = this.generateRefreshToken(user);
 
+      const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
       logger.info(`User logged in: ${email}`);
 
       return {
@@ -121,12 +129,11 @@ export class AuthService {
           accessToken,
           refreshToken,
           user: {
-            user_id: user.user_id,
-            id: user.user_id,
+            user_id: user.id,
+            id: user.id,
             email: user.email,
-            full_name: user.full_name,
+            full_name: fullName,
             role: user.role,
-            department: user.department,
           },
         },
       };

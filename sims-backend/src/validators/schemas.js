@@ -88,6 +88,35 @@ export const inventoryValidators = {
   }),
 };
 
+export const supplierValidators = {
+  create: Joi.object({
+    name: Joi.string().max(150).required(),
+    contact_person: Joi.string().max(100).optional(),
+    email: Joi.string().email().optional(),
+    phone: Joi.string().max(20).optional(),
+    address: Joi.string().optional(),
+    payment_terms: Joi.string().max(100).optional(),
+    lead_time: Joi.number().integer().min(0).optional(),
+    rating: Joi.number().min(0).max(5).optional(),
+  }),
+
+  update: Joi.object({
+    name: Joi.string().max(150).optional(),
+    contact_person: Joi.string().max(100).optional(),
+    email: Joi.string().email().optional(),
+    phone: Joi.string().max(20).optional(),
+    address: Joi.string().optional(),
+    payment_terms: Joi.string().max(100).optional(),
+    lead_time: Joi.number().integer().min(0).optional(),
+    rating: Joi.number().min(0).max(5).optional(),
+    status: Joi.string().valid('active', 'inactive', 'blacklisted').optional(),
+  }),
+
+  updateRating: Joi.object({
+    rating: Joi.number().integer().min(1).max(5).required(),
+  }),
+};
+
 // Validation middleware
 export const validate = (schema) => {
   return (req, res, next) => {

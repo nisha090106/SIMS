@@ -80,14 +80,37 @@
   color: #667eea;
 }
 
-/* Hero Section */
 .hero-section {
   background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
-  padding: 40px 0 60px 0;
+  padding: 80px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100vh;
 }
 
 .hero-content {
   animation-delay: 0s;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 700px;
+}
+
+.hero-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.hero-subtitle {
+  text-align: center;
+  margin: 0 auto 2rem auto;
+}
+
+.hero-ctas {
+  justify-content: center;
 }
 
 .hero-visual {
@@ -156,10 +179,28 @@
   width: 60%;
 }
 
-/* Features Section */
 .features-section {
   background: #ffffff;
-  padding: 80px 0;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.features-section h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.features-section p {
+  text-align: center;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .feature-card {
@@ -170,6 +211,9 @@
   transition: all 0.3s ease;
   text-align: center;
   animation-fill-mode: both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .feature-card:hover {
@@ -187,7 +231,7 @@
   border-radius: 12px;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin: 0 auto 16px auto;
 }
 
 .feature-icon svg {
@@ -200,19 +244,40 @@
   font-weight: 600;
   color: #111827;
   margin-bottom: 12px;
+  text-align: center;
 }
 
 .feature-description {
   color: #6b7280;
   font-size: 0.95rem;
   line-height: 1.6;
+  text-align: center;
 }
 
 /* Stats Section */
 .stats-section {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 80px 0;
+  padding: 80px 20px;
   color: white;
+  text-align: center;
+}
+
+.stats-section h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.stats-section p {
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .stat-card {
@@ -223,24 +288,40 @@
   text-align: center;
   backdrop-filter: blur(10px);
   animation-fill-mode: both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .stat-value {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 12px;
+  text-align: center;
 }
 
 .stat-label {
   font-size: 1rem;
   opacity: 0.9;
   font-weight: 500;
+  text-align: center;
 }
 
 /* How It Works Section */
 .how-it-works-section {
   background: white;
-  padding: 80px 0;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .step-card {
@@ -250,6 +331,10 @@
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   animation-fill-mode: both;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .step-number {
@@ -258,6 +343,7 @@
   color: #667eea;
   opacity: 0.2;
   margin-bottom: 16px;
+  text-align: center;
 }
 
 .step-title {
@@ -265,12 +351,14 @@
   font-weight: 600;
   color: #111827;
   margin-bottom: 12px;
+  text-align: center;
 }
 
 .step-description {
   color: #6b7280;
   font-size: 0.95rem;
   line-height: 1.6;
+  text-align: center;
 }
 
 .step-connector {
@@ -291,7 +379,17 @@
 /* Pricing Section */
 .pricing-section {
   background: #f9fafb;
-  padding: 80px 0;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .pricing-card {
@@ -301,6 +399,9 @@
   border: 1px solid #e5e7eb;
   text-align: center;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .pricing-card:hover {
@@ -325,6 +426,7 @@
   font-weight: 600;
   color: #111827;
   margin-bottom: 12px;
+  text-align: center;
 }
 
 .pricing-price {
@@ -332,6 +434,7 @@
   font-weight: 700;
   color: #667eea;
   margin-bottom: 24px;
+  text-align: center;
 }
 
 .pricing-features {
@@ -340,6 +443,7 @@
   border-top: 1px solid #e5e7eb;
   border-bottom: 1px solid #e5e7eb;
   margin-bottom: 24px;
+  width: 100%;
 }
 
 .pricing-feature {
@@ -347,6 +451,7 @@
   font-size: 0.95rem;
   margin-bottom: 12px;
   line-height: 1.6;
+  text-align: center;
 }
 
 .pricing-cta {
@@ -378,6 +483,10 @@
   padding: 80px 40px;
   text-align: center;
   color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
 }
 
 /* Footer */

@@ -157,7 +157,7 @@ const Dashboard = () => {
     },
     {
       title: 'Total Stock Value',
-      value: `$${(dashboardData?.totalStockValue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: `₹${(dashboardData?.totalStockValue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: <AttachMoneyIcon />,
       colorClass: 'green',
       change: '+12.3%',

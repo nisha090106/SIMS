@@ -5,13 +5,13 @@ export default (sequelize) => {
   const User = sequelize.define(
     'User',
     {
-      user_id: {
+      id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
       email: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(255),
         unique: true,
         allowNull: false,
         validate: {
@@ -22,23 +22,19 @@ export default (sequelize) => {
         type: DataTypes.STRING(255),
         allowNull: false,
       },
-      full_name: {
+      first_name: {
         type: DataTypes.STRING(100),
-        allowNull: false,
+      },
+      last_name: {
+        type: DataTypes.STRING(100),
       },
       role: {
-        type: DataTypes.ENUM('admin', 'manager', 'staff'),
+        type: DataTypes.ENUM('admin', 'manager', 'staff', 'user'),
         defaultValue: 'staff',
       },
-      department: {
-        type: DataTypes.STRING(50),
-      },
       status: {
-        type: DataTypes.ENUM('active', 'inactive', 'suspended'),
+        type: DataTypes.ENUM('active', 'inactive'),
         defaultValue: 'active',
-      },
-      last_login: {
-        type: DataTypes.DATE,
       },
     },
     {
@@ -59,7 +55,7 @@ export default (sequelize) => {
           }
         },
       },
-    }
+    },
   );
 
   User.prototype.comparePassword = async function (password) {

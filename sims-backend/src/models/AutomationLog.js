@@ -1,45 +1,46 @@
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
-  const Warehouse = sequelize.define(
-    'Warehouse',
+  const AutomationLog = sequelize.define(
+    'AutomationLog',
     {
-      warehouse_id: {
+      id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      name: {
+      job_name: {
         type: DataTypes.STRING(100),
-        unique: true,
         allowNull: false,
       },
-      location: {
-        type: DataTypes.STRING(50),
+      status: {
+        type: DataTypes.ENUM('success', 'partial', 'failed'),
         allowNull: false,
       },
-      address: {
+      summary: {
         type: DataTypes.TEXT,
-      },
-      capacity: {
-        type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
       },
-      current_usage: {
-        type: DataTypes.DECIMAL(10, 2),
+      records_affected: {
+        type: DataTypes.INTEGER,
         defaultValue: 0,
       },
-      manager_id: {
+      duration_ms: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      ran_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
     },
     {
-      tableName: 'warehouses',
-      timestamps: true,
+      tableName: 'automation_logs',
+      timestamps: false,
       underscored: true,
     },
   );
 
-  return Warehouse;
+  return AutomationLog;
 };

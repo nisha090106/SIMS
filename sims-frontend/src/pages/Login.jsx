@@ -217,7 +217,7 @@ const Login = () => {
                         <button
                           type="button"
                           className="demo-account-badge admin-badge"
-                          onClick={() => handleQuickLogin('admin@sims.com', 'password123')}
+                          onClick={() => handleQuickLogin('admin@sims.com', 'admin123')}
                         >
                           <div className="badge-role">Administrator Account</div>
                           <div className="badge-details">admin@sims.com</div>
@@ -225,10 +225,18 @@ const Login = () => {
                         <button
                           type="button"
                           className="demo-account-badge manager-badge"
-                          onClick={() => handleQuickLogin('manager@sims.com', 'password123')}
+                          onClick={() => handleQuickLogin('manager@sims.com', 'manager123')}
                         >
                           <div className="badge-role">Logistics Manager</div>
                           <div className="badge-details">manager@sims.com</div>
+                        </button>
+                        <button
+                          type="button"
+                          className="demo-account-badge staff-badge"
+                          onClick={() => handleQuickLogin('staff@sims.com', 'staff123')}
+                        >
+                          <div className="badge-role">Staff Account</div>
+                          <div className="badge-details">staff@sims.com</div>
                         </button>
                       </div>
                     </div>

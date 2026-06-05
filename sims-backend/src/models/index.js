@@ -7,6 +7,12 @@ import SupplierModel from './Supplier.js';
 import PurchaseOrderModel from './PurchaseOrder.js';
 import SalesOrderModel from './SalesOrder.js';
 import AuditLogModel from './AuditLog.js';
+import ImportJobModel from './ImportJob.js';
+import ReorderRuleModel from './ReorderRule.js';
+import UserRequestModel from './UserRequest.js';
+import UserRequestItemModel from './UserRequestItem.js';
+import BarcodeScanLogModel from './BarcodeScanLog.js';
+import AutomationLogModel from './AutomationLog.js';
 import config from '../config/database.js';
 
 const env = process.env.NODE_ENV || 'development';
@@ -23,7 +29,7 @@ const sequelize = new Sequelize(
     logging: dbConfig.logging,
     pool: dbConfig.pool,
     dialectOptions: dbConfig.dialectOptions,
-  }
+  },
 );
 
 // Initialize models
@@ -35,6 +41,12 @@ const Supplier = SupplierModel(sequelize);
 const PurchaseOrder = PurchaseOrderModel(sequelize);
 const SalesOrder = SalesOrderModel(sequelize);
 const AuditLog = AuditLogModel(sequelize);
+const ImportJob = ImportJobModel(sequelize);
+const ReorderRule = ReorderRuleModel(sequelize);
+const UserRequest = UserRequestModel(sequelize);
+const UserRequestItem = UserRequestItemModel(sequelize);
+const BarcodeScanLog = BarcodeScanLogModel(sequelize);
+const AutomationLog = AutomationLogModel(sequelize);
 
 // Define Associations
 // User associations
@@ -69,6 +81,32 @@ SalesOrder.belongsTo(User, { foreignKey: 'created_by', as: 'created_by_user' });
 // AuditLog associations
 AuditLog.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
+// ImportJob associations
+ImportJob.belongsTo(User, { foreignKey: 'triggered_by', as: 'triggeredBy' });
+User.hasMany(ImportJob, { foreignKey: 'triggered_by', as: 'import_jobs' });
+
+// ReorderRule associations
+ReorderRule.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+ReorderRule.belongsTo(Warehouse, { foreignKey: 'warehouse_id', as: 'warehouse' });
+ReorderRule.belongsTo(Supplier, { foreignKey: 'preferred_supplier_id', as: 'preferredSupplier' });
+Product.hasOne(ReorderRule, { foreignKey: 'product_id', as: 'reorder_rule' });
+
+// UserRequest associations
+UserRequest.belongsTo(User, { foreignKey: 'requested_by', as: 'requester' });
+UserRequest.belongsTo(User, { foreignKey: 'reviewed_by', as: 'reviewer' });
+UserRequest.hasMany(UserRequestItem, { foreignKey: 'request_id', as: 'items' });
+User.hasMany(UserRequest, { foreignKey: 'requested_by', as: 'requested_items' });
+
+// UserRequestItem associations
+UserRequestItem.belongsTo(UserRequest, { foreignKey: 'request_id', as: 'request' });
+UserRequestItem.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+
+// BarcodeScanLog associations
+BarcodeScanLog.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+BarcodeScanLog.belongsTo(Warehouse, { foreignKey: 'warehouse_id', as: 'warehouse' });
+BarcodeScanLog.belongsTo(User, { foreignKey: 'scanned_by', as: 'scanner' });
+User.hasMany(BarcodeScanLog, { foreignKey: 'scanned_by', as: 'barcode_scans' });
+
 // Export
 export {
   sequelize,
@@ -80,6 +118,12 @@ export {
   PurchaseOrder,
   SalesOrder,
   AuditLog,
+  ImportJob,
+  ReorderRule,
+  UserRequest,
+  UserRequestItem,
+  BarcodeScanLog,
+  AutomationLog,
 };
 
 export default sequelize;

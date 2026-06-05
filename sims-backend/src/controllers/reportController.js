@@ -12,7 +12,7 @@ export class ReportController {
         `SELECT SUM(i.quantity * p.unit_price) as total_value
          FROM inventory i
          JOIN products p ON i.product_id = p.product_id`,
-        { type: sequelize.QueryTypes.SELECT }
+        { type: sequelize.QueryTypes.SELECT },
       );
       const totalStockValue = Number(stockValueResult[0]?.total_value || 0);
 
@@ -22,7 +22,7 @@ export class ReportController {
          FROM inventory i
          JOIN products p ON i.product_id = p.product_id
          WHERE i.quantity <= p.reorder_level`,
-        { type: sequelize.QueryTypes.SELECT }
+        { type: sequelize.QueryTypes.SELECT },
       );
       const lowStockCount = Number(lowStockResult[0]?.count || 0);
 
@@ -37,7 +37,7 @@ export class ReportController {
          FROM warehouses w
          LEFT JOIN inventory i ON w.warehouse_id = i.warehouse_id
          GROUP BY w.warehouse_id, w.name`,
-        { type: sequelize.QueryTypes.SELECT }
+        { type: sequelize.QueryTypes.SELECT },
       );
       const warehouseStockData = warehouseStockResult.map(row => ({
         warehouse: row.warehouse,
@@ -49,7 +49,7 @@ export class ReportController {
         `SELECT category, COUNT(*) as count
          FROM products
          GROUP BY category`,
-        { type: sequelize.QueryTypes.SELECT }
+        { type: sequelize.QueryTypes.SELECT },
       );
       const categoryDistribution = categoryDistributionResult.map(row => ({
         category: row.category,

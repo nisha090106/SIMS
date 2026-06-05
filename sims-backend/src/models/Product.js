@@ -41,12 +41,17 @@ export default (sequelize) => {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
       },
+      barcode: {
+        type: DataTypes.STRING(100),
+        unique: true,
+        allowNull: true,
+      },
     },
     {
       tableName: 'products',
       timestamps: true,
       underscored: true,
-    }
+    },
   );
 
   return Product;
