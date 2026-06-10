@@ -35,8 +35,12 @@ export default (sequelize) => {
         type: DataTypes.DECIMAL(10, 2),
       },
       status: {
-        type: DataTypes.ENUM('available', 'discontinued'),
+        type: DataTypes.ENUM('available', 'discontinued', 'out_of_stock', 'low_stock'),
         defaultValue: 'available',
+      },
+      stock_value: {
+        type: DataTypes.DECIMAL(12, 2),
+        defaultValue: 0.00,
       },
       batch_no: {
         type: DataTypes.STRING(50),

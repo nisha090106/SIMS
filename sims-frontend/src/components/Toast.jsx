@@ -6,15 +6,15 @@ const Toast = () => {
   const { toasts, removeToast } = useContext(ToastContext);
 
   return (
-    <div className="toast-container">
+    <div className='toast-container'>
       {toasts.map((toast) => (
         <div key={toast.id} className={`toast toast-${toast.type}`}>
-          <div className="toast-content">
+          <div className='toast-content'>
             <span>{toast.message}</span>
             <button
-              className="toast-close"
+              className='toast-close'
               onClick={() => removeToast(toast.id)}
-              aria-label="Close"
+              aria-label='Close'
             >
               ✕
             </button>

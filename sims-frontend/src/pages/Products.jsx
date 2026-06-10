@@ -44,16 +44,16 @@ const Products = () => {
     setLoading(true);
     try {
       const res = await api.get('/products', {
-        params: { page, limit: 10, search: debouncedSearch, category: categoryFilter }
+        params: { page, limit: 10, search: debouncedSearch, category: categoryFilter },
       });
       setProducts(res.data.data.products);
       setTotalPages(res.data.data.totalPages);
       setTotalProducts(res.data.data.total);
-      
+
       // Update categories list from all items if needed, or we can just fetch categories distinctively
       // For now, extract from fetched products to populate the dropdown (Note: this is limited to current page, ideally should be a separate endpoint but we'll collect from current fetch)
-      const uniqueCats = [...new Set(res.data.data.products.map(p => p.category))];
-      setCategories(prev => [...new Set([...prev, ...uniqueCats])]);
+      const uniqueCats = [...new Set(res.data.data.products.map((p) => p.category))];
+      setCategories((prev) => [...new Set([...prev, ...uniqueCats])]);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to fetch products');
     } finally {
@@ -120,28 +120,28 @@ const Products = () => {
   };
 
   return (
-    <div className="products-container">
+    <div className='products-container'>
       {/* HEADER */}
-      <div className="products-header">
+      <div className='products-header'>
         <h1>Products</h1>
         {isManagerOrAdmin && (
-          <button className="btn btn-primary" onClick={openAddModal}>
+          <button className='btn btn-primary' onClick={openAddModal}>
             + Add Product
           </button>
         )}
       </div>
 
-      {toastMessage && <div className="toast">{toastMessage}</div>}
-      {error && <div className="alert alert-error">{error}</div>}
+      {toastMessage && <div className='toast'>{toastMessage}</div>}
+      {error && <div className='alert alert-error'>{error}</div>}
 
       {/* TOOLBAR */}
-      <div className="products-toolbar">
+      <div className='products-toolbar'>
         <input
-          type="text"
-          placeholder="Search by SKU or Name..."
+          type='text'
+          placeholder='Search by SKU or Name...'
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="search-input"
+          className='search-input'
         />
         <select
           value={categoryFilter}
@@ -149,21 +149,23 @@ const Products = () => {
             setCategoryFilter(e.target.value);
             setPage(1);
           }}
-          className="category-select"
+          className='category-select'
         >
-          <option value="">All Categories</option>
+          <option value=''>All Categories</option>
           {categories.map((cat, idx) => (
-            <option key={idx} value={cat}>{cat}</option>
+            <option key={idx} value={cat}>
+              {cat}
+            </option>
           ))}
         </select>
-        <span className="results-count">
+        <span className='results-count'>
           Showing {products.length} of {totalProducts} products
         </span>
       </div>
 
       {/* TABLE */}
-      <div className="table-wrapper">
-        <table className="products-table zebra-table">
+      <div className='table-wrapper'>
+        <table className='products-table zebra-table'>
           <thead>
             <tr>
               <th>#</th>
@@ -180,11 +182,15 @@ const Products = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={isManagerOrAdmin ? 9 : 8} className="text-center">Loading...</td>
+                <td colSpan={isManagerOrAdmin ? 9 : 8} className='text-center'>
+                  Loading...
+                </td>
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan={isManagerOrAdmin ? 9 : 8} className="text-center">No products found.</td>
+                <td colSpan={isManagerOrAdmin ? 9 : 8} className='text-center'>
+                  No products found.
+                </td>
               </tr>
             ) : (
               products.map((p, index) => (
@@ -197,15 +203,29 @@ const Products = () => {
                   <td>₹{Number(p.unit_price).toFixed(2)}</td>
                   <td>{p.reorder_level}</td>
                   <td>
-                    <span className={`stock-badge ${p.totalStock <= p.reorder_level ? 'low-stock' : ''}`}>
+                    <span
+                      className={`stock-badge ${p.totalStock <= p.reorder_level ? 'low-stock' : ''}`}
+                    >
                       {p.totalStock}
                     </span>
                   </td>
                   {isManagerOrAdmin && (
-                    <td className="actions-cell">
-                      <button className="icon-btn edit-btn" onClick={(e) => openEditModal(p, e)} title="Edit">✏️</button>
+                    <td className='actions-cell'>
+                      <button
+                        className='icon-btn edit-btn'
+                        onClick={(e) => openEditModal(p, e)}
+                        title='Edit'
+                      >
+                        ✏️
+                      </button>
                       {isAdmin && (
-                        <button className="icon-btn delete-btn" onClick={(e) => handleDeleteClick(p, e)} title="Delete">🗑️</button>
+                        <button
+                          className='icon-btn delete-btn'
+                          onClick={(e) => handleDeleteClick(p, e)}
+                          title='Delete'
+                        >
+                          🗑️
+                        </button>
                       )}
                     </td>
                   )}
@@ -218,26 +238,38 @@ const Products = () => {
 
       {/* PAGINATION */}
       {totalPages > 1 && (
-        <div className="pagination">
-          <button disabled={page === 1} onClick={() => handlePageChange(page - 1)}>Prev</button>
-          <span>Page {page} of {totalPages}</span>
-          <button disabled={page === totalPages} onClick={() => handlePageChange(page + 1)}>Next</button>
+        <div className='pagination'>
+          <button disabled={page === 1} onClick={() => handlePageChange(page - 1)}>
+            Prev
+          </button>
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <button disabled={page === totalPages} onClick={() => handlePageChange(page + 1)}>
+            Next
+          </button>
         </div>
       )}
 
       {/* PRODUCT DETAIL SIDE PANEL */}
       <div className={`side-panel ${selectedProduct ? 'open' : ''}`}>
         {selectedProduct && (
-          <div className="panel-content">
-            <button className="close-btn" onClick={() => setSelectedProduct(null)}>✕</button>
+          <div className='panel-content'>
+            <button className='close-btn' onClick={() => setSelectedProduct(null)}>
+              ✕
+            </button>
             <h2>{selectedProduct.name}</h2>
-            <p className="sku-badge">SKU: {selectedProduct.sku}</p>
-            <p><strong>Category:</strong> {selectedProduct.category}</p>
-            <p><strong>Description:</strong> {selectedProduct.description || 'N/A'}</p>
+            <p className='sku-badge'>SKU: {selectedProduct.sku}</p>
+            <p>
+              <strong>Category:</strong> {selectedProduct.category}
+            </p>
+            <p>
+              <strong>Description:</strong> {selectedProduct.description || 'N/A'}
+            </p>
             <hr />
             <h3>Inventory Breakdown</h3>
             {selectedProduct.inventory?.length > 0 ? (
-              <table className="inventory-table">
+              <table className='inventory-table'>
                 <thead>
                   <tr>
                     <th>Warehouse</th>
@@ -246,7 +278,7 @@ const Products = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedProduct.inventory.map(inv => (
+                  {selectedProduct.inventory.map((inv) => (
                     <tr key={inv.inventory_id}>
                       <td>{inv.warehouse?.name || inv.warehouse_id}</td>
                       <td>{inv.quantity}</td>
@@ -264,14 +296,16 @@ const Products = () => {
 
       {/* ADD/EDIT MODAL */}
       {isModalOpen && (
-        <ProductModal 
-          isOpen={isModalOpen} 
-          onClose={closeModal} 
+        <ProductModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
           editingProduct={editingProduct}
           onSuccess={() => {
             closeModal();
             fetchProducts();
-            showToast(editingProduct ? 'Product updated successfully' : 'Product created successfully');
+            showToast(
+              editingProduct ? 'Product updated successfully' : 'Product created successfully',
+            );
           }}
           categories={categories}
         />
@@ -279,13 +313,19 @@ const Products = () => {
 
       {/* DELETE CONFIRMATION DIALOG */}
       {deleteConfirm && (
-        <div className="modal-backdrop">
-          <div className="confirm-dialog">
+        <div className='modal-backdrop'>
+          <div className='confirm-dialog'>
             <h3>Delete Product</h3>
-            <p>Are you sure you want to delete <strong>{deleteConfirm.name}</strong>?</p>
-            <div className="modal-actions">
-              <button className="btn btn-secondary" onClick={() => setDeleteConfirm(null)}>Cancel</button>
-              <button className="btn btn-danger" onClick={confirmDelete}>Delete</button>
+            <p>
+              Are you sure you want to delete <strong>{deleteConfirm.name}</strong>?
+            </p>
+            <div className='modal-actions'>
+              <button className='btn btn-secondary' onClick={() => setDeleteConfirm(null)}>
+                Cancel
+              </button>
+              <button className='btn btn-danger' onClick={confirmDelete}>
+                Delete
+              </button>
             </div>
           </div>
         </div>
@@ -324,7 +364,7 @@ const ProductModal = ({ isOpen, onClose, editingProduct, onSuccess, categories }
         onSuccess();
       } catch (err) {
         if (err.response?.data?.errors) {
-          err.response.data.errors.forEach(e => setFieldError(e.field, e.message));
+          err.response.data.errors.forEach((e) => setFieldError(e.field, e.message));
         } else {
           setFieldError('sku', err.response?.data?.error || 'Failed to save product');
         }
@@ -337,73 +377,100 @@ const ProductModal = ({ isOpen, onClose, editingProduct, onSuccess, categories }
   if (!isOpen) return null;
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-content">
+    <div className='modal-backdrop'>
+      <div className='modal-content'>
         <h2>{editingProduct ? 'Edit Product' : 'Add Product'}</h2>
         <form onSubmit={formik.handleSubmit}>
-          <div className="form-group">
+          <div className='form-group'>
             <label>SKU*</label>
-            <input 
-              type="text" 
-              name="sku" 
+            <input
+              type='text'
+              name='sku'
               disabled={!!editingProduct}
-              {...formik.getFieldProps('sku')} 
+              {...formik.getFieldProps('sku')}
             />
-            {formik.touched.sku && formik.errors.sku ? <div className="error">{formik.errors.sku}</div> : null}
+            {formik.touched.sku && formik.errors.sku ? (
+              <div className='error'>{formik.errors.sku}</div>
+            ) : null}
           </div>
 
-          <div className="form-group">
+          <div className='form-group'>
             <label>Product Name*</label>
-            <input type="text" name="name" {...formik.getFieldProps('name')} />
-            {formik.touched.name && formik.errors.name ? <div className="error">{formik.errors.name}</div> : null}
+            <input type='text' name='name' {...formik.getFieldProps('name')} />
+            {formik.touched.name && formik.errors.name ? (
+              <div className='error'>{formik.errors.name}</div>
+            ) : null}
           </div>
 
-          <div className="form-group">
+          <div className='form-group'>
             <label>Category*</label>
-            <input 
-              type="text" 
-              name="category" 
-              list="category-options"
-              {...formik.getFieldProps('category')} 
+            <input
+              type='text'
+              name='category'
+              list='category-options'
+              {...formik.getFieldProps('category')}
             />
-            <datalist id="category-options">
-              {categories.map((c, i) => <option key={i} value={c} />)}
+            <datalist id='category-options'>
+              {categories.map((c, i) => (
+                <option key={i} value={c} />
+              ))}
             </datalist>
-            {formik.touched.category && formik.errors.category ? <div className="error">{formik.errors.category}</div> : null}
+            {formik.touched.category && formik.errors.category ? (
+              <div className='error'>{formik.errors.category}</div>
+            ) : null}
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
+          <div className='form-row'>
+            <div className='form-group'>
               <label>Unit Price (₹)*</label>
-              <input type="number" step="0.01" name="unit_price" {...formik.getFieldProps('unit_price')} />
-              {formik.touched.unit_price && formik.errors.unit_price ? <div className="error">{formik.errors.unit_price}</div> : null}
+              <input
+                type='number'
+                step='0.01'
+                name='unit_price'
+                {...formik.getFieldProps('unit_price')}
+              />
+              {formik.touched.unit_price && formik.errors.unit_price ? (
+                <div className='error'>{formik.errors.unit_price}</div>
+              ) : null}
             </div>
-            <div className="form-group">
+            <div className='form-group'>
               <label>Unit</label>
-              <input type="text" name="unit" {...formik.getFieldProps('unit')} />
+              <input type='text' name='unit' {...formik.getFieldProps('unit')} />
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
+          <div className='form-row'>
+            <div className='form-group'>
               <label>Reorder Level*</label>
-              <input type="number" name="reorder_level" {...formik.getFieldProps('reorder_level')} />
-              {formik.touched.reorder_level && formik.errors.reorder_level ? <div className="error">{formik.errors.reorder_level}</div> : null}
+              <input
+                type='number'
+                name='reorder_level'
+                {...formik.getFieldProps('reorder_level')}
+              />
+              {formik.touched.reorder_level && formik.errors.reorder_level ? (
+                <div className='error'>{formik.errors.reorder_level}</div>
+              ) : null}
             </div>
-            <div className="form-group">
+            <div className='form-group'>
               <label>Reorder Qty</label>
-              <input type="number" name="reorder_qty" {...formik.getFieldProps('reorder_qty')} />
+              <input type='number' name='reorder_qty' {...formik.getFieldProps('reorder_qty')} />
             </div>
           </div>
 
-          <div className="form-group">
+          <div className='form-group'>
             <label>Description</label>
-            <textarea name="description" {...formik.getFieldProps('description')} rows="3"></textarea>
+            <textarea
+              name='description'
+              {...formik.getFieldProps('description')}
+              rows='3'
+            ></textarea>
           </div>
 
-          <div className="modal-actions">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>
+          <div className='modal-actions'>
+            <button type='button' className='btn btn-secondary' onClick={onClose}>
+              Cancel
+            </button>
+            <button type='submit' className='btn btn-primary' disabled={formik.isSubmitting}>
               {formik.isSubmitting ? 'Saving...' : 'Save'}
             </button>
           </div>

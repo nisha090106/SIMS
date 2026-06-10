@@ -30,7 +30,7 @@ export class AuthController {
         }).catch((err) => logger.error('Audit log error:', err));
       }
 
-      res.status(201).json({
+      const responseData = {
         message: 'User registered successfully',
         user: {
           id: user.id,
@@ -38,7 +38,16 @@ export class AuthController {
           email: user.email,
           role: user.role,
         },
-      });
+      };
+
+      if (user.role === 'user') {
+        const accessToken = AuthService.generateToken(user);
+        const refreshToken = AuthService.generateRefreshToken(user);
+        responseData.accessToken = accessToken;
+        responseData.refreshToken = refreshToken;
+      }
+
+      res.status(201).json(responseData);
     } catch (error) {
       logger.error(`Register controller error: ${error.message}`);
       res.status(400).json({

@@ -67,7 +67,13 @@ const Inventory = () => {
     setLoading(true);
     try {
       const res = await api.get('/inventory', {
-        params: { page, limit: 10, search: debouncedSearch, warehouse_id: warehouseFilter, status: statusFilter }
+        params: {
+          page,
+          limit: 10,
+          search: debouncedSearch,
+          warehouse_id: warehouseFilter,
+          status: statusFilter,
+        },
       });
       setInventory(res.data.data.inventory);
       setTotalPages(res.data.data.totalPages);
@@ -105,78 +111,86 @@ const Inventory = () => {
   };
 
   return (
-    <div className="inventory-container">
+    <div className='inventory-container'>
       {/* HEADER */}
-      <div className="inventory-header">
+      <div className='inventory-header'>
         <h1>Inventory</h1>
         {isManagerOrAdmin && (
-          <div className="header-actions">
-            <button className="btn btn-secondary" onClick={() => setActiveModal('transfer')}>
+          <div className='header-actions'>
+            <button className='btn btn-secondary' onClick={() => setActiveModal('transfer')}>
               Transfer Stock
             </button>
-            <button className="btn btn-primary" onClick={() => setActiveModal('adjust')}>
+            <button className='btn btn-primary' onClick={() => setActiveModal('adjust')}>
               Adjust Stock
             </button>
           </div>
         )}
       </div>
 
-      {toastMessage && <div className="toast">{toastMessage}</div>}
-      {error && <div className="alert alert-error">{error}</div>}
+      {toastMessage && <div className='toast'>{toastMessage}</div>}
+      {error && <div className='alert alert-error'>{error}</div>}
 
       {/* SUMMARY CARDS */}
-      <div className="summary-cards">
-        <div className="card">
+      <div className='summary-cards'>
+        <div className='card'>
           <h3>Total Stock Value</h3>
-          <p className="card-value">₹{summary?.totalValue?.toFixed(2) || '0.00'}</p>
+          <p className='card-value'>₹{summary?.totalValue?.toFixed(2) || '0.00'}</p>
         </div>
-        <div className="card">
+        <div className='card'>
           <h3>Low Stock Items</h3>
-          <p className="card-value text-warning">{summary?.lowStockCount || 0}</p>
+          <p className='card-value text-warning'>{summary?.lowStockCount || 0}</p>
         </div>
-        <div className="card">
+        <div className='card'>
           <h3>Out of Stock</h3>
-          <p className="card-value text-danger">{summary?.outOfStockCount || 0}</p>
+          <p className='card-value text-danger'>{summary?.outOfStockCount || 0}</p>
         </div>
       </div>
 
       {/* FILTERS TOOLBAR */}
-      <div className="inventory-toolbar">
+      <div className='inventory-toolbar'>
         <input
-          type="text"
-          placeholder="Search by Product Name or SKU..."
+          type='text'
+          placeholder='Search by Product Name or SKU...'
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="search-input"
+          className='search-input'
         />
         <select
           value={warehouseFilter}
-          onChange={(e) => { setWarehouseFilter(e.target.value); setPage(1); }}
-          className="filter-select"
+          onChange={(e) => {
+            setWarehouseFilter(e.target.value);
+            setPage(1);
+          }}
+          className='filter-select'
         >
-          <option value="">All Warehouses</option>
+          <option value=''>All Warehouses</option>
           {warehouses.map((w) => (
-            <option key={w.warehouse_id} value={w.warehouse_id}>{w.name || w.warehouse_name}</option>
+            <option key={w.warehouse_id} value={w.warehouse_id}>
+              {w.name || w.warehouse_name}
+            </option>
           ))}
         </select>
         <select
           value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="filter-select"
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
+          className='filter-select'
         >
-          <option value="">All Statuses</option>
-          <option value="normal">Normal</option>
-          <option value="low">Low Stock</option>
-          <option value="out">Out of Stock</option>
+          <option value=''>All Statuses</option>
+          <option value='normal'>Normal</option>
+          <option value='low'>Low Stock</option>
+          <option value='out'>Out of Stock</option>
         </select>
-        <span className="results-count">
+        <span className='results-count'>
           Showing {inventory.length} of {totalItemsCount} items
         </span>
       </div>
 
       {/* INVENTORY TABLE */}
-      <div className="table-wrapper">
-        <table className="inventory-table zebra-table">
+      <div className='table-wrapper'>
+        <table className='inventory-table zebra-table'>
           <thead>
             <tr>
               <th>SKU</th>
@@ -193,11 +207,15 @@ const Inventory = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={isManagerOrAdmin ? 9 : 8} className="text-center">Loading...</td>
+                <td colSpan={isManagerOrAdmin ? 9 : 8} className='text-center'>
+                  Loading...
+                </td>
               </tr>
             ) : inventory.length === 0 ? (
               <tr>
-                <td colSpan={isManagerOrAdmin ? 9 : 8} className="text-center">No inventory items found.</td>
+                <td colSpan={isManagerOrAdmin ? 9 : 8} className='text-center'>
+                  No inventory items found.
+                </td>
               </tr>
             ) : (
               inventory.map((item) => {
@@ -208,7 +226,9 @@ const Inventory = () => {
                     <td>{item.product_name}</td>
                     <td>{item.category}</td>
                     <td>{item.warehouse_name}</td>
-                    <td><strong>{item.quantity}</strong></td>
+                    <td>
+                      <strong>{item.quantity}</strong>
+                    </td>
                     <td>{item.reorder_level}</td>
                     <td>₹{stockValue.toFixed(2)}</td>
                     <td>
@@ -218,9 +238,12 @@ const Inventory = () => {
                     </td>
                     {isManagerOrAdmin && (
                       <td>
-                        <button 
-                          className="btn btn-sm btn-outline" 
-                          onClick={() => { setSelectedItem(item); setActiveModal('update'); }}
+                        <button
+                          className='btn btn-sm btn-outline'
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setActiveModal('update');
+                          }}
                         >
                           Edit Qty
                         </button>
@@ -236,37 +259,59 @@ const Inventory = () => {
 
       {/* PAGINATION */}
       {totalPages > 1 && (
-        <div className="pagination">
-          <button disabled={page === 1} onClick={() => handlePageChange(page - 1)}>Prev</button>
-          <span>Page {page} of {totalPages}</span>
-          <button disabled={page === totalPages} onClick={() => handlePageChange(page + 1)}>Next</button>
+        <div className='pagination'>
+          <button disabled={page === 1} onClick={() => handlePageChange(page - 1)}>
+            Prev
+          </button>
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <button disabled={page === totalPages} onClick={() => handlePageChange(page + 1)}>
+            Next
+          </button>
         </div>
       )}
 
       {/* MODALS */}
       {activeModal === 'update' && (
-        <UpdateStockModal 
-          isOpen={true} 
-          onClose={() => { setActiveModal(null); setSelectedItem(null); }} 
+        <UpdateStockModal
+          isOpen={true}
+          onClose={() => {
+            setActiveModal(null);
+            setSelectedItem(null);
+          }}
           item={selectedItem}
-          onSuccess={() => { setActiveModal(null); setSelectedItem(null); refreshAll(); showToast('Stock updated successfully'); }}
+          onSuccess={() => {
+            setActiveModal(null);
+            setSelectedItem(null);
+            refreshAll();
+            showToast('Stock updated successfully');
+          }}
         />
       )}
       {activeModal === 'transfer' && (
-        <TransferStockModal 
-          isOpen={true} 
-          onClose={() => setActiveModal(null)} 
+        <TransferStockModal
+          isOpen={true}
+          onClose={() => setActiveModal(null)}
           products={products}
           warehouses={warehouses}
-          onSuccess={() => { setActiveModal(null); refreshAll(); showToast('Stock transferred successfully'); }}
+          onSuccess={() => {
+            setActiveModal(null);
+            refreshAll();
+            showToast('Stock transferred successfully');
+          }}
         />
       )}
       {activeModal === 'adjust' && (
-        <AdjustStockModal 
-          isOpen={true} 
+        <AdjustStockModal
+          isOpen={true}
           onClose={() => setActiveModal(null)}
           inventoryList={inventory} // Using current view's inventory or could fetch all
-          onSuccess={() => { setActiveModal(null); refreshAll(); showToast('Stock adjusted successfully'); }}
+          onSuccess={() => {
+            setActiveModal(null);
+            refreshAll();
+            showToast('Stock adjusted successfully');
+          }}
         />
       )}
     </div>
@@ -297,25 +342,42 @@ const UpdateStockModal = ({ isOpen, onClose, item, onSuccess }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-content">
+    <div className='modal-backdrop'>
+      <div className='modal-content'>
         <h2>Edit Quantity</h2>
-        <p><strong>Product:</strong> {item?.product_name} ({item?.sku})</p>
-        <p><strong>Warehouse:</strong> {item?.warehouse_name}</p>
+        <p>
+          <strong>Product:</strong> {item?.product_name} ({item?.sku})
+        </p>
+        <p>
+          <strong>Warehouse:</strong> {item?.warehouse_name}
+        </p>
         <form onSubmit={formik.handleSubmit}>
-          <div className="form-group">
+          <div className='form-group'>
             <label>New Quantity*</label>
-            <input type="number" name="quantity" {...formik.getFieldProps('quantity')} />
-            {formik.touched.quantity && formik.errors.quantity && <div className="error">{formik.errors.quantity}</div>}
+            <input type='number' name='quantity' {...formik.getFieldProps('quantity')} />
+            {formik.touched.quantity && formik.errors.quantity && (
+              <div className='error'>{formik.errors.quantity}</div>
+            )}
           </div>
-          <div className="form-group">
+          <div className='form-group'>
             <label>Reason*</label>
-            <input type="text" name="reason" placeholder="e.g. Physical count mismatch" {...formik.getFieldProps('reason')} />
-            {formik.touched.reason && formik.errors.reason && <div className="error">{formik.errors.reason}</div>}
+            <input
+              type='text'
+              name='reason'
+              placeholder='e.g. Physical count mismatch'
+              {...formik.getFieldProps('reason')}
+            />
+            {formik.touched.reason && formik.errors.reason && (
+              <div className='error'>{formik.errors.reason}</div>
+            )}
           </div>
-          <div className="modal-actions">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>Save</button>
+          <div className='modal-actions'>
+            <button type='button' className='btn btn-secondary' onClick={onClose}>
+              Cancel
+            </button>
+            <button type='submit' className='btn btn-primary' disabled={formik.isSubmitting}>
+              Save
+            </button>
           </div>
         </form>
       </div>
@@ -325,11 +387,19 @@ const UpdateStockModal = ({ isOpen, onClose, item, onSuccess }) => {
 
 const TransferStockModal = ({ isOpen, onClose, products, warehouses, onSuccess }) => {
   const formik = useFormik({
-    initialValues: { product_id: '', from_warehouse_id: '', to_warehouse_id: '', quantity: '', reason: '' },
+    initialValues: {
+      product_id: '',
+      from_warehouse_id: '',
+      to_warehouse_id: '',
+      quantity: '',
+      reason: '',
+    },
     validationSchema: Yup.object({
       product_id: Yup.number().required('Required'),
       from_warehouse_id: Yup.number().required('Required'),
-      to_warehouse_id: Yup.number().required('Required').notOneOf([Yup.ref('from_warehouse_id')], 'Must be different from source'),
+      to_warehouse_id: Yup.number()
+        .required('Required')
+        .notOneOf([Yup.ref('from_warehouse_id')], 'Must be different from source'),
       quantity: Yup.number().positive('Must be positive').required('Required'),
       reason: Yup.string().required('Required'),
     }),
@@ -348,51 +418,77 @@ const TransferStockModal = ({ isOpen, onClose, products, warehouses, onSuccess }
   if (!isOpen) return null;
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-content">
+    <div className='modal-backdrop'>
+      <div className='modal-content'>
         <h2>Transfer Stock</h2>
         <form onSubmit={formik.handleSubmit}>
-          <div className="form-group">
+          <div className='form-group'>
             <label>Product*</label>
-            <select name="product_id" {...formik.getFieldProps('product_id')}>
-              <option value="">Select Product...</option>
-              {products.map(p => <option key={p.product_id} value={p.product_id}>{p.name} ({p.sku})</option>)}
+            <select name='product_id' {...formik.getFieldProps('product_id')}>
+              <option value=''>Select Product...</option>
+              {products.map((p) => (
+                <option key={p.product_id} value={p.product_id}>
+                  {p.name} ({p.sku})
+                </option>
+              ))}
             </select>
-            {formik.touched.product_id && formik.errors.product_id && <div className="error">{formik.errors.product_id}</div>}
+            {formik.touched.product_id && formik.errors.product_id && (
+              <div className='error'>{formik.errors.product_id}</div>
+            )}
           </div>
-          <div className="form-row">
-            <div className="form-group">
+          <div className='form-row'>
+            <div className='form-group'>
               <label>From Warehouse*</label>
-              <select name="from_warehouse_id" {...formik.getFieldProps('from_warehouse_id')}>
-                <option value="">Select Source...</option>
-                {warehouses.map(w => <option key={w.warehouse_id} value={w.warehouse_id}>{w.name || w.warehouse_name}</option>)}
+              <select name='from_warehouse_id' {...formik.getFieldProps('from_warehouse_id')}>
+                <option value=''>Select Source...</option>
+                {warehouses.map((w) => (
+                  <option key={w.warehouse_id} value={w.warehouse_id}>
+                    {w.name || w.warehouse_name}
+                  </option>
+                ))}
               </select>
-              {formik.touched.from_warehouse_id && formik.errors.from_warehouse_id && <div className="error">{formik.errors.from_warehouse_id}</div>}
+              {formik.touched.from_warehouse_id && formik.errors.from_warehouse_id && (
+                <div className='error'>{formik.errors.from_warehouse_id}</div>
+              )}
             </div>
-            <div className="form-group">
+            <div className='form-group'>
               <label>To Warehouse*</label>
-              <select name="to_warehouse_id" {...formik.getFieldProps('to_warehouse_id')}>
-                <option value="">Select Destination...</option>
-                {warehouses.map(w => <option key={w.warehouse_id} value={w.warehouse_id}>{w.name || w.warehouse_name}</option>)}
+              <select name='to_warehouse_id' {...formik.getFieldProps('to_warehouse_id')}>
+                <option value=''>Select Destination...</option>
+                {warehouses.map((w) => (
+                  <option key={w.warehouse_id} value={w.warehouse_id}>
+                    {w.name || w.warehouse_name}
+                  </option>
+                ))}
               </select>
-              {formik.touched.to_warehouse_id && formik.errors.to_warehouse_id && <div className="error">{formik.errors.to_warehouse_id}</div>}
+              {formik.touched.to_warehouse_id && formik.errors.to_warehouse_id && (
+                <div className='error'>{formik.errors.to_warehouse_id}</div>
+              )}
             </div>
           </div>
-          <div className="form-row">
-            <div className="form-group">
+          <div className='form-row'>
+            <div className='form-group'>
               <label>Quantity*</label>
-              <input type="number" name="quantity" {...formik.getFieldProps('quantity')} />
-              {formik.touched.quantity && formik.errors.quantity && <div className="error">{formik.errors.quantity}</div>}
+              <input type='number' name='quantity' {...formik.getFieldProps('quantity')} />
+              {formik.touched.quantity && formik.errors.quantity && (
+                <div className='error'>{formik.errors.quantity}</div>
+              )}
             </div>
-            <div className="form-group">
+            <div className='form-group'>
               <label>Reason*</label>
-              <input type="text" name="reason" {...formik.getFieldProps('reason')} />
-              {formik.touched.reason && formik.errors.reason && <div className="error">{formik.errors.reason}</div>}
+              <input type='text' name='reason' {...formik.getFieldProps('reason')} />
+              {formik.touched.reason && formik.errors.reason && (
+                <div className='error'>{formik.errors.reason}</div>
+              )}
             </div>
           </div>
-          <div className="modal-actions">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>Transfer</button>
+          <div className='modal-actions'>
+            <button type='button' className='btn btn-secondary' onClick={onClose}>
+              Cancel
+            </button>
+            <button type='submit' className='btn btn-primary' disabled={formik.isSubmitting}>
+              Transfer
+            </button>
           </div>
         </form>
       </div>
@@ -406,7 +502,9 @@ const AdjustStockModal = ({ isOpen, onClose, inventoryList, onSuccess }) => {
     validationSchema: Yup.object({
       inventory_id: Yup.number().required('Required'),
       adjustment_type: Yup.string().oneOf(['damage', 'return', 'correction']).required('Required'),
-      quantity: Yup.number().required('Required').test('is-not-zero', 'Quantity cannot be zero', val => val !== 0),
+      quantity: Yup.number()
+        .required('Required')
+        .test('is-not-zero', 'Quantity cannot be zero', (val) => val !== 0),
       reason: Yup.string().required('Required'),
     }),
     onSubmit: async (values, { setSubmitting, setFieldError }) => {
@@ -424,45 +522,55 @@ const AdjustStockModal = ({ isOpen, onClose, inventoryList, onSuccess }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-content">
+    <div className='modal-backdrop'>
+      <div className='modal-content'>
         <h2>Adjust Stock</h2>
         <form onSubmit={formik.handleSubmit}>
-          <div className="form-group">
+          <div className='form-group'>
             <label>Inventory Item*</label>
-            <select name="inventory_id" {...formik.getFieldProps('inventory_id')}>
-              <option value="">Select Item to Adjust...</option>
-              {inventoryList.map(inv => (
+            <select name='inventory_id' {...formik.getFieldProps('inventory_id')}>
+              <option value=''>Select Item to Adjust...</option>
+              {inventoryList.map((inv) => (
                 <option key={inv.id} value={inv.id}>
                   {inv.product_name} ({inv.sku}) in {inv.warehouse_name} (Qty: {inv.quantity})
                 </option>
               ))}
             </select>
-            {formik.touched.inventory_id && formik.errors.inventory_id && <div className="error">{formik.errors.inventory_id}</div>}
+            {formik.touched.inventory_id && formik.errors.inventory_id && (
+              <div className='error'>{formik.errors.inventory_id}</div>
+            )}
           </div>
-          <div className="form-row">
-            <div className="form-group">
+          <div className='form-row'>
+            <div className='form-group'>
               <label>Adjustment Type*</label>
-              <select name="adjustment_type" {...formik.getFieldProps('adjustment_type')}>
-                <option value="damage">Damage (Subtract)</option>
-                <option value="return">Return (Add)</option>
-                <option value="correction">Correction</option>
+              <select name='adjustment_type' {...formik.getFieldProps('adjustment_type')}>
+                <option value='damage'>Damage (Subtract)</option>
+                <option value='return'>Return (Add)</option>
+                <option value='correction'>Correction</option>
               </select>
             </div>
-            <div className="form-group">
+            <div className='form-group'>
               <label>Quantity* (Amount to change by)</label>
-              <input type="number" name="quantity" {...formik.getFieldProps('quantity')} />
-              {formik.touched.quantity && formik.errors.quantity && <div className="error">{formik.errors.quantity}</div>}
+              <input type='number' name='quantity' {...formik.getFieldProps('quantity')} />
+              {formik.touched.quantity && formik.errors.quantity && (
+                <div className='error'>{formik.errors.quantity}</div>
+              )}
             </div>
           </div>
-          <div className="form-group">
+          <div className='form-group'>
             <label>Reason*</label>
-            <input type="text" name="reason" {...formik.getFieldProps('reason')} />
-            {formik.touched.reason && formik.errors.reason && <div className="error">{formik.errors.reason}</div>}
+            <input type='text' name='reason' {...formik.getFieldProps('reason')} />
+            {formik.touched.reason && formik.errors.reason && (
+              <div className='error'>{formik.errors.reason}</div>
+            )}
           </div>
-          <div className="modal-actions">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={formik.isSubmitting}>Apply Adjustment</button>
+          <div className='modal-actions'>
+            <button type='button' className='btn btn-secondary' onClick={onClose}>
+              Cancel
+            </button>
+            <button type='submit' className='btn btn-primary' disabled={formik.isSubmitting}>
+              Apply Adjustment
+            </button>
           </div>
         </form>
       </div>

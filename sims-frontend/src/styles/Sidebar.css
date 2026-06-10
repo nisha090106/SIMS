@@ -181,3 +181,32 @@
     transform: translateX(0);
   }
 }
+
+/* Sidebar pending badges */
+.nav-icon {
+  position: relative;
+}
+
+.nav-icon-badge-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  border: 1.5px solid #0f172a;
+}
+
+.nav-label-badge {
+  background-color: #ef4444;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  margin-left: auto;
+  min-width: 14px;
+  text-align: center;
+  line-height: 1;
+}

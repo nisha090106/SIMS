@@ -19,9 +19,9 @@ const MainLayout = ({ children }) => {
   return (
     <div className={`main-layout ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
       <Sidebar isCollapsed={isCollapsed} toggleCollapse={toggleCollapse} />
-      <div className="main-content">
+      <div className='main-content'>
         <Topbar isCollapsed={isCollapsed} toggleCollapse={toggleCollapse} />
-        <div className="content-area">{children}</div>
+        <div className='content-area'>{children}</div>
       </div>
     </div>
   );

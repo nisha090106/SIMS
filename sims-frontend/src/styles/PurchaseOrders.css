@@ -109,7 +109,9 @@
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition:
+    background 0.2s,
+    transform 0.1s;
   font-size: 0.95rem;
 }
 
@@ -459,7 +461,9 @@
   border-radius: 6px;
   font-size: 0.95rem;
   font-family: inherit;
-  transition: border 0.2s, box-shadow 0.2s;
+  transition:
+    border 0.2s,
+    box-shadow 0.2s;
 }
 
 .form-input:focus,

@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { ToastProvider } from './context/ToastContext';
 import Toast from './components/Toast';
 import MainLayout from './layouts/MainLayout';
+import UserLayout from './layouts/UserLayout';
 
 // Pages
 import Landing from './pages/Landing';
@@ -22,6 +23,12 @@ import PurchaseOrders from './pages/PurchaseOrders';
 import SalesOrders from './pages/SalesOrders';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import UserDashboard from './pages/user/UserDashboard';
+import Catalog from './pages/user/Catalog';
+import MyRequests from './pages/user/MyRequests';
+import RequestsManagement from './pages/RequestsManagement';
+import ImportCenter from './pages/ImportCenter';
+import AutomationDashboard from './pages/AutomationDashboard';
 
 import './App.css';
 
@@ -36,15 +43,49 @@ const AppContent = () => {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path='/' element={<LandingPage />} />
+      <Route path='/login' element={<Login />} />
+      <Route path='/register' element={<Register />} />
 
-      {/* Protected Routes */}
+      {/* User Requester Dashboard */}
       <Route
-        path="/dashboard"
+        path='/user-dashboard'
         element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={['user', 'staff']}>
+            <UserLayout>
+              <UserDashboard />
+            </UserLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path='/user/catalog'
+        element={
+          <ProtectedRoute roles={['user', 'staff']}>
+            <UserLayout>
+              <Catalog />
+            </UserLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path='/user/my-requests'
+        element={
+          <ProtectedRoute roles={['user', 'staff']}>
+            <UserLayout>
+              <MyRequests />
+            </UserLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Protected Admin/Manager/Staff Routes */}
+      <Route
+        path='/dashboard'
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
             <MainLayout>
               <Dashboard />
             </MainLayout>
@@ -52,9 +93,39 @@ const AppContent = () => {
         }
       />
       <Route
-        path="/products"
+        path='/requests'
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['admin', 'manager']}>
+            <MainLayout>
+              <RequestsManagement />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path='/import-center'
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'manager']}>
+            <MainLayout>
+              <ImportCenter />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path='/automation'
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'manager']}>
+            <MainLayout>
+              <AutomationDashboard />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path='/products'
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
             <MainLayout>
               <Products />
             </MainLayout>
@@ -62,9 +133,9 @@ const AppContent = () => {
         }
       />
       <Route
-        path="/inventory"
+        path='/inventory'
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
             <MainLayout>
               <Inventory />
             </MainLayout>
@@ -72,9 +143,9 @@ const AppContent = () => {
         }
       />
       <Route
-        path="/warehouses"
+        path='/warehouses'
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
             <MainLayout>
               <Warehouses />
             </MainLayout>
@@ -82,9 +153,9 @@ const AppContent = () => {
         }
       />
       <Route
-        path="/suppliers"
+        path='/suppliers'
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
             <MainLayout>
               <Suppliers />
             </MainLayout>
@@ -92,9 +163,9 @@ const AppContent = () => {
         }
       />
       <Route
-        path="/purchase-orders"
+        path='/purchase-orders'
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
             <MainLayout>
               <PurchaseOrders />
             </MainLayout>
@@ -102,9 +173,9 @@ const AppContent = () => {
         }
       />
       <Route
-        path="/sales-orders"
+        path='/sales-orders'
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
             <MainLayout>
               <SalesOrders />
             </MainLayout>
@@ -112,9 +183,9 @@ const AppContent = () => {
         }
       />
       <Route
-        path="/reports"
+        path='/reports'
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
             <MainLayout>
               <Reports />
             </MainLayout>
@@ -122,9 +193,9 @@ const AppContent = () => {
         }
       />
       <Route
-        path="/settings"
+        path='/settings'
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
             <MainLayout>
               <Settings />
             </MainLayout>
@@ -133,8 +204,8 @@ const AppContent = () => {
       />
 
       {/* Default redirect */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path='/' element={<Navigate to='/dashboard' replace />} />
+      <Route path='*' element={<Navigate to='/dashboard' replace />} />
     </Routes>
   );
 };

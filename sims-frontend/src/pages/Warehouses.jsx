@@ -64,11 +64,19 @@ const Warehouses = () => {
 
   // Validation schema
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required('Warehouse name is required').min(2, 'Name must be at least 2 characters'),
-    location: Yup.string().required('Location is required').min(2, 'Location must be at least 2 characters'),
+    name: Yup.string()
+      .required('Warehouse name is required')
+      .min(2, 'Name must be at least 2 characters'),
+    location: Yup.string()
+      .required('Location is required')
+      .min(2, 'Location must be at least 2 characters'),
     address: Yup.string().min(5, 'Address must be at least 5 characters'),
-    capacity: Yup.number().required('Capacity is required').positive('Capacity must be greater than 0'),
-    manager_id: Yup.number().required('Manager is required').positive('Please select a valid manager'),
+    capacity: Yup.number()
+      .required('Capacity is required')
+      .positive('Capacity must be greater than 0'),
+    manager_id: Yup.number()
+      .required('Manager is required')
+      .positive('Please select a valid manager'),
   });
 
   // Formik for add/edit warehouse
@@ -159,20 +167,20 @@ const Warehouses = () => {
   };
 
   if (loading && warehouses.length === 0) {
-    return <div className="loading">Loading warehouses...</div>;
+    return <div className='loading'>Loading warehouses...</div>;
   }
 
   return (
-    <div className="warehouses-container">
+    <div className='warehouses-container'>
       {/* Toast Notification */}
       {toastMessage && <Toast message={toastMessage} type={toastType} />}
 
       {/* Header */}
-      <div className="warehouses-header">
+      <div className='warehouses-header'>
         <h1>Warehouses</h1>
         {isAdmin && (
           <button
-            className="btn-primary"
+            className='btn-primary'
             onClick={() => {
               setSelectedWarehouse(null);
               formik.resetForm();
@@ -185,31 +193,31 @@ const Warehouses = () => {
       </div>
 
       {/* Warehouses Grid */}
-      <div className="warehouses-grid">
+      <div className='warehouses-grid'>
         {warehouses.length === 0 ? (
-          <div className="empty-state">
+          <div className='empty-state'>
             <p>No warehouses found</p>
           </div>
         ) : (
           warehouses.map((warehouse) => (
-            <div key={warehouse.warehouse_id} className="warehouse-card">
+            <div key={warehouse.warehouse_id} className='warehouse-card'>
               {/* Card Header */}
-              <div className="card-header">
+              <div className='card-header'>
                 <h3>{warehouse.name}</h3>
-                <span className="location-badge">{warehouse.location}</span>
+                <span className='location-badge'>{warehouse.location}</span>
               </div>
 
               {/* Capacity Bar */}
-              <div className="capacity-section">
-                <div className="capacity-info">
-                  <span className="capacity-label">Capacity Utilization</span>
-                  <span className="capacity-percent">
+              <div className='capacity-section'>
+                <div className='capacity-info'>
+                  <span className='capacity-label'>Capacity Utilization</span>
+                  <span className='capacity-percent'>
                     {warehouse.utilization_percent?.toFixed(1) || 0}%
                   </span>
                 </div>
-                <div className="capacity-bar-container">
+                <div className='capacity-bar-container'>
                   <div
-                    className="capacity-bar"
+                    className='capacity-bar'
                     style={{
                       width: `${Math.min(warehouse.utilization_percent || 0, 100)}%`,
                       backgroundColor: getUtilizationColor(warehouse.utilization_percent || 0),
@@ -219,45 +227,42 @@ const Warehouses = () => {
               </div>
 
               {/* Stats */}
-              <div className="stats">
-                <div className="stat-item">
-                  <span className="stat-label">Total Capacity</span>
-                  <span className="stat-value">{Math.round(warehouse.capacity)} units</span>
+              <div className='stats'>
+                <div className='stat-item'>
+                  <span className='stat-label'>Total Capacity</span>
+                  <span className='stat-value'>{Math.round(warehouse.capacity)} units</span>
                 </div>
-                <div className="stat-item">
-                  <span className="stat-label">Available Space</span>
-                  <span className="stat-value">
+                <div className='stat-item'>
+                  <span className='stat-label'>Available Space</span>
+                  <span className='stat-value'>
                     {Math.round(warehouse.capacity - warehouse.current_usage)} units
                   </span>
                 </div>
-                <div className="stat-item">
-                  <span className="stat-label">Manager</span>
-                  <span className="stat-value">{warehouse.manager_name || 'Unassigned'}</span>
+                <div className='stat-item'>
+                  <span className='stat-label'>Manager</span>
+                  <span className='stat-value'>{warehouse.manager_name || 'Unassigned'}</span>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="card-actions">
-                <button
-                  className="btn-view"
-                  onClick={() => handleViewDetails(warehouse)}
-                >
+              <div className='card-actions'>
+                <button className='btn-view' onClick={() => handleViewDetails(warehouse)}>
                   View Details
                 </button>
                 {isManagerOrAdmin && (
-                  <div className="action-icons">
+                  <div className='action-icons'>
                     <button
-                      className="icon-btn edit"
+                      className='icon-btn edit'
                       onClick={() => handleEditWarehouse(warehouse)}
-                      title="Edit"
+                      title='Edit'
                     >
                       ✏️
                     </button>
                     {isAdmin && (
                       <button
-                        className="icon-btn delete"
+                        className='icon-btn delete'
                         onClick={() => setDeleteConfirm(warehouse)}
-                        title="Delete"
+                        title='Delete'
                       >
                         🗑️
                       </button>
@@ -272,24 +277,26 @@ const Warehouses = () => {
 
       {/* Detail Modal */}
       {isDetailModalOpen && detailData && (
-        <div className="modal-overlay" onClick={handleCloseDetailModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
+        <div className='modal-overlay' onClick={handleCloseDetailModal}>
+          <div className='modal-content' onClick={(e) => e.stopPropagation()}>
+            <div className='modal-header'>
               <h2>{detailData.name}</h2>
-              <button className="close-btn" onClick={handleCloseDetailModal}>✕</button>
+              <button className='close-btn' onClick={handleCloseDetailModal}>
+                ✕
+              </button>
             </div>
 
-            <div className="modal-body">
+            <div className='modal-body'>
               {/* Radial Chart */}
-              <div className="detail-section">
+              <div className='detail-section'>
                 <h4>Utilization Gauge</h4>
-                <div className="gauge-container">
-                  <ResponsiveContainer width="100%" height={300}>
+                <div className='gauge-container'>
+                  <ResponsiveContainer width='100%' height={300}>
                     <RadialBarChart
-                      cx="50%"
-                      cy="50%"
-                      innerRadius="60%"
-                      outerRadius="90%"
+                      cx='50%'
+                      cy='50%'
+                      innerRadius='60%'
+                      outerRadius='90%'
                       data={[
                         {
                           name: 'Utilization',
@@ -301,16 +308,19 @@ const Warehouses = () => {
                       endAngle={0}
                     >
                       <PolarAngleAxis
-                        type="number"
+                        type='number'
                         domain={[0, 100]}
                         angleAxisId={0}
                         tick={false}
                       />
                       <RadialBar
                         background
-                        dataKey="value"
+                        dataKey='value'
                         cornerRadius={10}
-                        label={{ position: 'center', value: `${(detailData.utilization_percent || 0).toFixed(1)}%` }}
+                        label={{
+                          position: 'center',
+                          value: `${(detailData.utilization_percent || 0).toFixed(1)}%`,
+                        }}
                       />
                     </RadialBarChart>
                   </ResponsiveContainer>
@@ -318,41 +328,43 @@ const Warehouses = () => {
               </div>
 
               {/* Warehouse Info */}
-              <div className="detail-section">
+              <div className='detail-section'>
                 <h4>Warehouse Information</h4>
-                <div className="info-grid">
-                  <div className="info-item">
-                    <span className="label">Location:</span>
-                    <span className="value">{detailData.location}</span>
+                <div className='info-grid'>
+                  <div className='info-item'>
+                    <span className='label'>Location:</span>
+                    <span className='value'>{detailData.location}</span>
                   </div>
-                  <div className="info-item">
-                    <span className="label">Address:</span>
-                    <span className="value">{detailData.address || '-'}</span>
+                  <div className='info-item'>
+                    <span className='label'>Address:</span>
+                    <span className='value'>{detailData.address || '-'}</span>
                   </div>
-                  <div className="info-item">
-                    <span className="label">Manager:</span>
-                    <span className="value">{detailData.manager_name || 'Unassigned'}</span>
+                  <div className='info-item'>
+                    <span className='label'>Manager:</span>
+                    <span className='value'>{detailData.manager_name || 'Unassigned'}</span>
                   </div>
-                  <div className="info-item">
-                    <span className="label">Total Capacity:</span>
-                    <span className="value">{Math.round(detailData.capacity)} units</span>
+                  <div className='info-item'>
+                    <span className='label'>Total Capacity:</span>
+                    <span className='value'>{Math.round(detailData.capacity)} units</span>
                   </div>
-                  <div className="info-item">
-                    <span className="label">Current Usage:</span>
-                    <span className="value">{Math.round(detailData.current_usage)} units</span>
+                  <div className='info-item'>
+                    <span className='label'>Current Usage:</span>
+                    <span className='value'>{Math.round(detailData.current_usage)} units</span>
                   </div>
-                  <div className="info-item">
-                    <span className="label">Available Space:</span>
-                    <span className="value">{Math.round(detailData.capacity - detailData.current_usage)} units</span>
+                  <div className='info-item'>
+                    <span className='label'>Available Space:</span>
+                    <span className='value'>
+                      {Math.round(detailData.capacity - detailData.current_usage)} units
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Top Products */}
               {detailData.top_products && detailData.top_products.length > 0 && (
-                <div className="detail-section">
+                <div className='detail-section'>
                   <h4>Top Products</h4>
-                  <table className="products-table">
+                  <table className='products-table'>
                     <thead>
                       <tr>
                         <th>Product Name</th>
@@ -382,17 +394,17 @@ const Warehouses = () => {
       {/* Add/Edit Modal */}
       {(isAddModalOpen || isEditModalOpen) && (
         <div
-          className="modal-overlay"
+          className='modal-overlay'
           onClick={() => {
             if (isEditModalOpen) handleCloseEditModal();
             else handleCloseAddModal();
           }}
         >
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
+          <div className='modal-content' onClick={(e) => e.stopPropagation()}>
+            <div className='modal-header'>
               <h2>{isEditModalOpen ? 'Edit Warehouse' : 'Add New Warehouse'}</h2>
               <button
-                className="close-btn"
+                className='close-btn'
                 onClick={() => {
                   if (isEditModalOpen) handleCloseEditModal();
                   else handleCloseAddModal();
@@ -402,88 +414,94 @@ const Warehouses = () => {
               </button>
             </div>
 
-            <form onSubmit={formik.handleSubmit} className="modal-form">
-              <div className="form-group">
-                <label htmlFor="name">Warehouse Name *</label>
+            <form onSubmit={formik.handleSubmit} className='modal-form'>
+              <div className='form-group'>
+                <label htmlFor='name'>Warehouse Name *</label>
                 <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  placeholder="Enter warehouse name"
+                  type='text'
+                  id='name'
+                  name='name'
+                  placeholder='Enter warehouse name'
                   value={formik.values.name}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   className={formik.touched.name && formik.errors.name ? 'input-error' : ''}
                 />
                 {formik.touched.name && formik.errors.name && (
-                  <span className="error-text">{formik.errors.name}</span>
+                  <span className='error-text'>{formik.errors.name}</span>
                 )}
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="location">Location *</label>
+              <div className='form-row'>
+                <div className='form-group'>
+                  <label htmlFor='location'>Location *</label>
                   <input
-                    type="text"
-                    id="location"
-                    name="location"
-                    placeholder="e.g., New York"
+                    type='text'
+                    id='location'
+                    name='location'
+                    placeholder='e.g., New York'
                     value={formik.values.location}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    className={formik.touched.location && formik.errors.location ? 'input-error' : ''}
+                    className={
+                      formik.touched.location && formik.errors.location ? 'input-error' : ''
+                    }
                   />
                   {formik.touched.location && formik.errors.location && (
-                    <span className="error-text">{formik.errors.location}</span>
+                    <span className='error-text'>{formik.errors.location}</span>
                   )}
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="capacity">Capacity (units) *</label>
+                <div className='form-group'>
+                  <label htmlFor='capacity'>Capacity (units) *</label>
                   <input
-                    type="number"
-                    id="capacity"
-                    name="capacity"
-                    placeholder="e.g., 10000"
+                    type='number'
+                    id='capacity'
+                    name='capacity'
+                    placeholder='e.g., 10000'
                     value={formik.values.capacity}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    className={formik.touched.capacity && formik.errors.capacity ? 'input-error' : ''}
+                    className={
+                      formik.touched.capacity && formik.errors.capacity ? 'input-error' : ''
+                    }
                   />
                   {formik.touched.capacity && formik.errors.capacity && (
-                    <span className="error-text">{formik.errors.capacity}</span>
+                    <span className='error-text'>{formik.errors.capacity}</span>
                   )}
                 </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="address">Full Address</label>
+              <div className='form-group'>
+                <label htmlFor='address'>Full Address</label>
                 <textarea
-                  id="address"
-                  name="address"
-                  placeholder="Enter full warehouse address"
+                  id='address'
+                  name='address'
+                  placeholder='Enter full warehouse address'
                   value={formik.values.address}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  rows="3"
+                  rows='3'
                   className={formik.touched.address && formik.errors.address ? 'input-error' : ''}
                 />
                 {formik.touched.address && formik.errors.address && (
-                  <span className="error-text">{formik.errors.address}</span>
+                  <span className='error-text'>{formik.errors.address}</span>
                 )}
               </div>
 
-              <div className="form-group">
-                <label htmlFor="manager_id">Manager *</label>
+              <div className='form-group'>
+                <label htmlFor='manager_id'>Manager *</label>
                 <select
-                  id="manager_id"
-                  name="manager_id"
+                  id='manager_id'
+                  name='manager_id'
                   value={formik.values.manager_id}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className={formik.touched.manager_id && formik.errors.manager_id ? 'input-error' : ''}
+                  className={
+                    formik.touched.manager_id && formik.errors.manager_id ? 'input-error' : ''
+                  }
                 >
-                  <option value="">Select a manager</option>
+                  <option value=''>Select a manager</option>
                   {managers.map((manager) => (
                     <option key={manager.user_id} value={manager.user_id}>
                       {manager.full_name} ({manager.role})
@@ -491,14 +509,14 @@ const Warehouses = () => {
                   ))}
                 </select>
                 {formik.touched.manager_id && formik.errors.manager_id && (
-                  <span className="error-text">{formik.errors.manager_id}</span>
+                  <span className='error-text'>{formik.errors.manager_id}</span>
                 )}
               </div>
 
-              <div className="form-actions">
+              <div className='form-actions'>
                 <button
-                  type="button"
-                  className="btn-secondary"
+                  type='button'
+                  className='btn-secondary'
                   onClick={() => {
                     if (isEditModalOpen) handleCloseEditModal();
                     else handleCloseAddModal();
@@ -506,7 +524,7 @@ const Warehouses = () => {
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary" disabled={formik.isSubmitting}>
+                <button type='submit' className='btn-primary' disabled={formik.isSubmitting}>
                   {isEditModalOpen ? 'Update Warehouse' : 'Create Warehouse'}
                 </button>
               </div>
@@ -517,30 +535,34 @@ const Warehouses = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="modal-overlay" onClick={() => setDeleteConfirm(null)}>
-          <div className="modal-content small" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
+        <div className='modal-overlay' onClick={() => setDeleteConfirm(null)}>
+          <div className='modal-content small' onClick={(e) => e.stopPropagation()}>
+            <div className='modal-header'>
               <h3>Delete Warehouse?</h3>
-              <button className="close-btn" onClick={() => setDeleteConfirm(null)}>✕</button>
+              <button className='close-btn' onClick={() => setDeleteConfirm(null)}>
+                ✕
+              </button>
             </div>
 
-            <div className="modal-body">
+            <div className='modal-body'>
               {deleteConfirm.current_usage > 0 ? (
-                <div className="warning-message">
+                <div className='warning-message'>
                   ⚠️ This warehouse contains stock. Please transfer all items before deleting.
                 </div>
               ) : (
-                <p>Are you sure you want to delete <strong>{deleteConfirm.name}</strong>?</p>
+                <p>
+                  Are you sure you want to delete <strong>{deleteConfirm.name}</strong>?
+                </p>
               )}
             </div>
 
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setDeleteConfirm(null)}>
+            <div className='modal-footer'>
+              <button className='btn-secondary' onClick={() => setDeleteConfirm(null)}>
                 Cancel
               </button>
               {deleteConfirm.current_usage === 0 && (
                 <button
-                  className="btn-danger"
+                  className='btn-danger'
                   onClick={() => handleDeleteWarehouse(deleteConfirm.warehouse_id)}
                 >
                   Delete Warehouse

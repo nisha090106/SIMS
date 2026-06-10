@@ -74,53 +74,65 @@ const Topbar = () => {
   };
 
   return (
-    <header className="topbar">
-      <div className="topbar-content">
+    <header className='topbar'>
+      <div className='topbar-content'>
         {/* Page Title */}
-        <div className="topbar-left">
-          <h1 className="page-title">{getPageTitle()}</h1>
+        <div className='topbar-left'>
+          <h1 className='page-title'>{getPageTitle()}</h1>
         </div>
 
         {/* Actions Menu */}
-        <div className="topbar-right">
+        <div className='topbar-right'>
           {/* Search Bar (UI Placeholder) */}
-          <div className="topbar-search">
-            <SearchIcon className="search-icon" />
-            <input type="text" placeholder="Search products, orders, activity..." disabled />
+          <div className='topbar-search'>
+            <SearchIcon className='search-icon' />
+            <input type='text' placeholder='Search products, orders, activity...' disabled />
           </div>
 
           {/* Notification Bell */}
-          <div className="notification-bell">
-            <button className="icon-button" title="Notifications">
+          <div className='notification-bell'>
+            <button className='icon-button' title='Notifications'>
               <NotificationsIcon />
-              <span className="bell-badge">3</span>
+              <span className='bell-badge'>3</span>
             </button>
           </div>
 
           {/* User Menu */}
-          <div className="user-menu">
-            <button className="user-button" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-              <div className="user-avatar">{getInitials(fullName)}</div>
-              <div className="user-text-info">
-                <span className="user-name">{fullName}</span>
-                <span className="user-role">{role}</span>
+          <div className='user-menu'>
+            <button className='user-button' onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+              <div className='user-avatar'>{getInitials(fullName)}</div>
+              <div className='user-text-info'>
+                <span className='user-name'>{fullName}</span>
+                <span className='user-role'>{role}</span>
               </div>
               <span className={`dropdown-chevron ${isDropdownOpen ? 'open' : ''}`}>▼</span>
             </button>
 
             {isDropdownOpen && (
-              <div className="dropdown-menu">
-                <button className="dropdown-item" onClick={() => { setIsDropdownOpen(false); navigate('/settings'); }}>
-                  <PersonIcon className="dropdown-item-icon" />
+              <div className='dropdown-menu'>
+                <button
+                  className='dropdown-item'
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    navigate('/settings');
+                  }}
+                >
+                  <PersonIcon className='dropdown-item-icon' />
                   Profile Details
                 </button>
-                <button className="dropdown-item" onClick={() => { setIsDropdownOpen(false); navigate('/settings'); }}>
-                  <SettingsIcon className="dropdown-item-icon" />
+                <button
+                  className='dropdown-item'
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    navigate('/settings');
+                  }}
+                >
+                  <SettingsIcon className='dropdown-item-icon' />
                   System Settings
                 </button>
-                <div className="dropdown-divider"></div>
-                <button className="dropdown-item logout" onClick={handleLogout}>
-                  <LogoutIcon className="dropdown-item-icon" />
+                <div className='dropdown-divider'></div>
+                <button className='dropdown-item logout' onClick={handleLogout}>
+                  <LogoutIcon className='dropdown-item-icon' />
                   Sign Out
                 </button>
               </div>

@@ -37,6 +37,18 @@ export default (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      auto_drafted: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      items: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      notes: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
     },
     {
       tableName: 'purchase_orders',

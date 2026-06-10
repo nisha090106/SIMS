@@ -21,7 +21,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor: Handle errors
@@ -36,7 +36,7 @@ api.interceptors.response.use(
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
       window.location.href = '/login';
-      
+
       // Dispatch toast or notification (if toast context is available)
       const event = new CustomEvent('showToast', {
         detail: {
@@ -69,7 +69,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // Export API methods
@@ -136,6 +136,44 @@ export const reportAPI = {
   getDashboard: () => api.get('/reports/dashboard'),
   getSalesReport: (params) => api.get('/reports/sales', { params }),
   getInventoryReport: (params) => api.get('/reports/inventory', { params }),
+};
+
+export const requestAPI = {
+  getCatalog: (params) => api.get('/catalog', { params }),
+  create: (data) => api.post('/requests', data),
+  getMyRequests: (params) => api.get('/requests/my', { params }),
+  getAll: (params) => api.get('/requests', { params }),
+  getById: (id) => api.get(`/requests/${id}`),
+  cancel: (id) => api.patch(`/requests/${id}/cancel`),
+  approve: (id, data) => api.patch(`/requests/${id}/approve`, data),
+  reject: (id, data) => api.patch(`/requests/${id}/reject`, data),
+  fulfill: (id, data) => api.patch(`/requests/${id}/fulfill`, data),
+};
+
+export const importAPI = {
+  upload: (formData) => api.post('/imports/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+  getJobStatus: (jobId) => api.get(`/imports/${jobId}`),
+  getHistory: (params) => api.get('/imports', { params }),
+  downloadTemplate: (type) => api.get(`/imports/template/${type}`, { responseType: 'blob' }),
+};
+
+export const automationAPI = {
+  getLogs: (params) => api.get('/automation/logs', { params }),
+  getReorderRules: (params) => api.get('/automation/reorder-rules', { params }),
+  createReorderRule: (data) => api.post('/automation/reorder-rules', data),
+  updateReorderRule: (id, data) => api.put(`/automation/reorder-rules/${id}`, data),
+  toggleReorderRule: (id) => api.patch(`/automation/reorder-rules/${id}/toggle`),
+  triggerJob: (jobName) => api.post(`/automation/trigger/${jobName}`),
+};
+
+export const barcodeAPI = {
+  scan: (data) => api.post('/barcodes/scan', data),
+  lookup: (barcode) => api.get('/barcodes/lookup', { params: { barcode } }),
+  getScanHistory: (params) => api.get('/barcodes/history', { params }),
+  getUnrecognised: (params) => api.get('/barcodes/unrecognised', { params }),
+  linkScan: (scanId, product_id) => api.patch(`/barcodes/${scanId}/link`, { product_id }),
 };
 
 export default api;

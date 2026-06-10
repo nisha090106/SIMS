@@ -61,7 +61,7 @@ export class AuthService {
       const last_name = nameParts.slice(1).join(' ') || '';
 
       // Validate role
-      const validRoles = ['admin', 'manager', 'staff'];
+      const validRoles = ['admin', 'manager', 'staff', 'user'];
       const userRole = validRoles.includes(role) ? role : 'staff';
 
       // Create new user

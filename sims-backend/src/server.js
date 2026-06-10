@@ -15,6 +15,10 @@ import supplierRoutes from './routes/suppliers.js';
 import purchaseRoutes from './routes/purchaseRoutes.js';
 import reportRoutes from './routes/reports.js';
 import importRoutes from './routes/imports.js';
+import barcodeRoutes from './routes/barcodes.js';
+import automationRoutes from './routes/automation.js';
+import requestRoutes from './routes/requests.js';
+import { initCronJobs } from './services/cronService.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
 import { requestLogger, responseTime } from './middlewares/loggingMiddleware.js';
 
@@ -91,6 +95,9 @@ app.use('/api/suppliers', supplierRoutes);
 app.use('/api/purchase-orders', purchaseRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/imports', importRoutes);
+app.use('/api/barcodes', barcodeRoutes);
+app.use('/api/automation', automationRoutes);
+app.use('/api', requestRoutes);
 
 // 404 Handler
 app.use(notFoundHandler);
@@ -113,6 +120,9 @@ const startServer = async () => {
       await sequelize.sync({ alter: true });
       logger.info('Database synced');
     }
+
+    // Initialize cron jobs after database connection is successful and synced
+    initCronJobs();
 
     app.listen(PORT, () => {
       logger.info(`Server is running on port ${PORT}`);

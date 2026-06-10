@@ -183,7 +183,9 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   width: 200px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.08),
+    0 8px 10px -6px rgba(0, 0, 0, 0.05);
   padding: 6px;
   box-sizing: border-box;
   animation: slideUp 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -261,7 +263,8 @@
     display: none;
   }
 
-  .user-text-info, .dropdown-chevron {
+  .user-text-info,
+  .dropdown-chevron {
     display: none;
   }
 }

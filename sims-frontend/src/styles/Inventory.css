@@ -35,7 +35,7 @@
   background: white;
   padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
@@ -69,7 +69,7 @@
   background: white;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .search-input {
@@ -98,7 +98,7 @@
   background: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow-x: auto;
 }
 
@@ -108,7 +108,8 @@
   text-align: left;
 }
 
-.inventory-table th, .inventory-table td {
+.inventory-table th,
+.inventory-table td {
   padding: 1rem;
   border-bottom: 1px solid #e2e8f0;
 }
@@ -173,7 +174,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -186,7 +187,7 @@
   border-radius: 8px;
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -207,7 +208,9 @@
   color: #475569;
 }
 
-.form-group input, .form-group select, .form-group textarea {
+.form-group input,
+.form-group select,
+.form-group textarea {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #cbd5e1;
@@ -272,14 +275,20 @@
   color: white;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 2000;
   animation: slideUp 0.3s ease-out;
 }
 
 @keyframes slideUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .alert-error {

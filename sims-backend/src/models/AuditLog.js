@@ -14,7 +14,21 @@ export default (sequelize) => {
         allowNull: false,
       },
       action: {
-        type: DataTypes.ENUM('create', 'read', 'update', 'delete', 'login', 'logout'),
+        type: DataTypes.ENUM(
+          'create',
+          'read',
+          'update',
+          'delete',
+          'login',
+          'logout',
+          'BARCODE_SCAN',
+          'CREATE_PURCHASE_ORDER',
+          'UPDATE_PURCHASE_ORDER',
+          'APPROVE_PURCHASE_ORDER',
+          'RECEIVE_PURCHASE_ORDER',
+          'CANCEL_PURCHASE_ORDER',
+          'REQUEST_FULFILLED',
+        ),
         allowNull: false,
       },
       table_name: {
