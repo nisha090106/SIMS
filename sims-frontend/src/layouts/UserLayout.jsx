@@ -1,178 +1,136 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+/**
+ * UserLayout — legacy compatibility shim.
+ *
+ * New code uses RequesterLayout (Outlet pattern).
+ * This shim renders children inside a simplified top-nav shell
+ * so any page still using <UserLayout><Page /></UserLayout> continues to work.
+ */
+import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import {
-  Notifications as NotificationsIcon,
-  Person as PersonIcon,
+  Warehouse as LogoIcon,
   Logout as LogoutIcon,
-  Warehouse as WarehouseIcon,
-  ListAlt as ListAltIcon,
-  ShoppingCart as ShoppingCartIcon,
-  Menu as MenuIcon,
-  Close as CloseIcon,
+  ShoppingBag as CatalogIcon,
+  ListAlt as MyRequestsIcon,
+  Dashboard as HomeIcon,
 } from '@mui/icons-material';
 import { logout } from '../store/authSlice';
 import { authAPI } from '../services/api';
 import { useToast } from '../hooks/useToast';
-import '../styles/UserLayout.css';
+import Badge from '../components/ui/Badge';
 
 const UserLayout = ({ children }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { user } = useSelector((s) => s.auth);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { showToast } = useToast();
-  const { user } = useSelector((state) => state.auth);
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const fullName = user?.full_name || user?.name || 'Requester';
-  const email = user?.email || '';
+  const displayName =
+    user?.full_name ||
+    [user?.first_name, user?.last_name].filter(Boolean).join(' ') ||
+    user?.name || 'User';
+  const initials = displayName.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
 
   const handleLogout = async () => {
-    try {
-      await authAPI.logout();
-    } catch (error) {
-      console.warn('Backend logout call skipped or failed:', error.message);
-    } finally {
-      dispatch(logout());
-      showToast('Logged out successfully', 'success');
-      navigate('/login');
-    }
+    try { await authAPI.logout(); } catch { /* silent */ }
+    dispatch(logout());
+    showToast('Logged out successfully', 'success');
+    navigate('/login');
   };
 
-  const getInitials = (name) => {
-    if (!name) return '?';
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  };
-
-  const handleNavClick = (path) => {
-    setIsMobileMenuOpen(false);
-    navigate(path);
-  };
-
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
+  const linkStyle = ({ isActive }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: 7,
+    padding: '6px 14px',
+    borderRadius: 'var(--radius-md)',
+    fontSize: 'var(--text-base)',
+    fontWeight: isActive ? 600 : 500,
+    fontFamily: 'var(--font-sans)',
+    color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+    background: isActive ? 'var(--color-primary-soft)' : 'transparent',
+    textDecoration: 'none',
+    transition: 'background var(--transition-base), color var(--transition-base)',
+  });
 
   return (
-    <div className='user-layout'>
-      {/* Top Navigation Bar */}
-      <nav className='user-navbar'>
-        <div className='navbar-container'>
-          {/* Left: Brand Logo */}
-          <div className='navbar-brand' onClick={() => handleNavClick('/user-dashboard')}>
-            <div className='brand-icon-box'>
-              <WarehouseIcon className='brand-logo-icon' />
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--color-bg)' }}>
+      <header style={{
+        height: 60,
+        background: 'var(--color-surface)',
+        borderBottom: '1px solid var(--color-border)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+      }}>
+        <div style={{
+          maxWidth: 1200,
+          margin: '0 auto',
+          padding: '0 24px',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 20,
+        }}>
+          <NavLink to="/user-dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: 6,
+              background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <LogoIcon style={{ fontSize: 16, color: '#fff' }} />
             </div>
-            <span className='brand-name'>
-              SIMS <span className='brand-badge'>Request</span>
+            <span style={{ fontSize: 14, fontWeight: 800, letterSpacing: '0.06em', color: 'var(--color-text-primary)', fontFamily: 'var(--font-sans)', textTransform: 'uppercase' }}>
+              SIMS
             </span>
-          </div>
+            <Badge variant="primary" size="sm">Portal</Badge>
+          </NavLink>
 
-          {/* Mobile Menu Button */}
-          <button
-            className='mobile-menu-toggle'
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label='Toggle menu'
-          >
-            {isMobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
-          </button>
+          <nav style={{ display: 'flex', gap: 4, flex: 1 }}>
+            {[
+              { to: '/user-dashboard',   label: 'Home',        icon: HomeIcon },
+              { to: '/user/catalog',     label: 'Catalog',     icon: CatalogIcon },
+              { to: '/user/my-requests', label: 'My Requests', icon: MyRequestsIcon },
+            ].map(({ to, label, icon: Icon }) => (
+              <NavLink key={to} to={to} style={linkStyle}>
+                <Icon style={{ fontSize: 15 }} />
+                {label}
+              </NavLink>
+            ))}
+          </nav>
 
-          {/* Middle: Navigation Links */}
-          <div className={`navbar-links ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-            <button
-              className={`nav-link-item ${isActive('/user-dashboard') ? 'active' : ''}`}
-              onClick={() => handleNavClick('/user-dashboard')}
-            >
-              <WarehouseIcon className='nav-item-icon' />
-              <span>Overview</span>
-            </button>
-            <button
-              className={`nav-link-item ${isActive('/user/catalog') ? 'active' : ''}`}
-              onClick={() => handleNavClick('/user/catalog')}
-            >
-              <ShoppingCartIcon className='nav-item-icon' />
-              <span>Browse Catalog</span>
-            </button>
-            <button
-              className={`nav-link-item ${isActive('/user/my-requests') ? 'active' : ''}`}
-              onClick={() => handleNavClick('/user/my-requests')}
-            >
-              <ListAltIcon className='nav-item-icon' />
-              <span>My Requests</span>
-            </button>
-          </div>
-
-          {/* Right: Actions (Notification & User Profile) */}
-          <div className='navbar-actions'>
-            {/* Notification Bell */}
-            <div className='notification-bell-container'>
-              <button className='nav-action-btn' title='Notifications'>
-                <NotificationsIcon />
-                <span className='action-badge-dot'></span>
-              </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: 6,
+              background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 11, fontWeight: 700, color: '#fff', fontFamily: 'var(--font-sans)',
+            }}>
+              {initials}
             </div>
-
-            {/* User Dropdown */}
-            <div className='user-dropdown-container'>
-              <button
-                className='user-profile-btn'
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              >
-                <div className='avatar-circle'>{getInitials(fullName)}</div>
-                <span className='profile-name-text'>{fullName.split(' ')[0]}</span>
-                <span className={`chevron-indicator ${isDropdownOpen ? 'open' : ''}`}>▼</span>
-              </button>
-
-              {isDropdownOpen && (
-                <div className='user-nav-dropdown'>
-                  <div className='dropdown-user-info'>
-                    <div className='info-name'>{fullName}</div>
-                    <div className='info-email'>{email}</div>
-                    <div className='info-role-badge'>Requester</div>
-                  </div>
-                  <hr className='dropdown-divider' />
-                  <button
-                    className='dropdown-nav-item'
-                    onClick={() => {
-                      setIsDropdownOpen(false);
-                      handleNavClick('/user-dashboard');
-                    }}
-                  >
-                    <PersonIcon className='item-icon' />
-                    <span>My Dashboard</span>
-                  </button>
-                  <hr className='dropdown-divider' />
-                  <button className='dropdown-nav-item logout-btn' onClick={handleLogout}>
-                    <LogoutIcon className='item-icon' />
-                    <span>Sign Out</span>
-                  </button>
-                </div>
-              )}
-            </div>
+            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-sans)' }}>
+              {displayName.split(' ')[0]}
+            </span>
+            <button
+              onClick={handleLogout}
+              style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)', fontFamily: 'var(--font-sans)', padding: '4px 8px', borderRadius: 'var(--radius-md)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-danger)'; e.currentTarget.style.background = 'var(--color-danger-soft)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-muted)'; e.currentTarget.style.background = 'none'; }}
+            >
+              <LogoutIcon style={{ fontSize: 16 }} />
+              Sign out
+            </button>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* Main Page Content */}
-      <main className='user-main-content'>
-        <div className='user-content-container'>{children}</div>
+      <main style={{ flex: 1, maxWidth: 1200, width: '100%', margin: '0 auto', padding: '28px 24px', boxSizing: 'border-box' }}>
+        {children}
       </main>
 
-      {/* Footer */}
-      <footer className='user-footer'>
-        <div className='footer-container'>
-          <p>
-            &copy; {new Date().getFullYear()} Smart Inventory Management System. All rights
-            reserved.
-          </p>
-        </div>
+      <footer style={{ borderTop: '1px solid var(--color-border)', padding: '12px 24px', textAlign: 'center', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)', background: 'var(--color-surface)' }}>
+        © {new Date().getFullYear()} Smart Inventory Management System
       </footer>
     </div>
   );

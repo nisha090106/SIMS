@@ -20,9 +20,10 @@ export default (sequelize) => {
       },
       description: {
         type: DataTypes.TEXT,
+        allowNull: true,
       },
       category: {
-        type: DataTypes.STRING(50),
+        type: DataTypes.STRING(80),
         allowNull: false,
       },
       unit: {
@@ -37,13 +38,32 @@ export default (sequelize) => {
         type: DataTypes.INTEGER,
         defaultValue: 50,
       },
+      // Selling price (was unit_price; kept for backward compatibility)
       unit_price: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
       },
+      // Cost price (purchase cost, optional)
+      cost_price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true,
+      },
       barcode: {
         type: DataTypes.STRING(100),
         unique: true,
+        allowNull: true,
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+        allowNull: false,
+      },
+      image_url: {
+        type: DataTypes.STRING(500),
+        allowNull: true,
+      },
+      created_by: {
+        type: DataTypes.INTEGER,
         allowNull: true,
       },
     },
@@ -51,6 +71,13 @@ export default (sequelize) => {
       tableName: 'products',
       timestamps: true,
       underscored: true,
+      // Soft-delete: default scope filters inactive products
+      defaultScope: {
+        where: { is_active: true },
+      },
+      scopes: {
+        withInactive: {},          // use Product.scope('withInactive') to include all
+      },
     },
   );
 

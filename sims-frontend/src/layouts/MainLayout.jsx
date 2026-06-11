@@ -1,27 +1,59 @@
-import React, { useState, useEffect } from 'react';
-import Sidebar from '../components/Sidebar';
-import Topbar from '../components/Topbar';
-import '../styles/MainLayout.css';
+/**
+ * MainLayout — legacy compatibility shim.
+ *
+ * New code should use AppLayout (Outlet pattern via App.jsx routes).
+ * This wrapper keeps any page that still does <MainLayout><Page /></MainLayout> working
+ * by rendering children inside the same visual shell as AppLayout.
+ */
+import React, { useState } from 'react';
+import Sidebar from './Sidebar';
+import Topbar from './Topbar';
 
 const MainLayout = ({ children }) => {
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    return localStorage.getItem('sidebarCollapsed') === 'true';
-  });
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem('sidebarCollapsed') === 'true',
+  );
 
-  const toggleCollapse = () => {
-    setIsCollapsed((prev) => {
+  const toggle = () =>
+    setCollapsed((prev) => {
       const next = !prev;
-      localStorage.setItem('sidebarCollapsed', next);
+      localStorage.setItem('sidebarCollapsed', String(next));
       return next;
     });
-  };
 
   return (
-    <div className={`main-layout ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
-      <Sidebar isCollapsed={isCollapsed} toggleCollapse={toggleCollapse} />
-      <div className='main-content'>
-        <Topbar isCollapsed={isCollapsed} toggleCollapse={toggleCollapse} />
-        <div className='content-area'>{children}</div>
+    <div
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+        background: 'var(--color-bg)',
+      }}
+    >
+      <Sidebar collapsed={collapsed} onToggle={toggle} />
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          marginLeft: collapsed
+            ? 'var(--sidebar-collapsed-width)'
+            : 'var(--sidebar-width)',
+          transition: 'margin-left var(--transition-slow)',
+          minWidth: 0,
+          minHeight: '100vh',
+        }}
+      >
+        <Topbar collapsed={collapsed} onToggle={toggle} />
+        <main
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '28px 32px',
+            background: 'var(--color-bg)',
+          }}
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

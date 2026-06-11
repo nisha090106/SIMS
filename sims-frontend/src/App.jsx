@@ -1,222 +1,147 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Provider, useDispatch } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import store from './store/index';
 import { restoreAuth } from './store/authSlice';
-import ProtectedRoute from './components/ProtectedRoute';
 import { ToastProvider } from './context/ToastContext';
-import Toast from './components/Toast';
-import MainLayout from './layouts/MainLayout';
-import UserLayout from './layouts/UserLayout';
 
-// Pages
-import Landing from './pages/Landing';
+// UI Toast (new token-based)
+import UIToast from './components/ui/Toast';
+
+// Layouts
+import AppLayout       from './layouts/AppLayout';
+import RequesterLayout from './layouts/RequesterLayout';
+
+// Auth guard
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Public pages
 import LandingPage from './pages/LandingPage';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Products from './pages/Products';
-import Inventory from './pages/Inventory';
-import Warehouses from './pages/Warehouses';
-import Suppliers from './pages/Suppliers';
-import PurchaseOrders from './pages/PurchaseOrders';
-import SalesOrders from './pages/SalesOrders';
-import Reports from './pages/Reports';
-import Settings from './pages/Settings';
-import UserDashboard from './pages/user/UserDashboard';
-import Catalog from './pages/user/Catalog';
-import MyRequests from './pages/user/MyRequests';
+import Login       from './pages/Login';
+import Register    from './pages/Register';
+import NotFound    from './pages/NotFound';
+
+// Admin / Manager / Staff pages
+import Dashboard        from './pages/Dashboard';
+import Products         from './pages/Products';
+import Inventory        from './pages/Inventory';
+import Warehouses       from './pages/Warehouses';
+import Suppliers        from './pages/Suppliers';
+import PurchaseOrders   from './pages/PurchaseOrders';
+import SalesOrders      from './pages/SalesOrders';
+import Reports          from './pages/Reports';
+import Settings         from './pages/Settings';
 import RequestsManagement from './pages/RequestsManagement';
-import ImportCenter from './pages/ImportCenter';
+import ImportCenter     from './pages/ImportCenter';
 import AutomationDashboard from './pages/AutomationDashboard';
+
+// Requester pages
+import UserDashboard from './pages/user/UserDashboard';
+import Catalog       from './pages/user/Catalog';
+import MyRequests    from './pages/user/MyRequests';
 
 import './App.css';
 
+/* ── Role-aware redirect after login ─────────────────────────── */
+const RoleRedirect = () => {
+  const { user, isAuthenticated } = useSelector((s) => s.auth);
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (user?.role === 'user') return <Navigate to="/user-dashboard" replace />;
+  return <Navigate to="/dashboard" replace />;
+};
+
+/* ── App content (needs Redux + Router context) ────────────────── */
 const AppContent = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // Restore auth from localStorage on app load
     dispatch(restoreAuth());
   }, [dispatch]);
 
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route path='/' element={<LandingPage />} />
-      <Route path='/login' element={<Login />} />
-      <Route path='/register' element={<Register />} />
+      {/* ── Public ─────────────────────────────────────────────── */}
+      <Route path="/"         element={<LandingPage />} />
+      <Route path="/login"    element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-      {/* User Requester Dashboard */}
-      <Route
-        path='/user-dashboard'
-        element={
-          <ProtectedRoute roles={['user', 'staff']}>
-            <UserLayout>
-              <UserDashboard />
-            </UserLayout>
-          </ProtectedRoute>
-        }
-      />
+      {/* ── Role redirect (e.g. after login) ───────────────────── */}
+      <Route path="/home" element={<RoleRedirect />} />
 
+      {/* ── Admin / Manager / Staff — AppLayout with Outlet ────── */}
       <Route
-        path='/user/catalog'
-        element={
-          <ProtectedRoute roles={['user', 'staff']}>
-            <UserLayout>
-              <Catalog />
-            </UserLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path='/user/my-requests'
-        element={
-          <ProtectedRoute roles={['user', 'staff']}>
-            <UserLayout>
-              <MyRequests />
-            </UserLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Protected Admin/Manager/Staff Routes */}
-      <Route
-        path='/dashboard'
         element={
           <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
-            <MainLayout>
-              <Dashboard />
-            </MainLayout>
+            <AppLayout />
           </ProtectedRoute>
         }
-      />
-      <Route
-        path='/requests'
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'manager']}>
-            <MainLayout>
+      >
+        <Route path="/dashboard"       element={<Dashboard />} />
+        <Route path="/products"        element={<Products />} />
+        <Route path="/inventory"       element={<Inventory />} />
+        <Route path="/warehouses"      element={<Warehouses />} />
+        <Route path="/suppliers"       element={<Suppliers />} />
+        <Route path="/purchase-orders" element={<PurchaseOrders />} />
+        <Route path="/sales-orders"    element={<SalesOrders />} />
+        <Route path="/reports"         element={<Reports />} />
+        <Route path="/settings"        element={<Settings />} />
+        <Route path="/barcode"         element={<AutomationDashboard />} />
+
+        {/* Admin + Manager only */}
+        <Route
+          path="/requests"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'manager']}>
               <RequestsManagement />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/import-center'
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'manager']}>
-            <MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/import-center"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'manager']}>
               <ImportCenter />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/automation'
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'manager']}>
-            <MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/automation"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'manager']}>
               <AutomationDashboard />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/products'
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
-            <MainLayout>
-              <Products />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/inventory'
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
-            <MainLayout>
-              <Inventory />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/warehouses'
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
-            <MainLayout>
-              <Warehouses />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/suppliers'
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
-            <MainLayout>
-              <Suppliers />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/purchase-orders'
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
-            <MainLayout>
-              <PurchaseOrders />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/sales-orders'
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
-            <MainLayout>
-              <SalesOrders />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/reports'
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
-            <MainLayout>
-              <Reports />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path='/settings'
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
-            <MainLayout>
-              <Settings />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
 
-      {/* Default redirect */}
-      <Route path='/' element={<Navigate to='/dashboard' replace />} />
-      <Route path='*' element={<Navigate to='/dashboard' replace />} />
+      {/* ── Requester — RequesterLayout with Outlet ─────────────── */}
+      <Route
+        element={
+          <ProtectedRoute roles={['user', 'staff']}>
+            <RequesterLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/user-dashboard"   element={<UserDashboard />} />
+        <Route path="/user/catalog"     element={<Catalog />} />
+        <Route path="/user/my-requests" element={<MyRequests />} />
+      </Route>
+
+      {/* ── 404 ─────────────────────────────────────────────────── */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
 
+/* ── Root App ─────────────────────────────────────────────────── */
 function App() {
   return (
     <Provider store={store}>
       <ToastProvider>
         <BrowserRouter>
           <AppContent />
-          <Toast />
+          {/* Token-based toast renderer */}
+          <UIToast />
         </BrowserRouter>
       </ToastProvider>
     </Provider>

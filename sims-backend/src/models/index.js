@@ -13,6 +13,7 @@ import UserRequestModel from './UserRequest.js';
 import UserRequestItemModel from './UserRequestItem.js';
 import BarcodeScanLogModel from './BarcodeScanLog.js';
 import AutomationLogModel from './AutomationLog.js';
+import ProductCategoryModel from './ProductCategory.js';
 import config from '../config/database.js';
 
 const env = process.env.NODE_ENV || 'development';
@@ -47,6 +48,7 @@ const UserRequest = UserRequestModel(sequelize);
 const UserRequestItem = UserRequestItemModel(sequelize);
 const BarcodeScanLog = BarcodeScanLogModel(sequelize);
 const AutomationLog = AutomationLogModel(sequelize);
+const ProductCategory = ProductCategoryModel(sequelize);
 
 // Define Associations
 // User associations
@@ -107,6 +109,9 @@ BarcodeScanLog.belongsTo(Warehouse, { foreignKey: 'warehouse_id', as: 'warehouse
 BarcodeScanLog.belongsTo(User, { foreignKey: 'scanned_by', as: 'scanner' });
 User.hasMany(BarcodeScanLog, { foreignKey: 'scanned_by', as: 'barcode_scans' });
 
+// ProductCategory associations
+ProductCategory.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
+
 // Export
 export {
   sequelize,
@@ -124,6 +129,7 @@ export {
   UserRequestItem,
   BarcodeScanLog,
   AutomationLog,
+  ProductCategory,
 };
 
 export default sequelize;

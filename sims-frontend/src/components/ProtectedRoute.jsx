@@ -1,33 +1,45 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 /**
- * ProtectedRoute Component
- * Checks if user is authenticated (via Redux or localStorage) before allowing access to the route
- * Supports checking user roles and redirecting accordingly
+ * ProtectedRoute
+ *
+ * Works in two modes:
+ *
+ * 1. Layout route (no children) — wraps an <Outlet />
+ *    <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+ *      <Route path="/dashboard" element={<Dashboard />} />
+ *    </Route>
+ *
+ * 2. Direct children — renders children or redirects
+ *    <ProtectedRoute allowedRoles={['admin']}>
+ *      <Dashboard />
+ *    </ProtectedRoute>
  */
 const ProtectedRoute = ({ children, allowedRoles, roles }) => {
   const { isAuthenticated, token, user } = useSelector((state) => state.auth);
   const localToken = localStorage.getItem('token');
 
-  // If not authenticated and no token in localStorage, redirect to login
+  // Not authenticated at all → login
   if (!isAuthenticated && !token && !localToken) {
-    return <Navigate to='/login' replace />;
+    return <Navigate to="/login" replace />;
   }
 
   const rolesToCheck = allowedRoles || roles;
 
-  // If we have rolesToCheck configured and user role is loaded
+  // Role check (only once user is loaded from Redux)
   if (user && rolesToCheck && !rolesToCheck.includes(user.role)) {
-    // Redirect 'user' role to their dashboard, other roles to admin/manager dashboard
-    if (user.role === 'user') {
-      return <Navigate to='/user-dashboard' replace />;
-    } else {
-      return <Navigate to='/dashboard' replace />;
-    }
+    // Requester goes to their portal; everyone else to admin dashboard
+    return user.role === 'user'
+      ? <Navigate to="/user-dashboard" replace />
+      : <Navigate to="/dashboard" replace />;
   }
 
+  // Layout route mode — render Outlet so nested routes work
+  if (!children) return <Outlet />;
+
+  // Direct children mode
   return children;
 };
 

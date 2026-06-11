@@ -138,6 +138,11 @@ export const reportAPI = {
   getInventoryReport: (params) => api.get('/reports/inventory', { params }),
 };
 
+export const dashboardAPI = {
+  getStats:  () => api.get('/dashboard/stats'),
+  getCharts: () => api.get('/dashboard/charts'),
+};
+
 export const requestAPI = {
   getCatalog: (params) => api.get('/catalog', { params }),
   create: (data) => api.post('/requests', data),
