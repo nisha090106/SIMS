@@ -14,12 +14,27 @@ export default (sequelize) => {
         unique: true,
         allowNull: false,
       },
+      // Short uppercase code e.g. "WH-MUM"
+      code: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+      },
       location: {
         type: DataTypes.STRING(50),
         allowNull: false,
       },
+      city: {
+        type: DataTypes.STRING(80),
+        allowNull: true,
+      },
+      country: {
+        type: DataTypes.STRING(60),
+        defaultValue: 'India',
+        allowNull: true,
+      },
       address: {
         type: DataTypes.TEXT,
+        allowNull: true,
       },
       capacity: {
         type: DataTypes.DECIMAL(10, 2),
@@ -31,6 +46,11 @@ export default (sequelize) => {
       },
       manager_id: {
         type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      status: {
+        type: DataTypes.ENUM('active', 'inactive'),
+        defaultValue: 'active',
         allowNull: false,
       },
     },

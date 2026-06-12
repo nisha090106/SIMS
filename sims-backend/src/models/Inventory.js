@@ -4,43 +4,30 @@ export default (sequelize) => {
   const Inventory = sequelize.define(
     'Inventory',
     {
+      // The actual PK column in DB is `id`
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
+        field: 'id',
       },
-      sku: {
-        type: DataTypes.STRING(50),
-        allowNull: false,
-      },
-      name: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-      },
-      description: {
-        type: DataTypes.TEXT,
-      },
-      category_id: {
+      product_id: {
         type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      warehouse_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
       },
       quantity: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
+        allowNull: false,
       },
-      reorder_level: {
+      reserved_qty: {
         type: DataTypes.INTEGER,
-        defaultValue: 10,
-      },
-      price: {
-        type: DataTypes.DECIMAL(10, 2),
-      },
-      status: {
-        type: DataTypes.ENUM('available', 'discontinued', 'out_of_stock', 'low_stock'),
-        defaultValue: 'available',
-      },
-      stock_value: {
-        type: DataTypes.DECIMAL(12, 2),
-        defaultValue: 0.00,
+        defaultValue: 0,
+        allowNull: false,
       },
       batch_no: {
         type: DataTypes.STRING(50),

@@ -1,371 +1,569 @@
 import { Op } from 'sequelize';
-import { Inventory, Product, Warehouse, AuditLog } from '../models/index.js';
+import { Inventory, Product, Warehouse, AuditLog, sequelize } from '../models/index.js';
 import logger from '../config/logger.js';
-import { sequelize } from '../models/index.js';
 
-export class InventoryController {
-  // Get inventory
-  static async getInventory(req, res, next) {
-    try {
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
-      const offset = (page - 1) * limit;
-      const { warehouse_id, search, status } = req.query;
+/* ── helpers ─────────────────────────────────────────────────── */
+const uid  = (req) => req.user?.user_id || req.user?.id;
+const role = (req) => req.user?.role;
 
-      const where = {};
-      const productWhere = {};
+/**
+ * Returns { warehouse_ids: [...] | null }
+ * null  = no filter (admin sees everything)
+ * [...] = list of warehouse IDs the user manages
+ */
+async function getWarehouseScope(req) {
+  if (role(req) === 'admin') return null;
+  const whs = await Warehouse.findAll({
+    where: { manager_id: uid(req) },
+    attributes: ['warehouse_id'],
+  });
+  return whs.length ? whs.map((w) => w.warehouse_id) : [];
+}
 
-      if (warehouse_id) where.warehouse_id = warehouse_id;
+function buildWhereFromScope(scope) {
+  if (scope === null) return {};
+  if (scope.length === 0) return { warehouse_id: -1 }; // no access
+  return { warehouse_id: { [Op.in]: scope } };
+}
 
-      if (search) {
-        productWhere[Op.or] = [
-          { name: { [Op.like]: `%${search}%` } },
-          { sku: { [Op.like]: `%${search}%` } },
-        ];
-      }
+function computeStockStatus(qty, reorderLevel) {
+  if (qty === 0)             return 'out_of_stock';
+  if (qty <= reorderLevel)   return 'low_stock';
+  return 'in_stock';
+}
 
-      // Since status is derived (quantity vs product.reorder_level), we must fetch and filter if status is applied
-      // But for pagination to work nicely at the DB level, we can use a raw query or Sequelize literal
-      // Alternatively, we fetch all matching rows and filter in JS. 
-      // To support DB-level pagination with status, we use Sequelize where literals.
-      if (status === 'out') {
-        where.quantity = 0;
-      } else if (status === 'low') {
-        where.quantity = {
-          [Op.gt]: 0,
-          [Op.lte]: sequelize.col('product.reorder_level'),
-        };
-      } else if (status === 'normal') {
-        where.quantity = {
-          [Op.gt]: sequelize.col('product.reorder_level'),
-        };
-      }
-
-      const { count, rows } = await Inventory.findAndCountAll({
-        where,
-        limit,
-        offset,
-        distinct: true,
-        include: [
-          {
-            model: Product,
-            as: 'product',
-            attributes: ['product_id', 'sku', 'name', 'category', 'unit_price', 'reorder_level'],
-            where: productWhere,
-          },
-          {
-            model: Warehouse,
-            as: 'warehouse',
-            attributes: ['warehouse_id', 'name', 'location'],
-          },
-        ],
-        order: [['created_at', 'DESC']],
-      });
-
-      const formattedInventory = rows.map((inv) => {
-        const item = inv.toJSON();
-        let itemStatus = 'normal';
-        if (item.quantity === 0) itemStatus = 'out_of_stock';
-        else if (item.quantity <= item.product.reorder_level) itemStatus = 'low_stock';
-
-        return {
-          id: item.inventory_id,
-          product_id: item.product_id,
-          product_name: item.product.name,
-          sku: item.product.sku,
-          category: item.product.category,
-          unit_price: item.product.unit_price,
-          warehouse_id: item.warehouse_id,
-          warehouse_name: item.warehouse.name,
-          quantity: item.quantity,
-          reorder_level: item.product.reorder_level,
-          status: itemStatus,
-        };
-      });
-
-      res.status(200).json({
-        success: true,
-        data: {
-          inventory: formattedInventory,
-          total: count,
-          page,
-          totalPages: Math.ceil(count / limit),
-        },
-      });
-    } catch (error) {
-      logger.error(`Get inventory error: ${error.message}`);
-      res.status(500).json({ success: false, error: error.message });
-    }
-  }
-
-  // Get low stock
-  static async getLowStock(req, res, next) {
-    try {
-      const lowStockItems = await Inventory.findAll({
-        where: {
-          quantity: {
-            [Op.lte]: sequelize.col('product.reorder_level'),
-          },
-        },
-        include: [
-          {
-            model: Product,
-            as: 'product',
-            attributes: ['product_id', 'sku', 'name', 'category', 'unit_price', 'reorder_level'],
-          },
-          {
-            model: Warehouse,
-            as: 'warehouse',
-            attributes: ['warehouse_id', 'name', 'location'],
-          },
-        ],
-        limit: 50,
-      });
-
-      // Sort by (quantity - reorder_level) ASC in javascript since it's easier and limit is 50
-      const formatted = lowStockItems.map(inv => inv.toJSON());
-      formatted.sort((a, b) => {
-        const aDiff = a.quantity - a.product.reorder_level;
-        const bDiff = b.quantity - b.product.reorder_level;
-        return aDiff - bDiff;
-      });
-
-      res.status(200).json({
-        success: true,
-        data: formatted,
-      });
-    } catch (error) {
-      logger.error(`Get low stock items error: ${error.message}`);
-      res.status(500).json({ success: false, error: error.message });
-    }
-  }
-
-  // Get Inventory Summary
-  static async getInventorySummary(req, res, next) {
-    try {
-      const allInventory = await Inventory.findAll({
-        include: [
-          { model: Product, as: 'product', attributes: ['product_id', 'unit_price', 'reorder_level'] },
-          { model: Warehouse, as: 'warehouse', attributes: ['warehouse_id', 'name'] },
-        ],
-      });
-
-      let totalItems = 0;
-      let totalValue = 0;
-      let lowStockCount = 0;
-      let outOfStockCount = 0;
-      const warehouseStats = {};
-
-      allInventory.forEach(inv => {
-        const i = inv.toJSON();
-        const value = i.quantity * (i.product?.unit_price || 0);
-
-        totalItems += i.quantity;
-        totalValue += value;
-
-        if (i.quantity === 0) outOfStockCount++;
-        else if (i.quantity <= i.product?.reorder_level) lowStockCount++;
-
-        const wId = i.warehouse_id;
-        if (!warehouseStats[wId]) {
-          warehouseStats[wId] = {
-            warehouse_id: wId,
-            warehouse_name: i.warehouse?.name || 'Unknown',
-            totalQuantity: 0,
-            totalValue: 0,
-          };
-        }
-        warehouseStats[wId].totalQuantity += i.quantity;
-        warehouseStats[wId].totalValue += value;
-      });
-
-      res.status(200).json({
-        success: true,
-        data: {
-          totalItems,
-          totalValue,
-          lowStockCount,
-          outOfStockCount,
-          byWarehouse: Object.values(warehouseStats),
-        },
-      });
-    } catch (error) {
-      logger.error(`Get inventory summary error: ${error.message}`);
-      res.status(500).json({ success: false, error: error.message });
-    }
-  }
-
-  // Update Stock
-  static async updateStock(req, res, next) {
-    try {
-      const { id } = req.params;
-      const { quantity, reason } = req.body;
-
-      if (quantity < 0) {
-        return res.status(400).json({ success: false, error: 'Quantity must be >= 0' });
-      }
-
-      const inventory = await Inventory.findByPk(id);
-      if (!inventory) {
-        return res.status(404).json({ success: false, error: 'Inventory item not found' });
-      }
-
-      const oldQty = inventory.quantity;
-      await inventory.update({ quantity });
-
-      await AuditLog.create({
-        user_id: req.user.user_id,
-        action: 'update',
-        table_name: 'inventory',
-        changes: { action: 'UPDATE_STOCK', inventory_id: id, oldQty, newQty: quantity, reason },
-        ip_address: req.ip,
-      });
-
-      res.status(200).json({
-        success: true,
-        data: inventory,
-      });
-    } catch (error) {
-      logger.error(`Update stock error: ${error.message}`);
-      res.status(400).json({ success: false, error: error.message });
-    }
-  }
-
-  // Transfer Stock
-  static async transferStock(req, res, next) {
-    const t = await sequelize.transaction();
-    try {
-      const { from_warehouse_id, to_warehouse_id, product_id, quantity, reason } = req.body;
-
-      if (from_warehouse_id === to_warehouse_id) {
-        throw new Error('Source and destination warehouses cannot be the same');
-      }
-      if (quantity <= 0) {
-        throw new Error('Quantity must be greater than 0');
-      }
-
-      const sourceInv = await Inventory.findOne({
-        where: { product_id, warehouse_id: from_warehouse_id },
-        transaction: t,
-      });
-
-      if (!sourceInv || sourceInv.quantity < quantity) {
-        throw new Error('Insufficient stock in source warehouse');
-      }
-
-      let destInv = await Inventory.findOne({
-        where: { product_id, warehouse_id: to_warehouse_id },
-        transaction: t,
-      });
-
-      const oldSourceQty = sourceInv.quantity;
-      const newSourceQty = sourceInv.quantity - quantity;
-      await sourceInv.update({ quantity: newSourceQty }, { transaction: t });
-
-      let oldDestQty = 0;
-      let newDestQty = quantity;
-      
-      if (destInv) {
-        oldDestQty = destInv.quantity;
-        newDestQty = destInv.quantity + quantity;
-        await destInv.update({ quantity: newDestQty }, { transaction: t });
-      } else {
-        destInv = await Inventory.create({
-          product_id,
-          warehouse_id: to_warehouse_id,
-          quantity: newDestQty,
-        }, { transaction: t });
-      }
-
-      await AuditLog.create({
-        user_id: req.user.user_id,
-        action: 'update',
-        table_name: 'inventory',
-        changes: { 
-          action: 'STOCK_TRANSFER',
-          product_id,
-          from_warehouse_id,
-          to_warehouse_id,
-          quantity,
-          reason,
-        },
-        ip_address: req.ip,
-      }, { transaction: t });
-
-      await t.commit();
-
-      res.status(200).json({
-        success: true,
-        data: {
-          message: 'Stock transferred successfully',
-          from: { warehouse: from_warehouse_id, newQty: newSourceQty },
-          to: { warehouse: to_warehouse_id, newQty: newDestQty },
-        },
-      });
-    } catch (error) {
-      await t.rollback();
-      logger.error(`Transfer stock error: ${error.message}`);
-      res.status(400).json({ success: false, error: error.message });
-    }
-  }
-
-  // Adjust Inventory
-  static async adjustInventory(req, res, next) {
-    try {
-      const { inventory_id, adjustment_type, quantity, reason } = req.body;
-      // adjustment_type: damage, return, correction
-      
-      const qtyToAdjust = parseFloat(quantity);
-      if (!qtyToAdjust || qtyToAdjust === 0) {
-        return res.status(400).json({ success: false, error: 'Invalid quantity' });
-      }
-
-      const inventory = await Inventory.findByPk(inventory_id);
-      if (!inventory) {
-        return res.status(404).json({ success: false, error: 'Inventory record not found' });
-      }
-
-      let newQty = inventory.quantity;
-      
-      if (adjustment_type === 'damage') {
-        newQty -= Math.abs(qtyToAdjust);
-      } else if (adjustment_type === 'return') {
-        newQty += Math.abs(qtyToAdjust);
-      } else if (adjustment_type === 'correction') {
-        newQty += qtyToAdjust; // can be pos or neg
-      } else {
-        return res.status(400).json({ success: false, error: 'Invalid adjustment type' });
-      }
-
-      if (newQty < 0) newQty = 0; // prevent negative stock if adjusting too much
-
-      const oldQty = inventory.quantity;
-      await inventory.update({ quantity: newQty });
-
-      await AuditLog.create({
-        user_id: req.user.user_id,
-        action: 'update',
-        table_name: 'inventory',
-        changes: {
-          action: 'STOCK_ADJUSTMENT',
-          adjustment_type,
-          inventory_id,
-          oldQty,
-          newQty,
-          reason,
-        },
-        ip_address: req.ip,
-      });
-
-      res.status(200).json({
-        success: true,
-        data: inventory,
-      });
-    } catch (error) {
-      logger.error(`Adjust stock error: ${error.message}`);
-      res.status(400).json({ success: false, error: error.message });
-    }
+async function auditLog(req, action, changes) {
+  try {
+    await AuditLog.create({
+      user_id:    uid(req),
+      action,
+      table_name: 'inventory',
+      changes,
+      ip_address: req.ip,
+    });
+  } catch (e) {
+    logger.warn(`Audit log failed: ${e.message}`);
   }
 }
 
-export default InventoryController;
+/* ── shared include for product + warehouse ─────────────────── */
+const fullInclude = [
+  {
+    model: Product,
+    as: 'product',
+    attributes: ['product_id', 'sku', 'name', 'category', 'unit_price', 'reorder_level', 'unit', 'image_url'],
+  },
+  {
+    model: Warehouse,
+    as: 'warehouse',
+    attributes: ['warehouse_id', 'name', 'location', 'city'],
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   GET /api/inventory
+═══════════════════════════════════════════════════════════════ */
+export async function getInventory(req, res, next) {
+  try {
+    const page   = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit  = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const offset = (page - 1) * limit;
+
+    const {
+      search, warehouseId, warehouse_id,
+      category, lowStock, outOfStock, expiringSoon,
+    } = req.query;
+
+    const whId = warehouseId || warehouse_id;
+
+    // Warehouse scope
+    const scope = await getWarehouseScope(req);
+    const whereBase = buildWhereFromScope(scope);
+
+    // Override: if admin passes explicit warehouse filter, honour it
+    if (whId) whereBase.warehouse_id = whId;
+
+    // Stock status filters
+    if (outOfStock === 'true') {
+      whereBase.quantity = 0;
+    } else if (lowStock === 'true') {
+      whereBase.quantity = { [Op.gt]: 0 };
+    }
+
+    // Expiring soon (within 30 days)
+    if (expiringSoon === 'true') {
+      const now   = new Date();
+      const in30  = new Date(Date.now() + 30 * 24 * 3600 * 1000);
+      whereBase.expiry_date = { [Op.between]: [now, in30] };
+    }
+
+    const productWhere = {};
+    if (search) {
+      productWhere[Op.or] = [
+        { name: { [Op.like]: `%${search}%` } },
+        { sku:  { [Op.like]: `%${search}%` } },
+      ];
+    }
+    if (category) productWhere.category = category;
+
+    const { count, rows } = await Inventory.findAndCountAll({
+      where: whereBase,
+      limit,
+      offset,
+      distinct: true,
+      include: [
+        {
+          model: Product,
+          as: 'product',
+          attributes: ['product_id', 'sku', 'name', 'category', 'unit_price', 'reorder_level', 'unit', 'image_url'],
+          where: Object.keys(productWhere).length ? productWhere : undefined,
+          required: Object.keys(productWhere).length > 0,
+        },
+        {
+          model: Warehouse,
+          as: 'warehouse',
+          attributes: ['warehouse_id', 'name', 'location', 'city'],
+        },
+      ],
+      order: [['updated_at', 'DESC']],
+    });
+
+    const data = rows.map((inv) => formatRow(inv));
+
+    // Apply lowStock JS filter (when not using DB-level qty=0 shortcut)
+    const filtered = lowStock === 'true' && outOfStock !== 'true'
+      ? data.filter((r) => r.stockStatus === 'low_stock')
+      : data;
+
+    return res.json({
+      success: true,
+      data: {
+        inventory:  filtered,
+        total:      count,
+        page,
+        totalPages: Math.ceil(count / limit),
+        limit,
+      },
+    });
+  } catch (err) {
+    logger.error(`getInventory: ${err.message}`);
+    next(err);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GET /api/inventory/:id
+═══════════════════════════════════════════════════════════════ */
+export async function getInventoryById(req, res, next) {
+  try {
+    const { id } = req.params;
+    const scope  = await getWarehouseScope(req);
+    const whWhere = buildWhereFromScope(scope);
+
+    const inv = await Inventory.findOne({
+      where: { id, ...whWhere },
+      include: fullInclude,
+    });
+    if (!inv) return res.status(404).json({ success: false, error: 'Inventory record not found' });
+    return res.json({ success: true, data: formatRow(inv) });
+  } catch (err) { next(err); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POST /api/inventory/stock-in
+═══════════════════════════════════════════════════════════════ */
+export async function stockIn(req, res, next) {
+  const t = await sequelize.transaction();
+  try {
+    const {
+      product_id, warehouse_id, quantity, batch_no,
+      expiry_date, location, notes, supplier_id,
+    } = req.body;
+
+    if (!product_id || !warehouse_id || !quantity || quantity <= 0) {
+      await t.rollback();
+      return res.status(400).json({ success: false, error: 'product_id, warehouse_id and quantity > 0 are required' });
+    }
+
+    // Scope check for manager/staff
+    const scope = await getWarehouseScope(req);
+    if (scope !== null && !scope.includes(Number(warehouse_id))) {
+      await t.rollback();
+      return res.status(403).json({ success: false, error: 'You do not have access to this warehouse' });
+    }
+
+    const product = await Product.unscoped().findByPk(product_id, { transaction: t });
+    if (!product) { await t.rollback(); return res.status(404).json({ success: false, error: 'Product not found' }); }
+
+    let inv = await Inventory.findOne({
+      where: { product_id, warehouse_id },
+      transaction: t,
+    });
+
+    const oldQty = inv?.quantity ?? 0;
+    const newQty = oldQty + Number(quantity);
+
+    if (inv) {
+      await inv.update({
+        quantity: newQty,
+        ...(batch_no   && { batch_no }),
+        ...(expiry_date && { expiry_date }),
+        ...(location   && { location }),
+      }, { transaction: t });
+    } else {
+      inv = await Inventory.create({
+        product_id, warehouse_id,
+        quantity: newQty,
+        batch_no:    batch_no    || null,
+        expiry_date: expiry_date || null,
+        location:    location    || null,
+        reserved_qty: 0,
+      }, { transaction: t });
+    }
+
+    await t.commit();
+
+    await auditLog(req, 'create', {
+      action: 'STOCK_IN', product_id, warehouse_id,
+      qty_added: quantity, old_qty: oldQty, new_qty: newQty,
+      batch_no, expiry_date, location, notes, supplier_id,
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: { ...formatRow(inv), message: `Stock increased by ${quantity}` },
+    });
+  } catch (err) {
+    await t.rollback();
+    logger.error(`stockIn: ${err.message}`);
+    next(err);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POST /api/inventory/stock-out
+═══════════════════════════════════════════════════════════════ */
+export async function stockOut(req, res, next) {
+  const t = await sequelize.transaction();
+  try {
+    const { product_id, warehouse_id, quantity, reason, reference_no } = req.body;
+
+    if (!product_id || !warehouse_id || !quantity || quantity <= 0) {
+      await t.rollback();
+      return res.status(400).json({ success: false, error: 'product_id, warehouse_id and quantity > 0 are required' });
+    }
+
+    const scope = await getWarehouseScope(req);
+    if (scope !== null && !scope.includes(Number(warehouse_id))) {
+      await t.rollback();
+      return res.status(403).json({ success: false, error: 'Access denied for this warehouse' });
+    }
+
+    const inv = await Inventory.findOne({
+      where: { product_id, warehouse_id },
+      transaction: t,
+    });
+
+    if (!inv) { await t.rollback(); return res.status(404).json({ success: false, error: 'No inventory found for this product/warehouse' }); }
+
+    const available = inv.quantity - (inv.reserved_qty || 0);
+    if (Number(quantity) > available) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        error: `Insufficient available stock. Available: ${available}, Requested: ${quantity}`,
+      });
+    }
+
+    const oldQty = inv.quantity;
+    const newQty = oldQty - Number(quantity);
+    await inv.update({ quantity: newQty }, { transaction: t });
+    await t.commit();
+
+    await auditLog(req, 'update', {
+      action: 'STOCK_OUT', product_id, warehouse_id,
+      qty_removed: quantity, old_qty: oldQty, new_qty: newQty,
+      reason, reference_no,
+    });
+
+    return res.json({ success: true, data: { ...formatRow(inv), message: `Stock decreased by ${quantity}` } });
+  } catch (err) {
+    await t.rollback();
+    logger.error(`stockOut: ${err.message}`);
+    next(err);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POST /api/inventory/adjust  (Admin / Manager)
+═══════════════════════════════════════════════════════════════ */
+export async function adjustStock(req, res, next) {
+  try {
+    const { inventory_id, new_qty, reason, notes } = req.body;
+
+    if (inventory_id === undefined || new_qty === undefined) {
+      return res.status(400).json({ success: false, error: 'inventory_id and new_qty are required' });
+    }
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({ success: false, error: 'Reason is required for adjustments' });
+    }
+
+    const scope = await getWarehouseScope(req);
+    const whWhere = buildWhereFromScope(scope);
+
+    const inv = await Inventory.findOne({ where: { id: inventory_id, ...whWhere } });
+    if (!inv) return res.status(404).json({ success: false, error: 'Inventory record not found or access denied' });
+
+    const newQty = Math.max(0, Number(new_qty));
+    const oldQty = inv.quantity;
+    await inv.update({ quantity: newQty });
+
+    await auditLog(req, 'update', {
+      action: 'STOCK_ADJUST', inventory_id,
+      old_qty: oldQty, new_qty: newQty,
+      delta: newQty - oldQty, reason, notes,
+    });
+
+    // Reload with associations
+    await inv.reload({ include: fullInclude });
+    return res.json({ success: true, data: formatRow(inv) });
+  } catch (err) {
+    logger.error(`adjustStock: ${err.message}`);
+    next(err);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POST /api/inventory/transfer
+═══════════════════════════════════════════════════════════════ */
+export async function transferStock(req, res, next) {
+  const t = await sequelize.transaction();
+  try {
+    const { product_id, fromWarehouseId, toWarehouseId, quantity, notes,
+            from_warehouse_id, to_warehouse_id } = req.body;
+
+    const fromWH = fromWarehouseId || from_warehouse_id;
+    const toWH   = toWarehouseId   || to_warehouse_id;
+    const qty    = Number(quantity);
+
+    if (!product_id || !fromWH || !toWH || !qty || qty <= 0) {
+      await t.rollback();
+      return res.status(400).json({ success: false, error: 'product_id, fromWarehouseId, toWarehouseId and quantity > 0 required' });
+    }
+    if (String(fromWH) === String(toWH)) {
+      await t.rollback();
+      return res.status(400).json({ success: false, error: 'Source and destination warehouses must differ' });
+    }
+
+    // Scope check: manager can only transfer FROM their warehouse
+    const scope = await getWarehouseScope(req);
+    if (scope !== null && !scope.includes(Number(fromWH))) {
+      await t.rollback();
+      return res.status(403).json({ success: false, error: 'You can only transfer from your managed warehouse' });
+    }
+
+    const src = await Inventory.findOne({ where: { product_id, warehouse_id: fromWH }, transaction: t });
+    if (!src) { await t.rollback(); return res.status(404).json({ success: false, error: 'Source inventory not found' }); }
+
+    const available = src.quantity - (src.reserved_qty || 0);
+    if (qty > available) {
+      await t.rollback();
+      return res.status(400).json({ success: false, error: `Insufficient available stock: ${available}` });
+    }
+
+    const oldSrcQty = src.quantity;
+    await src.update({ quantity: src.quantity - qty }, { transaction: t });
+
+    let dst = await Inventory.findOne({ where: { product_id, warehouse_id: toWH }, transaction: t });
+    const oldDstQty = dst?.quantity ?? 0;
+
+    if (dst) {
+      await dst.update({ quantity: dst.quantity + qty }, { transaction: t });
+    } else {
+      dst = await Inventory.create({ product_id, warehouse_id: toWH, quantity: qty, reserved_qty: 0 }, { transaction: t });
+    }
+
+    await t.commit();
+
+    await auditLog(req, 'update', {
+      action: 'STOCK_TRANSFER', product_id,
+      from_warehouse_id: fromWH, to_warehouse_id: toWH, quantity: qty,
+      from_old: oldSrcQty, from_new: src.quantity,
+      to_old: oldDstQty, to_new: dst.quantity,
+      notes,
+    });
+
+    return res.json({
+      success: true,
+      data: {
+        message: `Transferred ${qty} units from WH#${fromWH} to WH#${toWH}`,
+        source: { warehouse_id: fromWH, old_qty: oldSrcQty, new_qty: src.quantity },
+        dest:   { warehouse_id: toWH,   old_qty: oldDstQty, new_qty: dst.quantity },
+      },
+    });
+  } catch (err) {
+    await t.rollback();
+    logger.error(`transferStock: ${err.message}`);
+    next(err);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GET /api/inventory/low-stock
+═══════════════════════════════════════════════════════════════ */
+export async function getLowStock(req, res, next) {
+  try {
+    const scope   = await getWarehouseScope(req);
+    const whWhere = buildWhereFromScope(scope);
+
+    const rows = await Inventory.findAll({
+      where: { quantity: { [Op.gt]: 0 }, ...whWhere },
+      include: fullInclude,
+      limit: 100,
+      order: [['quantity', 'ASC']],
+    });
+
+    const low = rows
+      .map((r) => formatRow(r))
+      .filter((r) => r.stockStatus === 'low_stock');
+
+    return res.json({ success: true, data: low, count: low.length });
+  } catch (err) {
+    logger.error(`getLowStock: ${err.message}`);
+    next(err);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GET /api/inventory/valuation
+═══════════════════════════════════════════════════════════════ */
+export async function getValuation(req, res, next) {
+  try {
+    const scope   = await getWarehouseScope(req);
+    const whParam = scope !== null ? scope.join(',') : null;
+    const whSQL   = whParam ? `WHERE i.warehouse_id IN (${whParam})` : '';
+
+    const [summary] = await sequelize.query(
+      `SELECT
+         COUNT(DISTINCT i.product_id) AS unique_products,
+         SUM(i.quantity)              AS total_qty,
+         SUM(i.quantity * p.unit_price) AS total_value,
+         SUM(CASE WHEN i.quantity = 0 THEN 1 ELSE 0 END)                          AS out_of_stock,
+         SUM(CASE WHEN i.quantity > 0 AND i.quantity <= p.reorder_level THEN 1 ELSE 0 END) AS low_stock
+       FROM inventory i
+       JOIN products p ON i.product_id = p.product_id
+       ${whSQL}`,
+      { type: sequelize.QueryTypes.SELECT },
+    );
+
+    const breakdown = await sequelize.query(
+      `SELECT
+         w.warehouse_id, w.name AS warehouse_name, w.city,
+         COUNT(DISTINCT i.product_id) AS unique_products,
+         COALESCE(SUM(i.quantity), 0) AS total_qty,
+         COALESCE(SUM(i.quantity * p.unit_price), 0) AS stock_value
+       FROM warehouses w
+       LEFT JOIN inventory i ON w.warehouse_id = i.warehouse_id
+       LEFT JOIN products p  ON i.product_id   = p.product_id
+       ${whParam ? `WHERE w.warehouse_id IN (${whParam})` : ''}
+       GROUP BY w.warehouse_id, w.name, w.city
+       ORDER BY stock_value DESC`,
+      { type: sequelize.QueryTypes.SELECT },
+    );
+
+    return res.json({
+      success: true,
+      data: {
+        totalUniqueProducts: Number(summary?.unique_products || 0),
+        totalQty:            Number(summary?.total_qty       || 0),
+        totalValue:          Number(summary?.total_value     || 0),
+        outOfStockCount:     Number(summary?.out_of_stock    || 0),
+        lowStockCount:       Number(summary?.low_stock       || 0),
+        warehouseBreakdown:  breakdown.map((r) => ({
+          warehouseId:      r.warehouse_id,
+          warehouseName:    r.warehouse_name,
+          city:             r.city,
+          uniqueProducts:   Number(r.unique_products),
+          totalQty:         Number(r.total_qty),
+          stockValue:       Number(r.stock_value),
+        })),
+      },
+    });
+  } catch (err) {
+    logger.error(`getValuation: ${err.message}`);
+    next(err);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GET /api/inventory/summary  (kept for backward compat)
+═══════════════════════════════════════════════════════════════ */
+export async function getInventorySummary(req, res, next) {
+  // Delegate to valuation
+  return getValuation(req, res, next);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PUT /api/inventory/:id  (legacy update — kept for compatibility)
+═══════════════════════════════════════════════════════════════ */
+export async function updateStock(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { quantity, reason } = req.body;
+
+    if (quantity < 0) return res.status(400).json({ success: false, error: 'Quantity must be >= 0' });
+
+    const inv = await Inventory.findByPk(id);
+    if (!inv) return res.status(404).json({ success: false, error: 'Inventory item not found' });
+
+    const scope = await getWarehouseScope(req);
+    if (scope !== null && !scope.includes(inv.warehouse_id)) {
+      return res.status(403).json({ success: false, error: 'Access denied for this warehouse' });
+    }
+
+    const oldQty = inv.quantity;
+    await inv.update({ quantity });
+    await auditLog(req, 'update', { action: 'UPDATE_STOCK', inventory_id: id, old_qty: oldQty, new_qty: quantity, reason });
+
+    return res.json({ success: true, data: inv });
+  } catch (err) { next(err); }
+}
+
+/* ── row formatter ───────────────────────────────────────────── */
+function formatRow(inv) {
+  const i = inv.toJSON ? inv.toJSON() : inv;
+  const p = i.product || {};
+  const w = i.warehouse || {};
+  const reserved   = i.reserved_qty ?? 0;
+  const available  = Math.max(0, i.quantity - reserved);
+  const unitPrice  = parseFloat(p.unit_price || 0);
+  const stockStatus = computeStockStatus(i.quantity, p.reorder_level ?? 10);
+
+  return {
+    id:              i.id,
+    inventory_id:    i.id,
+    product_id:      i.product_id,
+    warehouse_id:    i.warehouse_id,
+    quantity:        i.quantity,
+    reserved_qty:    reserved,
+    available_qty:   available,
+    batch_no:        i.batch_no,
+    expiry_date:     i.expiry_date,
+    location:        i.location,
+    updated_at:      i.updated_at,
+    // from product
+    product_name:    p.name,
+    sku:             p.sku,
+    category:        p.category,
+    unit:            p.unit,
+    unit_price:      unitPrice,
+    reorder_level:   p.reorder_level,
+    image_url:       p.image_url,
+    // from warehouse
+    warehouse_name:  w.name,
+    warehouse_city:  w.city,
+    // computed
+    stockValue:      i.quantity * unitPrice,
+    stockStatus,
+  };
+}

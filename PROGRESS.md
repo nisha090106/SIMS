@@ -201,6 +201,24 @@ node-cron (3 scheduled jobs running in the same Node process)
 - **Unrecognised scan resolution**: view all unmatched scans; link a scan to a product (assigns barcode to product, processes inventory retroactively, marks log as processed)
 - **Barcode scanner widget** in the frontend Automation Dashboard — accepts input from keyboard/USB scanners, shows live result, keeps a session-level scan log
 
+### ✅ Request Workflow System (NEW)
+- **Request lifecycle**: `pending` → `approved` → `fulfilled` (or → `rejected` / `cancelled`)
+- **Auto-generated request numbers**: Format `REQ-YYYYMMDD-XXXX` (unique per day)
+- **Multi-item requests**: Each request contains multiple line items with product + requested quantity
+- **Partial approval**: Managers can approve less than requested quantity per item
+- **Inventory deduction**: Fulfillment automatically deducts from inventory at destination warehouse (atomic transaction)
+- **Rejection with reason**: Managers can reject with detailed reason stored in audit trail
+- **Cancellation**: Requesters can cancel pending requests; admin can cancel any request
+- **Role-based workflow**:
+  - Requester/User: Create requests, view own history, cancel pending
+  - Manager: Approve (partial qty), reject (with reason), fulfill, view warehouse requests
+  - Admin: Full access to all requests across all warehouses
+  - Staff: Can fulfill approved requests
+- **Request Portal (Requester)**: Product catalog (grid view with search/filter), add to cart, create request with warehouse/priority selection
+- **Request Management (Manager/Admin)**: Table with status tabs, priority badges, inline modals for approve/reject/fulfill actions
+- **Request Tracking (Requester)**: Expandable rows showing items with qty progression, visual timeline of status changes, rejection reason display
+- **Audit integration**: All request state changes (create, approve, reject, fulfill, cancel) logged to audit_logs
+
 ### ✅ Import Center (Bulk Import)
 - Three import types: **Product Import**, **Stock Import**, **Warehouse Import**
 - File formats supported: `.csv`, `.xlsx`, `.xls` (max 10 MB)

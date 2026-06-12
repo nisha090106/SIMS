@@ -1,441 +1,357 @@
-import PurchaseOrder from '../models/PurchaseOrder.js';
-import Product from '../models/Product.js';
-import Supplier from '../models/Supplier.js';
-import Inventory from '../models/Inventory.js';
-import AuditLog from '../models/AuditLog.js';
-import User from '../models/user.js';
 import { Op } from 'sequelize';
+import {
+  PurchaseOrder, Product, Supplier, Inventory,
+  Warehouse, AuditLog, User, sequelize,
+} from '../models/index.js';
+import logger from '../config/logger.js';
 
-/**
- * Get all purchase orders with pagination and filters
- * Query params: page, limit, status, supplier_id, date_from, date_to
- */
-export const getPurchaseOrders = async (req, res) => {
+/* ── helpers ─────────────────────────────────────────────────── */
+const uid  = (req) => req.user?.user_id || req.user?.id;
+const role = (req) => req.user?.role;
+
+function genPONumber() {
+  const d = new Date().toISOString().split('T')[0].replace(/-/g, '');
+  const r = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  return `PO-${d}-${r}`;
+}
+
+async function getManagedWarehouseIds(req) {
+  if (role(req) === 'admin') return null;
+  const whs = await Warehouse.findAll({ where: { manager_id: uid(req) }, attributes: ['warehouse_id'] });
+  return whs.map((w) => w.warehouse_id);
+}
+
+function parseItems(rawItems) {
+  if (!rawItems) return [];
+  if (Array.isArray(rawItems)) return rawItems;
+  try { return JSON.parse(rawItems); } catch { return []; }
+}
+
+async function audit(req, action, changes) {
   try {
-    const { page = 1, limit = 10, status, supplier_id, date_from, date_to } = req.query;
+    await AuditLog.create({
+      user_id: uid(req), action, table_name: 'purchase_orders', changes, ip_address: req.ip,
+    });
+  } catch (e) { logger.warn(`PO audit log failed: ${e.message}`); }
+}
+
+const PO_INCLUDE = [
+  { model: Supplier,  as: 'supplier',          attributes: ['supplier_id', 'name', 'contact_person', 'email', 'phone', 'rating', 'lead_time'] },
+  { model: Warehouse, as: 'warehouse',          attributes: ['warehouse_id', 'name', 'location'] },
+  { model: User,      as: 'created_by_user',   attributes: ['id', 'first_name', 'last_name', 'email'] },
+  { model: User,      as: 'approved_by_user',  attributes: ['id', 'first_name', 'last_name', 'email'] },
+  { model: User,      as: 'received_by_user',  attributes: ['id', 'first_name', 'last_name', 'email'] },
+];
+
+function formatPO(po) {
+  const json = po.toJSON ? po.toJSON() : po;
+  json.items = parseItems(json.items);
+  // Compute grand total from items
+  const subtotal = json.items.reduce((s, i) => s + (Number(i.total_cost || 0) || (i.quantity * i.unit_cost) || 0), 0);
+  const tax      = subtotal * (Number(json.tax_percent || 0) / 100);
+  json.subtotal    = subtotal;
+  json.grand_total = subtotal + tax;
+  return json;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GET /api/purchase-orders
+═══════════════════════════════════════════════════════════════ */
+export const getPurchaseOrders = async (req, res, next) => {
+  try {
+    const page   = Math.max(1, parseInt(req.query.page) || 1);
+    const limit  = Math.min(100, parseInt(req.query.limit) || 10);
     const offset = (page - 1) * limit;
+    const { status, supplier_id, date_from, date_to, search } = req.query;
 
     const where = {};
-
-    if (status) {
-      where.status = status;
-    }
-
-    if (supplier_id) {
-      where.supplier_id = supplier_id;
-    }
-
+    if (status && status !== 'all') where.status = status;
+    if (supplier_id) where.supplier_id = supplier_id;
     if (date_from || date_to) {
       where.order_date = {};
-      if (date_from) {
-        where.order_date[Op.gte] = new Date(date_from);
-      }
-      if (date_to) {
-        where.order_date[Op.lte] = new Date(date_to);
-      }
+      if (date_from) where.order_date[Op.gte] = new Date(date_from);
+      if (date_to)   where.order_date[Op.lte] = new Date(date_to);
+    }
+    if (search) where.po_number = { [Op.like]: `%${search}%` };
+
+    // Warehouse isolation for manager
+    const warehouseIds = await getManagedWarehouseIds(req);
+    if (warehouseIds !== null) {
+      where.warehouse_id = warehouseIds.length ? { [Op.in]: warehouseIds } : -1;
     }
 
     const { count, rows } = await PurchaseOrder.findAndCountAll({
       where,
-      include: [
-        {
-          model: Supplier,
-          attributes: ['supplier_id', 'name', 'contact_person', 'email'],
-        },
-      ],
-      order: [['order_date', 'DESC']],
-      limit: parseInt(limit),
-      offset: parseInt(offset),
-      distinct: true,
+      include: PO_INCLUDE,
+      order:  [['created_at', 'DESC']],
+      limit, offset, distinct: true,
     });
 
-    res.status(200).json({
-      orders: rows,
-      total: count,
-      page: parseInt(page),
-      totalPages: Math.ceil(count / limit),
+    return res.json({
+      success: true,
+      data: {
+        orders:     rows.map(formatPO),
+        total:      count,
+        page,
+        totalPages: Math.ceil(count / limit),
+      },
     });
-  } catch (error) {
-    console.error('Error fetching purchase orders:', error);
-    res.status(500).json({ error: 'Failed to fetch purchase orders' });
-  }
+  } catch (err) { logger.error(`getPurchaseOrders: ${err.message}`); next(err); }
 };
 
-/**
- * Get a single purchase order by ID
- */
-export const getPurchaseOrderById = async (req, res) => {
+/* ═══════════════════════════════════════════════════════════════
+   GET /api/purchase-orders/:id
+═══════════════════════════════════════════════════════════════ */
+export const getPurchaseOrderById = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const po = await PurchaseOrder.findByPk(req.params.id, { include: PO_INCLUDE });
+    if (!po) return res.status(404).json({ success: false, error: 'Purchase order not found' });
 
-    const po = await PurchaseOrder.findByPk(id, {
-      include: [
-        {
-          model: Supplier,
-          attributes: ['supplier_id', 'name', 'contact_person', 'email', 'phone', 'address'],
-        },
-      ],
-    });
-
-    if (!po) {
-      return res.status(404).json({ error: 'Purchase order not found' });
+    // Warehouse access check
+    const warehouseIds = await getManagedWarehouseIds(req);
+    if (warehouseIds !== null && po.warehouse_id && !warehouseIds.includes(po.warehouse_id)) {
+      return res.status(403).json({ success: false, error: 'Access denied' });
     }
 
-    // Parse items JSON if it's a string
-    let items = [];
-    if (po.items) {
-      items = typeof po.items === 'string' ? JSON.parse(po.items) : po.items;
-    }
-
-    res.status(200).json({
-      ...po.toJSON(),
-      items,
-    });
-  } catch (error) {
-    console.error('Error fetching purchase order:', error);
-    res.status(500).json({ error: 'Failed to fetch purchase order' });
-  }
+    return res.json({ success: true, data: formatPO(po) });
+  } catch (err) { logger.error(`getPurchaseOrderById: ${err.message}`); next(err); }
 };
 
-/**
- * Create a new purchase order
- * Body: { supplier_id, expected_delivery, items: [{ product_id, quantity, unit_price }], notes }
- */
-export const createPurchaseOrder = async (req, res) => {
+/* ═══════════════════════════════════════════════════════════════
+   POST /api/purchase-orders   (creates in draft)
+═══════════════════════════════════════════════════════════════ */
+export const createPurchaseOrder = async (req, res, next) => {
   try {
-    const { supplier_id, expected_delivery, items, notes } = req.body;
-    const user_id = req.user.user_id;
+    const {
+      supplier_id, warehouse_id, expected_delivery,
+      items = [], notes, tax_percent = 0,
+    } = req.body;
 
-    // Validate inputs
-    if (!supplier_id || !expected_delivery || !items || items.length === 0) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!supplier_id || !items.length) {
+      return res.status(400).json({ success: false, error: 'supplier_id and at least one item are required' });
     }
 
-    // Verify supplier exists
     const supplier = await Supplier.findByPk(supplier_id);
-    if (!supplier) {
-      return res.status(404).json({ error: 'Supplier not found' });
+    if (!supplier) return res.status(404).json({ success: false, error: 'Supplier not found' });
+
+    // Resolve warehouse
+    let resolvedWH = warehouse_id;
+    if (!resolvedWH && role(req) !== 'admin') {
+      const wh = await Warehouse.findOne({ where: { manager_id: uid(req) } });
+      resolvedWH = wh?.warehouse_id ?? null;
     }
 
-    // Verify products exist and calculate total
+    // Build line items
     let total_amount = 0;
-    const itemsData = [];
-
+    const lineItems = [];
     for (const item of items) {
-      const product = await Product.findByPk(item.product_id);
-      if (!product) {
-        return res.status(404).json({ error: `Product ${item.product_id} not found` });
-      }
-
-      const subtotal = item.quantity * item.unit_price;
-      total_amount += subtotal;
-      itemsData.push({
-        product_id: item.product_id,
+      const product = await Product.unscoped().findByPk(item.product_id);
+      if (!product) return res.status(404).json({ success: false, error: `Product ${item.product_id} not found` });
+      const qty        = Number(item.quantity) || 0;
+      const unit_cost  = Number(item.unit_cost || item.unit_price || product.cost_price || product.unit_price || 0);
+      const total_cost = qty * unit_cost;
+      total_amount += total_cost;
+      lineItems.push({
+        product_id:   product.product_id,
         product_name: product.name,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        subtotal,
+        sku:          product.sku,
+        quantity:     qty,
+        unit_cost,
+        total_cost,
       });
     }
 
-    // Generate PO number
-    const date = new Date();
-    const dateStr = date.toISOString().split('T')[0].replace(/-/g, '');
-    const random = Math.floor(Math.random() * 10000)
-      .toString()
-      .padStart(4, '0');
-    const po_number = `PO-${dateStr}-${random}`;
-
-    // Create PO
-    const newPO = await PurchaseOrder.create({
-      po_number,
+    const po = await PurchaseOrder.create({
+      po_number:          genPONumber(),
       supplier_id,
-      order_date: new Date(),
-      expected_delivery: new Date(expected_delivery),
-      items: JSON.stringify(itemsData),
-      notes: notes || null,
+      warehouse_id:       resolvedWH,
+      order_date:         new Date(),
+      expected_delivery:  expected_delivery ? new Date(expected_delivery) : null,
+      status:             'draft',
       total_amount,
-      status: 'pending',
+      tax_percent,
+      created_by:         uid(req),
+      items:              JSON.stringify(lineItems),
+      notes:              notes || null,
     });
 
-    // Audit log
-    await AuditLog.create({
-      user_id,
-      action: 'CREATE_PURCHASE_ORDER',
-      table_name: 'purchase_orders',
-      record_id: newPO.purchase_order_id,
-      changes: JSON.stringify({
-        po_number,
-        supplier_id,
-        total_amount,
-        items: itemsData,
-      }),
-      ip_address: req.ip,
-    });
+    await audit(req, 'CREATE_PURCHASE_ORDER', { po_number: po.po_number, total_amount });
+    logger.info(`PO created: ${po.po_number}`);
 
-    res.status(201).json({
-      message: 'Purchase order created successfully',
-      po: newPO,
-    });
-  } catch (error) {
-    console.error('Error creating purchase order:', error);
-    res.status(500).json({ error: 'Failed to create purchase order' });
-  }
+    const full = await PurchaseOrder.findByPk(po.po_id, { include: PO_INCLUDE });
+    return res.status(201).json({ success: true, data: formatPO(full) });
+  } catch (err) { logger.error(`createPurchaseOrder: ${err.message}`); next(err); }
 };
 
-/**
- * Update a purchase order (only when status = 'pending')
- */
-export const updatePurchaseOrder = async (req, res) => {
+/* ═══════════════════════════════════════════════════════════════
+   PUT /api/purchase-orders/:id   (only draft/submitted)
+═══════════════════════════════════════════════════════════════ */
+export const updatePurchaseOrder = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { expected_delivery, items, notes } = req.body;
-    const user_id = req.user.user_id;
-
-    const po = await PurchaseOrder.findByPk(id);
-    if (!po) {
-      return res.status(404).json({ error: 'Purchase order not found' });
+    const po = await PurchaseOrder.findByPk(req.params.id);
+    if (!po) return res.status(404).json({ success: false, error: 'Purchase order not found' });
+    if (!['draft', 'submitted'].includes(po.status)) {
+      return res.status(400).json({ success: false, error: `Cannot edit a PO with status "${po.status}"` });
     }
 
-    // Only allow updates if status is pending
-    if (po.status !== 'pending') {
-      return res.status(400).json({ error: 'Can only update purchase orders in pending status' });
-    }
+    const { supplier_id, warehouse_id, expected_delivery, items, notes, tax_percent } = req.body;
+    const old = po.toJSON();
 
-    // Store old data for audit
-    const oldData = {
-      expected_delivery: po.expected_delivery,
-      items: po.items,
-      notes: po.notes,
-    };
+    if (supplier_id)      po.supplier_id      = supplier_id;
+    if (warehouse_id)     po.warehouse_id     = warehouse_id;
+    if (expected_delivery) po.expected_delivery = new Date(expected_delivery);
+    if (notes !== undefined) po.notes          = notes;
+    if (tax_percent !== undefined) po.tax_percent = tax_percent;
 
-    // Calculate new total if items provided
-    let total_amount = po.total_amount;
-    let itemsData = [];
-
-    if (items && items.length > 0) {
-      total_amount = 0;
-
+    if (items?.length) {
+      let total_amount = 0;
+      const lineItems = [];
       for (const item of items) {
-        const product = await Product.findByPk(item.product_id);
-        if (!product) {
-          return res.status(404).json({ error: `Product ${item.product_id} not found` });
-        }
-
-        const subtotal = item.quantity * item.unit_price;
-        total_amount += subtotal;
-        itemsData.push({
-          product_id: item.product_id,
-          product_name: product.name,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          subtotal,
-        });
+        const product = await Product.unscoped().findByPk(item.product_id);
+        if (!product) return res.status(404).json({ success: false, error: `Product ${item.product_id} not found` });
+        const qty       = Number(item.quantity) || 0;
+        const unit_cost = Number(item.unit_cost || item.unit_price || 0);
+        const total_cost = qty * unit_cost;
+        total_amount += total_cost;
+        lineItems.push({ product_id: product.product_id, product_name: product.name, sku: product.sku, quantity: qty, unit_cost, total_cost });
       }
-
-      po.items = JSON.stringify(itemsData);
+      po.items        = JSON.stringify(lineItems);
       po.total_amount = total_amount;
     }
 
-    if (expected_delivery) {
-      po.expected_delivery = new Date(expected_delivery);
-    }
-
-    if (notes !== undefined) {
-      po.notes = notes;
-    }
-
     await po.save();
+    await audit(req, 'UPDATE_PURCHASE_ORDER', { before: old, after: po.toJSON() });
 
-    // Audit log
-    await AuditLog.create({
-      user_id,
-      action: 'UPDATE_PURCHASE_ORDER',
-      table_name: 'purchase_orders',
-      record_id: id,
-      changes: JSON.stringify({
-        before: oldData,
-        after: {
-          expected_delivery: po.expected_delivery,
-          items: itemsData.length > 0 ? itemsData : oldData.items,
-          notes: po.notes,
-        },
-      }),
-      ip_address: req.ip,
-    });
-
-    res.status(200).json({
-      message: 'Purchase order updated successfully',
-      po,
-    });
-  } catch (error) {
-    console.error('Error updating purchase order:', error);
-    res.status(500).json({ error: 'Failed to update purchase order' });
-  }
+    const full = await PurchaseOrder.findByPk(po.po_id, { include: PO_INCLUDE });
+    return res.json({ success: true, data: formatPO(full) });
+  } catch (err) { logger.error(`updatePurchaseOrder: ${err.message}`); next(err); }
 };
 
-/**
- * Approve a purchase order (pending → approved)
- * Admin only
- */
-export const approvePurchaseOrder = async (req, res) => {
+/* ── Status transition helpers ────────────────────────────── */
+async function transition(req, res, next, fromStatuses, toStatus, extraFields = {}) {
   try {
-    const { id } = req.params;
-    const user_id = req.user.user_id;
-
-    const po = await PurchaseOrder.findByPk(id);
-    if (!po) {
-      return res.status(404).json({ error: 'Purchase order not found' });
+    const po = await PurchaseOrder.findByPk(req.params.id);
+    if (!po) return res.status(404).json({ success: false, error: 'Purchase order not found' });
+    if (!fromStatuses.includes(po.status)) {
+      return res.status(400).json({ success: false, error: `Cannot ${toStatus} a PO with status "${po.status}"` });
     }
-
-    if (po.status !== 'pending') {
-      return res.status(400).json({ error: 'Only pending purchase orders can be approved' });
-    }
-
-    const oldStatus = po.status;
-    po.status = 'approved';
+    const old = po.status;
+    po.status = toStatus;
+    Object.assign(po, extraFields);
     await po.save();
+    await audit(req, `${toStatus.toUpperCase()}_PURCHASE_ORDER`, { status: { from: old, to: toStatus } });
 
-    // Audit log
-    await AuditLog.create({
-      user_id,
-      action: 'APPROVE_PURCHASE_ORDER',
-      table_name: 'purchase_orders',
-      record_id: id,
-      changes: JSON.stringify({
-        status: { from: oldStatus, to: 'approved' },
-      }),
-      ip_address: req.ip,
-    });
+    const full = await PurchaseOrder.findByPk(po.po_id, { include: PO_INCLUDE });
+    return res.json({ success: true, data: formatPO(full) });
+  } catch (err) { logger.error(`PO transition to ${toStatus}: ${err.message}`); next(err); }
+}
 
-    res.status(200).json({
-      message: 'Purchase order approved successfully',
-      po,
-    });
-  } catch (error) {
-    console.error('Error approving purchase order:', error);
-    res.status(500).json({ error: 'Failed to approve purchase order' });
-  }
-};
+/* ═══════════════════════════════════════════════════════════════
+   POST /:id/submit   (draft → submitted)
+═══════════════════════════════════════════════════════════════ */
+export const submitPurchaseOrder = (req, res, next) =>
+  transition(req, res, next, ['draft'], 'submitted');
 
-/**
- * Receive a purchase order (approved → received)
- * Updates inventory for each item
- * Body: { warehouse_id, received_items: [{ product_id, quantity_received }] }
- */
-export const receivePurchaseOrder = async (req, res) => {
+/* ═══════════════════════════════════════════════════════════════
+   POST /:id/approve  (submitted → approved)
+═══════════════════════════════════════════════════════════════ */
+export const approvePurchaseOrder = (req, res, next) =>
+  transition(req, res, next, ['submitted'], 'approved', { approved_by: uid(req) });
+
+/* ═══════════════════════════════════════════════════════════════
+   POST /:id/ship     (approved → shipped)
+═══════════════════════════════════════════════════════════════ */
+export const shipPurchaseOrder = (req, res, next) =>
+  transition(req, res, next, ['approved'], 'shipped');
+
+/* ═══════════════════════════════════════════════════════════════
+   POST /:id/receive  (shipped → received, creates stock-in records)
+   Body: { warehouse_id?, received_items: [{ product_id, quantity_received, batch_no?, expiry_date? }] }
+═══════════════════════════════════════════════════════════════ */
+export const receivePurchaseOrder = async (req, res, next) => {
+  const t = await sequelize.transaction();
   try {
-    const { id } = req.params;
-    const { warehouse_id, received_items } = req.body;
-    const user_id = req.user.user_id;
-
-    const po = await PurchaseOrder.findByPk(id);
-    if (!po) {
-      return res.status(404).json({ error: 'Purchase order not found' });
+    const po = await PurchaseOrder.findByPk(req.params.id, { transaction: t });
+    if (!po) { await t.rollback(); return res.status(404).json({ success: false, error: 'Purchase order not found' }); }
+    if (!['approved', 'shipped'].includes(po.status)) {
+      await t.rollback();
+      return res.status(400).json({ success: false, error: `PO must be approved or shipped to receive. Current: "${po.status}"` });
     }
 
-    if (po.status !== 'approved') {
-      return res.status(400).json({ error: 'Only approved purchase orders can be received' });
-    }
+    const { received_items = [], warehouse_id } = req.body;
+    const targetWH = warehouse_id || po.warehouse_id;
+    if (!targetWH) { await t.rollback(); return res.status(400).json({ success: false, error: 'warehouse_id is required' }); }
 
-    if (!warehouse_id || !received_items || received_items.length === 0) {
-      return res.status(400).json({ error: 'warehouse_id and received_items are required' });
-    }
-
-    // Update inventory for each received item
+    // Upsert inventory for each received item
     for (const item of received_items) {
-      const inventory = await Inventory.findOne({
-        where: {
-          product_id: item.product_id,
-          warehouse_id,
-        },
-      });
+      const qtyReceived = Number(item.quantity_received) || 0;
+      if (qtyReceived <= 0) continue;
 
-      if (!inventory) {
-        // Create new inventory record
-        await Inventory.create({
-          product_id: item.product_id,
-          warehouse_id,
-          quantity: item.quantity_received,
-          last_restocked: new Date(),
-        });
+      let inv = await Inventory.findOne({ where: { product_id: item.product_id, warehouse_id: targetWH }, transaction: t });
+      if (inv) {
+        await inv.update({ quantity: inv.quantity + qtyReceived, ...(item.batch_no && { batch_no: item.batch_no }), ...(item.expiry_date && { expiry_date: item.expiry_date }) }, { transaction: t });
       } else {
-        // Update existing inventory
-        inventory.quantity += item.quantity_received;
-        inventory.last_restocked = new Date();
-        await inventory.save();
+        await Inventory.create({
+          product_id:   item.product_id,
+          warehouse_id: targetWH,
+          quantity:     qtyReceived,
+          batch_no:     item.batch_no   || null,
+          expiry_date:  item.expiry_date || null,
+          reserved_qty: 0,
+        }, { transaction: t });
       }
     }
 
-    // Update PO status
-    const oldStatus = po.status;
-    po.status = 'received';
-    await po.save();
+    // Update PO
+    po.status      = 'received';
+    po.received_by = uid(req);
+    if (!po.warehouse_id) po.warehouse_id = targetWH;
+    await po.save({ transaction: t });
 
-    // Audit log
     await AuditLog.create({
-      user_id,
-      action: 'RECEIVE_PURCHASE_ORDER',
+      user_id: uid(req), action: 'RECEIVE_PURCHASE_ORDER',
       table_name: 'purchase_orders',
-      record_id: id,
-      changes: JSON.stringify({
-        status: { from: oldStatus, to: 'received' },
-        warehouse_id,
-        received_items,
-      }),
+      changes: { po_number: po.po_number, warehouse_id: targetWH, received_items },
       ip_address: req.ip,
-    });
+    }, { transaction: t });
 
-    res.status(200).json({
-      message: 'Purchase order received successfully',
-      po,
-    });
-  } catch (error) {
-    console.error('Error receiving purchase order:', error);
-    res.status(500).json({ error: 'Failed to receive purchase order' });
+    await t.commit();
+    logger.info(`PO received: ${po.po_number}`);
+
+    const full = await PurchaseOrder.findByPk(po.po_id, { include: PO_INCLUDE });
+    return res.json({ success: true, data: formatPO(full) });
+  } catch (err) {
+    await t.rollback();
+    logger.error(`receivePurchaseOrder: ${err.message}`);
+    next(err);
   }
 };
 
-/**
- * Cancel a purchase order (only if not received)
- * Admin only
- */
-export const cancelPurchaseOrder = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user_id = req.user.user_id;
+/* ═══════════════════════════════════════════════════════════════
+   POST /:id/cancel  (Admin only — any status except received)
+═══════════════════════════════════════════════════════════════ */
+export const cancelPurchaseOrder = (req, res, next) =>
+  transition(req, res, next, ['draft', 'submitted', 'approved', 'shipped'], 'cancelled');
 
-    const po = await PurchaseOrder.findByPk(id);
-    if (!po) {
-      return res.status(404).json({ error: 'Purchase order not found' });
-    }
-
-    if (po.status === 'received' || po.status === 'cancelled') {
-      return res.status(400).json({ error: 'Cannot cancel received or already cancelled purchase orders' });
-    }
-
-    const oldStatus = po.status;
-    po.status = 'cancelled';
-    await po.save();
-
-    // Audit log
-    await AuditLog.create({
-      user_id,
-      action: 'CANCEL_PURCHASE_ORDER',
-      table_name: 'purchase_orders',
-      record_id: id,
-      changes: JSON.stringify({
-        status: { from: oldStatus, to: 'cancelled' },
-      }),
-      ip_address: req.ip,
-    });
-
-    res.status(200).json({
-      message: 'Purchase order cancelled successfully',
-      po,
-    });
-  } catch (error) {
-    console.error('Error cancelling purchase order:', error);
-    res.status(500).json({ error: 'Failed to cancel purchase order' });
-  }
-};
+/* ═══════════════════════════════════════════════════════════════
+   Exported helper for cron job auto-generation
+═══════════════════════════════════════════════════════════════ */
+export async function autoCreatePO({ supplier_id, warehouse_id, product_id, product_name, product_sku, unit_cost, quantity, notes, created_by }) {
+  const lineItems = [{
+    product_id, product_name, sku: product_sku,
+    quantity, unit_cost, total_cost: quantity * unit_cost,
+  }];
+  return PurchaseOrder.create({
+    po_number:    genPONumber(),
+    supplier_id,
+    warehouse_id: warehouse_id || null,
+    order_date:   new Date(),
+    status:       'draft',
+    total_amount: quantity * unit_cost,
+    tax_percent:  0,
+    created_by,
+    auto_drafted: true,
+    items:        JSON.stringify(lineItems),
+    notes:        notes || `Auto-drafted: low stock detected`,
+  });
+}

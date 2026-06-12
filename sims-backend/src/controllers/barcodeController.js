@@ -5,6 +5,7 @@ import {
   Inventory, 
   BarcodeScanLog, 
   AuditLog, 
+  UnknownBarcode,
 } from '../models/index.js';
 import { Op } from 'sequelize';
 import notificationService from '../services/notificationService.js';
@@ -460,6 +461,542 @@ export class BarcodeController {
 
     } catch (error) {
       logger.error(`Link barcode scan error: ${error.message}`);
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/barcodes/scan/:barcode
+   * Lookup product by barcode, scoped to warehouse
+   */
+  static async scanLookup(req, res, next) {
+    try {
+      const { barcode } = req.params;
+      const { warehouse_id } = req.query;
+
+      if (!barcode || barcode.trim() === '') {
+        return res.status(400).json({ success: false, error: 'Barcode is required' });
+      }
+
+      // Apply warehouse isolation for Manager/Staff
+      let warehouseFilter = warehouse_id ? parseInt(warehouse_id, 10) : null;
+      if (req.user.role === 'manager' || req.user.role === 'staff') {
+        warehouseFilter = req.user.warehouse_id;
+      }
+
+      const product = await Product.findOne({ where: { barcode } });
+
+      if (!product) {
+        // Create unknown barcode record
+        await UnknownBarcode.create({
+          barcode,
+          scanned_at: new Date(),
+          scanned_by: req.user.user_id,
+          warehouse_id: warehouseFilter,
+          action: 'stock_in', // default
+          resolved: false,
+        });
+
+        return res.status(404).json({
+          success: false,
+          unknownBarcode: true,
+          barcode,
+          message: 'Barcode not recognized',
+        });
+      }
+
+      // Get inventory for the warehouse
+      const inventory = await Inventory.findOne({
+        where: { product_id: product.product_id, warehouse_id: warehouseFilter },
+      });
+
+      return res.status(200).json({
+        success: true,
+        product: {
+          product_id: product.product_id,
+          sku: product.sku,
+          name: product.name,
+          barcode: product.barcode,
+          unit: product.unit,
+          image_url: product.image_url,
+        },
+        inventory: {
+          current_qty: inventory ? inventory.quantity : 0,
+          warehouse_id: warehouseFilter,
+        },
+      });
+    } catch (error) {
+      logger.error(`Scan lookup error: ${error.message}`);
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/barcodes/stock-in
+   * Stock-in operation via barcode
+   */
+  static async stockIn(req, res, next) {
+    try {
+      const { barcode, quantity, warehouse_id, batch_no, expiry_date } = req.body;
+
+      if (!barcode || !quantity || !warehouse_id) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Barcode, quantity, and warehouse_id are required' 
+        });
+      }
+
+      const qty = parseInt(quantity, 10);
+      if (isNaN(qty) || qty <= 0) {
+        return res.status(400).json({ success: false, error: 'Quantity must be positive' });
+      }
+
+      // Apply warehouse isolation
+      let whId = parseInt(warehouse_id, 10);
+      if (req.user.role === 'manager' || req.user.role === 'staff') {
+        whId = req.user.warehouse_id;
+      }
+
+      const product = await Product.findOne({ where: { barcode } });
+      if (!product) {
+        await UnknownBarcode.create({
+          barcode,
+          scanned_at: new Date(),
+          scanned_by: req.user.user_id,
+          warehouse_id: whId,
+          action: 'stock_in',
+          quantity: qty,
+          resolved: false,
+        });
+        return res.status(404).json({ success: false, unknownBarcode: true });
+      }
+
+      const t = await sequelize.transaction();
+      try {
+        let [inventory] = await Inventory.findOrCreate({
+          where: { product_id: product.product_id, warehouse_id: whId },
+          defaults: { sku: product.sku, name: product.name, quantity: 0 },
+          transaction: t,
+        });
+
+        const before_qty = inventory.quantity;
+        const after_qty = before_qty + qty;
+
+        await inventory.update(
+          { quantity: after_qty, batch_no, expiry_date },
+          { transaction: t }
+        );
+
+        await BarcodeScanLog.create({
+          barcode,
+          product_id: product.product_id,
+          warehouse_id: whId,
+          scan_type: 'stock_in',
+          quantity: qty,
+          scanned_by: req.user.user_id,
+          processed: true,
+          processed_at: new Date(),
+        }, { transaction: t });
+
+        await AuditLog.create({
+          user_id: req.user.user_id,
+          action: 'BARCODE_SCAN',
+          table_name: 'inventory',
+          changes: { scan_type: 'stock_in', before: before_qty, after: after_qty, quantity: qty },
+          ip_address: getClientIP(req),
+        }, { transaction: t });
+
+        await t.commit();
+
+        logger.info(`Stock-in via barcode: ${product.sku}, qty: ${qty}`);
+        return res.status(200).json({
+          success: true,
+          message: 'Stock-in completed',
+          product: { name: product.name, sku: product.sku },
+          before_qty,
+          after_qty,
+        });
+      } catch (innerErr) {
+        await t.rollback();
+        throw innerErr;
+      }
+    } catch (error) {
+      logger.error(`Stock-in error: ${error.message}`);
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/barcodes/stock-out
+   * Stock-out operation via barcode
+   */
+  static async stockOut(req, res, next) {
+    try {
+      const { barcode, quantity, warehouse_id, reference_no } = req.body;
+
+      if (!barcode || !quantity || !warehouse_id) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Barcode, quantity, and warehouse_id are required' 
+        });
+      }
+
+      const qty = parseInt(quantity, 10);
+      if (isNaN(qty) || qty <= 0) {
+        return res.status(400).json({ success: false, error: 'Quantity must be positive' });
+      }
+
+      // Apply warehouse isolation
+      let whId = parseInt(warehouse_id, 10);
+      if (req.user.role === 'manager' || req.user.role === 'staff') {
+        whId = req.user.warehouse_id;
+      }
+
+      const product = await Product.findOne({ where: { barcode } });
+      if (!product) {
+        await UnknownBarcode.create({
+          barcode,
+          scanned_at: new Date(),
+          scanned_by: req.user.user_id,
+          warehouse_id: whId,
+          action: 'stock_out',
+          quantity: qty,
+          resolved: false,
+        });
+        return res.status(404).json({ success: false, unknownBarcode: true });
+      }
+
+      const t = await sequelize.transaction();
+      try {
+        const inventory = await Inventory.findOne({
+          where: { product_id: product.product_id, warehouse_id: whId },
+        });
+
+        const before_qty = inventory ? inventory.quantity : 0;
+        if (before_qty < qty) {
+          await t.rollback();
+          return res.status(400).json({
+            success: false,
+            error: `Insufficient stock. Current: ${before_qty}, Requested: ${qty}`,
+          });
+        }
+
+        const after_qty = before_qty - qty;
+
+        if (inventory) {
+          await inventory.update({ quantity: after_qty }, { transaction: t });
+        }
+
+        await BarcodeScanLog.create({
+          barcode,
+          product_id: product.product_id,
+          warehouse_id: whId,
+          scan_type: 'stock_out',
+          quantity: qty,
+          scanned_by: req.user.user_id,
+          processed: true,
+          processed_at: new Date(),
+          notes: reference_no ? `Reference: ${reference_no}` : null,
+        }, { transaction: t });
+
+        await AuditLog.create({
+          user_id: req.user.user_id,
+          action: 'BARCODE_SCAN',
+          table_name: 'inventory',
+          changes: { scan_type: 'stock_out', before: before_qty, after: after_qty, quantity: qty },
+          ip_address: getClientIP(req),
+        }, { transaction: t });
+
+        await t.commit();
+
+        logger.info(`Stock-out via barcode: ${product.sku}, qty: ${qty}`);
+        return res.status(200).json({
+          success: true,
+          message: 'Stock-out completed',
+          product: { name: product.name, sku: product.sku },
+          before_qty,
+          after_qty,
+        });
+      } catch (innerErr) {
+        await t.rollback();
+        throw innerErr;
+      }
+    } catch (error) {
+      logger.error(`Stock-out error: ${error.message}`);
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/barcodes/audit
+   * Audit operation via barcode (compare with system qty)
+   */
+  static async audit(req, res, next) {
+    try {
+      const { barcode, counted_quantity, warehouse_id } = req.body;
+
+      if (!barcode || counted_quantity === undefined || !warehouse_id) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Barcode, counted_quantity, and warehouse_id are required' 
+        });
+      }
+
+      const counted_qty = parseInt(counted_quantity, 10);
+      if (isNaN(counted_qty) || counted_qty < 0) {
+        return res.status(400).json({ success: false, error: 'Counted quantity must be non-negative' });
+      }
+
+      // Apply warehouse isolation
+      let whId = parseInt(warehouse_id, 10);
+      if (req.user.role === 'manager' || req.user.role === 'staff') {
+        whId = req.user.warehouse_id;
+      }
+
+      const product = await Product.findOne({ where: { barcode } });
+      if (!product) {
+        return res.status(404).json({ success: false, unknownBarcode: true });
+      }
+
+      const t = await sequelize.transaction();
+      try {
+        const inventory = await Inventory.findOne({
+          where: { product_id: product.product_id, warehouse_id: whId },
+        });
+
+        const system_qty = inventory ? inventory.quantity : 0;
+        const variance = counted_qty - system_qty;
+
+        await BarcodeScanLog.create({
+          barcode,
+          product_id: product.product_id,
+          warehouse_id: whId,
+          scan_type: 'audit',
+          quantity: counted_qty,
+          scanned_by: req.user.user_id,
+          processed: true,
+          processed_at: new Date(),
+          notes: `Audit variance: ${variance}`,
+        }, { transaction: t });
+
+        await AuditLog.create({
+          user_id: req.user.user_id,
+          action: 'BARCODE_SCAN',
+          table_name: 'inventory',
+          changes: { scan_type: 'audit', system_qty, counted_qty, variance },
+          ip_address: getClientIP(req),
+        }, { transaction: t });
+
+        await t.commit();
+
+        logger.info(`Audit via barcode: ${product.sku}, variance: ${variance}`);
+        return res.status(200).json({
+          success: true,
+          message: 'Audit recorded',
+          product: { name: product.name, sku: product.sku },
+          system_qty,
+          counted_qty,
+          variance,
+        });
+      } catch (innerErr) {
+        await t.rollback();
+        throw innerErr;
+      }
+    } catch (error) {
+      logger.error(`Audit error: ${error.message}`);
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/barcodes/unknown
+   * Get all unknown barcodes (Admin) or by warehouse (Manager)
+   */
+  static async getUnknownBarcodes(req, res, next) {
+    try {
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const offset = (page - 1) * limit;
+
+      const where = { resolved: false };
+
+      // Manager sees only their warehouse
+      if (req.user.role === 'manager') {
+        where.warehouse_id = req.user.warehouse_id;
+      }
+
+      const { count: total, rows: unknownBarcodes } = await UnknownBarcode.findAndCountAll({
+        where,
+        limit,
+        offset,
+        order: [['scanned_at', 'DESC']],
+        include: [
+          { association: 'scanner', attributes: ['id', 'email', 'first_name', 'last_name'] },
+          { association: 'warehouse', attributes: ['warehouse_id', 'name'] },
+        ],
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          unknownBarcodes,
+          total,
+          page,
+          totalPages: Math.ceil(total / limit),
+        },
+      });
+    } catch (error) {
+      logger.error(`Get unknown barcodes error: ${error.message}`);
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/barcodes/unknown/:id/assign
+   * Assign unknown barcode to a product
+   */
+  static async assignUnknownBarcode(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { product_id } = req.body;
+
+      if (!product_id) {
+        return res.status(400).json({ success: false, error: 'Product ID is required' });
+      }
+
+      const unknownBarcode = await UnknownBarcode.findByPk(id);
+      if (!unknownBarcode) {
+        return res.status(404).json({ success: false, error: 'Unknown barcode record not found' });
+      }
+
+      if (unknownBarcode.resolved) {
+        return res.status(400).json({ success: false, error: 'This barcode has already been resolved' });
+      }
+
+      const product = await Product.findByPk(product_id);
+      if (!product) {
+        return res.status(404).json({ success: false, error: 'Product not found' });
+      }
+
+      // Check if barcode is already assigned to another product
+      const existingBarcodeProduct = await Product.findOne({
+        where: { barcode: unknownBarcode.barcode, product_id: { [Op.ne]: product_id } },
+      });
+      if (existingBarcodeProduct) {
+        return res.status(400).json({
+          success: false,
+          error: `Barcode already assigned to product ${existingBarcodeProduct.sku}`,
+        });
+      }
+
+      const t = await sequelize.transaction();
+      try {
+        // 1. Update product with barcode
+        await product.update({ barcode: unknownBarcode.barcode }, { transaction: t });
+
+        // 2. Find or create inventory and process the operation
+        let [inventory] = await Inventory.findOrCreate({
+          where: { product_id: product.product_id, warehouse_id: unknownBarcode.warehouse_id },
+          defaults: { sku: product.sku, name: product.name, quantity: 0 },
+          transaction: t,
+        });
+
+        const before_qty = inventory.quantity;
+        let after_qty = before_qty;
+
+        if (unknownBarcode.action === 'stock_in') {
+          after_qty = before_qty + unknownBarcode.quantity;
+        } else if (unknownBarcode.action === 'stock_out') {
+          after_qty = before_qty - unknownBarcode.quantity;
+          if (after_qty < 0) {
+            await t.rollback();
+            return res.status(400).json({
+              success: false,
+              error: `Insufficient stock. Current: ${before_qty}, Requested: ${unknownBarcode.quantity}`,
+            });
+          }
+        }
+
+        if (unknownBarcode.action !== 'audit') {
+          await inventory.update({ quantity: after_qty }, { transaction: t });
+        }
+
+        // 3. Mark unknown barcode as resolved
+        await unknownBarcode.update({
+          product_id: product.product_id,
+          resolved: true,
+          resolved_at: new Date(),
+          resolved_by: req.user.user_id,
+        }, { transaction: t });
+
+        // 4. Create audit log
+        await AuditLog.create({
+          user_id: req.user.user_id,
+          action: 'BARCODE_SCAN',
+          table_name: 'inventory',
+          changes: {
+            action: 'assign_unknown_barcode',
+            barcode: unknownBarcode.barcode,
+            product_id: product.product_id,
+            before: before_qty,
+            after: after_qty,
+          },
+          ip_address: getClientIP(req),
+        }, { transaction: t });
+
+        await t.commit();
+
+        logger.info(`Unknown barcode assigned: ${unknownBarcode.barcode} -> ${product.sku}`);
+        return res.status(200).json({
+          success: true,
+          message: 'Unknown barcode successfully assigned and processed',
+          product: { product_id, sku: product.sku, name: product.name },
+          before_qty,
+          after_qty,
+        });
+      } catch (innerErr) {
+        await t.rollback();
+        throw innerErr;
+      }
+    } catch (error) {
+      logger.error(`Assign unknown barcode error: ${error.message}`);
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/barcodes/generate
+   * Generate barcode for a product
+   */
+  static async generateBarcode(req, res, next) {
+    try {
+      const { product_id } = req.query;
+
+      if (!product_id) {
+        return res.status(400).json({ success: false, error: 'Product ID is required' });
+      }
+
+      const product = await Product.findByPk(product_id);
+      if (!product) {
+        return res.status(404).json({ success: false, error: 'Product not found' });
+      }
+
+      // Generate a barcode (using product_id or SKU)
+      // Format: SIMS-[product_id]-[timestamp]
+      const barcode = `SIMS${product.product_id.toString().padStart(6, '0')}`;
+
+      return res.status(200).json({
+        success: true,
+        product: {
+          product_id: product.product_id,
+          sku: product.sku,
+          name: product.name,
+        },
+        barcode,
+        message: 'Barcode generated',
+      });
+    } catch (error) {
+      logger.error(`Generate barcode error: ${error.message}`);
       next(error);
     }
   }

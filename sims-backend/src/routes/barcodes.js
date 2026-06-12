@@ -44,4 +44,62 @@ router.patch(
   asyncHandler(BarcodeController.linkScanToProduct),
 );
 
+// ============ NEW BARCODE MANAGEMENT ROUTES ============
+
+// GET /api/barcodes/scan/:barcode -> Lookup product by barcode (scoped to warehouse)
+router.get(
+  '/scan/:barcode',
+  authMiddleware,
+  authorize('admin', 'manager', 'staff'),
+  asyncHandler(BarcodeController.scanLookup),
+);
+
+// POST /api/barcodes/stock-in -> Stock in via barcode
+router.post(
+  '/stock-in',
+  authMiddleware,
+  authorize('admin', 'manager', 'staff'),
+  asyncHandler(BarcodeController.stockIn),
+);
+
+// POST /api/barcodes/stock-out -> Stock out via barcode
+router.post(
+  '/stock-out',
+  authMiddleware,
+  authorize('admin', 'manager', 'staff'),
+  asyncHandler(BarcodeController.stockOut),
+);
+
+// POST /api/barcodes/audit -> Audit via barcode
+router.post(
+  '/audit',
+  authMiddleware,
+  authorize('admin', 'manager', 'staff'),
+  asyncHandler(BarcodeController.audit),
+);
+
+// GET /api/barcodes/unknown -> Get unknown barcodes (Admin: all; Manager: own WH)
+router.get(
+  '/unknown',
+  authMiddleware,
+  authorize('admin', 'manager'),
+  asyncHandler(BarcodeController.getUnknownBarcodes),
+);
+
+// POST /api/barcodes/unknown/:id/assign -> Assign unknown barcode to product
+router.post(
+  '/unknown/:id/assign',
+  authMiddleware,
+  authorize('admin', 'manager'),
+  asyncHandler(BarcodeController.assignUnknownBarcode),
+);
+
+// GET /api/barcodes/generate -> Generate barcode for product
+router.get(
+  '/generate',
+  authMiddleware,
+  authorize('admin', 'manager'),
+  asyncHandler(BarcodeController.generateBarcode),
+);
+
 export default router;

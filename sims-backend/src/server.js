@@ -18,7 +18,7 @@ import dashboardRoutes from './routes/dashboard.js';
 import importRoutes from './routes/imports.js';
 import barcodeRoutes from './routes/barcodes.js';
 import automationRoutes from './routes/automation.js';
-import requestRoutes from './routes/requests.js';
+import requestsRoutes from './routes/requestRoutes.js';
 import { initCronJobs } from './services/cronService.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
 import { requestLogger, responseTime } from './middlewares/loggingMiddleware.js';
@@ -90,6 +90,7 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+// /api/categories is served by the same product router (route defined as /categories inside it)
 app.use('/api/warehouses', warehouseRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/suppliers', supplierRoutes);
@@ -99,7 +100,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/imports', importRoutes);
 app.use('/api/barcodes', barcodeRoutes);
 app.use('/api/automation', automationRoutes);
-app.use('/api', requestRoutes);
+app.use('/api/requests', requestsRoutes);
 
 // 404 Handler
 app.use(notFoundHandler);
@@ -118,8 +119,10 @@ const startServer = async () => {
     logger.info('Database connection successful');
 
     // Sync models with database (for development only)
+    // NOTE: Using { alter: false } — schema is managed by Sequelize migrations.
+    // alter: true causes destructive FK-drop errors on existing tables.
     if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
+      await sequelize.sync({ alter: false });
       logger.info('Database synced');
     }
 

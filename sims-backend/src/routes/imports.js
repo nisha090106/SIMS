@@ -1,29 +1,50 @@
 import express from 'express';
-import { 
-  uploadAndImport, 
-  getImportJob, 
-  getImportHistory, 
-  downloadTemplate, 
+import {
+  importProducts,
+  importInventory,
+  importWarehouses,
+  uploadAndImport,
+  getImportJob,
+  getImportHistory,
+  downloadTemplate,
 } from '../controllers/importController.js';
 import { authMiddleware, authorize } from '../middlewares/authMiddleware.js';
 import { upload } from '../config/multer.js';
 
 const router = express.Router();
-
-// Apply auth and admin/manager authorization middleware globally to all import routes
 router.use(authMiddleware);
-router.use(authorize('admin', 'manager'));
 
-// POST /api/imports/upload - Upload file and start import
-router.post('/upload', upload.single('file'), uploadAndImport);
-
-// GET /api/imports - Get last 20 import jobs
-router.get('/', getImportHistory);
-
-// GET /api/imports/:jobId - Get status/progress of import job
-router.get('/:jobId', getImportJob);
-
-// GET /api/imports/template/:type - Download import CSV template
+// ── Template download (no role restriction — all auth'd users) ─
 router.get('/template/:type', downloadTemplate);
+
+// ── Dedicated import endpoints ─────────────────────────────────
+router.post('/products',
+  authorize('admin', 'manager'),
+  upload.single('file'),
+  importProducts,
+);
+
+router.post('/inventory',
+  authorize('admin', 'manager', 'staff'),
+  upload.single('file'),
+  importInventory,
+);
+
+router.post('/warehouses',
+  authorize('admin'),             // Admin only
+  upload.single('file'),
+  importWarehouses,
+);
+
+// ── Legacy unified endpoint (kept for backward compat) ─────────
+router.post('/upload',
+  authorize('admin', 'manager'),
+  upload.single('file'),
+  uploadAndImport,
+);
+
+// ── History + status ──────────────────────────────────────────
+router.get('/',        authorize('admin', 'manager'), getImportHistory);
+router.get('/:jobId',  authorize('admin', 'manager'), getImportJob);
 
 export default router;

@@ -1,26 +1,38 @@
 import express from 'express';
-import { InventoryController } from '../controllers/inventoryController.js';
+import {
+  getInventory,
+  getInventoryById,
+  stockIn,
+  stockOut,
+  adjustStock,
+  transferStock,
+  getLowStock,
+  getValuation,
+  getInventorySummary,
+  updateStock,
+} from '../controllers/inventoryController.js';
 import { authMiddleware, authorize } from '../middlewares/authMiddleware.js';
 import { asyncHandler } from '../middlewares/errorHandler.js';
 
 const router = express.Router();
+router.use(authMiddleware);
 
-// GET /api/inventory/summary
-router.get('/summary', authMiddleware, asyncHandler(InventoryController.getInventorySummary));
+// ── Special paths first (before /:id) ─────────────────────────
+router.get('/summary',   asyncHandler(getInventorySummary));
+router.get('/low-stock', asyncHandler(getLowStock));
+router.get('/valuation', asyncHandler(getValuation));
 
-// GET /api/inventory/low-stock
-router.get('/low-stock', authMiddleware, asyncHandler(InventoryController.getLowStock));
+router.post('/stock-in',  authorize('admin', 'manager', 'staff'), asyncHandler(stockIn));
+router.post('/stock-out', authorize('admin', 'manager', 'staff'), asyncHandler(stockOut));
+router.post('/adjust',    authorize('admin', 'manager'),          asyncHandler(adjustStock));
+router.post('/transfer',  authorize('admin', 'manager'),          asyncHandler(transferStock));
 
-// GET /api/inventory
-router.get('/', authMiddleware, asyncHandler(InventoryController.getInventory));
+// ── Generic CRUD ──────────────────────────────────────────────
+router.get('/',    asyncHandler(getInventory));
+router.get('/:id', asyncHandler(getInventoryById));
+router.put('/:id', authorize('admin', 'manager'), asyncHandler(updateStock));
 
-// PUT /api/inventory/:id
-router.put('/:id', authMiddleware, authorize('admin', 'manager'), asyncHandler(InventoryController.updateStock));
-
-// POST /api/inventory/transfer
-router.post('/transfer', authMiddleware, authorize('admin', 'manager'), asyncHandler(InventoryController.transferStock));
-
-// POST /api/inventory/adjust
-router.post('/adjust', authMiddleware, authorize('admin', 'manager'), asyncHandler(InventoryController.adjustInventory));
+// Backward compat: old POST /transfer route
+router.post('/transfer', authorize('admin', 'manager'), asyncHandler(transferStock));
 
 export default router;

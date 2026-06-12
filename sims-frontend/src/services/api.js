@@ -82,30 +82,44 @@ export const authAPI = {
 };
 
 export const productAPI = {
-  getAll: (params) => api.get('/products', { params }),
-  getById: (id) => api.get(`/products/${id}`),
-  create: (data) => api.post('/products', data),
-  update: (id, data) => api.put(`/products/${id}`, data),
-  delete: (id) => api.delete(`/products/${id}`),
+  getAll:    (params) => api.get('/products', { params }),
+  getById:   (id)     => api.get(`/products/${id}`),
+  create:    (data)   => api.post('/products', data),
+  update:    (id, data) => api.put(`/products/${id}`, data),
+  delete:    (id)     => api.delete(`/products/${id}`),
   uploadImage: (id, formData) =>
     api.post(`/products/${id}/upload-image`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
 };
 
+export const categoryAPI = {
+  getAll:  ()     => api.get('/products/categories'),
+  create:  (data) => api.post('/products/categories', data),
+};
+
 export const inventoryAPI = {
-  getAll: (params) => api.get('/inventory', { params }),
-  getById: (id) => api.get(`/inventory/${id}`),
-  getLowStock: () => api.get('/inventory/low-stock'),
-  updateStock: (id, data) => api.put(`/inventory/${id}`, data),
+  getAll:       (params)     => api.get('/inventory', { params }),
+  getById:      (id)         => api.get(`/inventory/${id}`),
+  getLowStock:  (params)     => api.get('/inventory/low-stock', { params }),
+  getValuation: (params)     => api.get('/inventory/valuation', { params }),
+  getSummary:   ()           => api.get('/inventory/summary'),
+  stockIn:      (data)       => api.post('/inventory/stock-in', data),
+  stockOut:     (data)       => api.post('/inventory/stock-out', data),
+  adjust:       (data)       => api.post('/inventory/adjust', data),
+  transfer:     (data)       => api.post('/inventory/transfer', data),
+  updateStock:  (id, data)   => api.put(`/inventory/${id}`, data),
 };
 
 export const warehouseAPI = {
-  getAll: (params) => api.get('/warehouses', { params }),
-  getById: (id) => api.get(`/warehouses/${id}`),
-  create: (data) => api.post('/warehouses', data),
-  update: (id, data) => api.put(`/warehouses/${id}`, data),
-  delete: (id) => api.delete(`/warehouses/${id}`),
+  getAll:        (params)   => api.get('/warehouses', { params }),
+  getById:       (id)       => api.get(`/warehouses/${id}`),
+  getStats:      (id)       => api.get(`/warehouses/${id}/stats`),
+  getInventory:  (id, p)    => api.get(`/warehouses/${id}/inventory`, { params: p }),
+  getManagers:   ()         => api.get('/warehouses/managers'),
+  create:        (data)     => api.post('/warehouses', data),
+  update:        (id, data) => api.put(`/warehouses/${id}`, data),
+  delete:        (id)       => api.delete(`/warehouses/${id}`),
 };
 
 export const supplierAPI = {
@@ -117,11 +131,15 @@ export const supplierAPI = {
 };
 
 export const purchaseOrderAPI = {
-  getAll: (params) => api.get('/purchase-orders', { params }),
-  getById: (id) => api.get(`/purchase-orders/${id}`),
-  create: (data) => api.post('/purchase-orders', data),
-  update: (id, data) => api.put(`/purchase-orders/${id}`, data),
-  delete: (id) => api.delete(`/purchase-orders/${id}`),
+  getAll:    (params)   => api.get('/purchase-orders', { params }),
+  getById:   (id)       => api.get(`/purchase-orders/${id}`),
+  create:    (data)     => api.post('/purchase-orders', data),
+  update:    (id, data) => api.put(`/purchase-orders/${id}`, data),
+  submit:    (id)       => api.post(`/purchase-orders/${id}/submit`),
+  approve:   (id)       => api.post(`/purchase-orders/${id}/approve`),
+  ship:      (id)       => api.post(`/purchase-orders/${id}/ship`),
+  receive:   (id, data) => api.post(`/purchase-orders/${id}/receive`, data),
+  cancel:    (id)       => api.post(`/purchase-orders/${id}/cancel`),
 };
 
 export const salesOrderAPI = {
@@ -156,12 +174,15 @@ export const requestAPI = {
 };
 
 export const importAPI = {
-  upload: (formData) => api.post('/imports/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }),
-  getJobStatus: (jobId) => api.get(`/imports/${jobId}`),
-  getHistory: (params) => api.get('/imports', { params }),
-  downloadTemplate: (type) => api.get(`/imports/template/${type}`, { responseType: 'blob' }),
+  // Dedicated endpoints
+  uploadProducts:   (formData) => api.post('/imports/products',   formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  uploadInventory:  (formData) => api.post('/imports/inventory',  formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  uploadWarehouses: (formData) => api.post('/imports/warehouses', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  // Legacy unified
+  upload:           (formData) => api.post('/imports/upload',     formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  getJobStatus:     (jobId)    => api.get(`/imports/${jobId}`),
+  getHistory:       (params)   => api.get('/imports', { params }),
+  downloadTemplate: (type)     => api.get(`/imports/template/${type}`, { responseType: 'blob' }),
 };
 
 export const automationAPI = {

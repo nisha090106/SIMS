@@ -1,239 +1,257 @@
 import fs from 'fs';
 import path from 'path';
-import { ImportJob } from '../models/index.js';
+import { ImportJob, Warehouse } from '../models/index.js';
 import * as importService from '../services/importService.js';
 import logger from '../config/logger.js';
 
-/**
- * Handle multipart/form-data upload and trigger async bulk import.
- */
-export const uploadAndImport = async (req, res, _next) => {
-  let tempFilePath = null;
+/* ── helpers ─────────────────────────────────────────────────── */
+const uid = (req) => req.user?.user_id || req.user?.id;
 
+/**
+ * Resolve the warehouse ID for manager/staff:
+ * - Admin:   uses warehouse_id from body (optional)
+ * - Manager: auto-assigned to their managed warehouse
+ */
+async function resolveWarehouseId(req, bodyWarehouseId) {
+  const role = req.user?.role;
+  if (role === 'admin') return bodyWarehouseId || null;
+
+  // Manager / Staff: find their first managed warehouse
+  const wh = await Warehouse.findOne({ where: { manager_id: uid(req) } });
+  return wh ? wh.warehouse_id : null;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Core upload + async process handler
+   Used by all three import endpoints
+═══════════════════════════════════════════════════════════════ */
+async function handleImport(req, res, importType) {
+  let tempFilePath = null;
   try {
-    const { import_type, warehouse_id } = req.body;
-    
-    // File validation
     if (!req.file) {
       return res.status(400).json({ success: false, error: 'No file uploaded.' });
     }
 
     tempFilePath = req.file.path;
-
-    // Validate import type
-    const validImportTypes = ['product', 'stock', 'warehouse'];
-    if (!validImportTypes.includes(import_type)) {
-      throw new Error(`Invalid import_type: "${import_type}". Allowed values: product, stock, warehouse.`);
-    }
-
-    // Validate warehouse_id for stock imports
-    if (import_type === 'stock' && !warehouse_id) {
-      throw new Error('warehouse_id is required for stock imports.');
-    }
-
     const fileType = path.extname(req.file.originalname).toLowerCase();
-    
-    // Parse the file to get rows and count total_rows before responding
+
+    // Parse file into rows
     let rows;
     try {
       rows = importService.parseFile(tempFilePath, fileType);
-    } catch (parseError) {
-      throw new Error(`Failed to parse file: ${parseError.message}`);
+    } catch (parseErr) {
+      throw new Error(`File parse failed: ${parseErr.message}`);
     }
 
     if (!rows || rows.length === 0) {
-      throw new Error('The uploaded file is empty or has no data rows.');
+      throw new Error('The uploaded file is empty or contains no data rows.');
     }
 
-    // Create the ImportJob record in 'pending' status
+    // Resolve warehouse (needed for inventory import)
+    let warehouseId = null;
+    if (importType === 'stock') {
+      warehouseId = await resolveWarehouseId(req, req.body.warehouse_id);
+      if (!warehouseId) {
+        throw new Error('A warehouse must be selected (or assigned to your account) for inventory imports.');
+      }
+    }
+
+    // Create ImportJob record
     const job = await ImportJob.create({
-      job_type: `${import_type}_import`,
-      file_name: req.file.originalname,
-      status: 'pending',
-      total_rows: rows.length,
-      triggered_by: req.user.user_id,
+      job_type:     `${importType}_import`,
+      file_name:    req.file.originalname,
+      status:       'pending',
+      total_rows:   rows.length,
+      triggered_by: uid(req),
     });
 
-    // Respond immediately to the client
+    // Respond 202 immediately
     res.status(202).json({
       success: true,
-      message: 'Import started successfully.',
-      jobId: job.id,
+      message: 'Import queued.',
+      jobId:   job.id,
+      total:   rows.length,
     });
 
-    // Process processing asynchronously
+    // Process async
     setImmediate(async () => {
       const jobId = job.id;
-      logger.info(`Starting asynchronous processing for import job #${jobId} (${import_type})`);
-      
-      try {
-        // Update job status to 'processing'
-        await ImportJob.update({
-          status: 'processing',
-          started_at: new Date(),
-        }, {
-          where: { id: jobId },
-        });
+      logger.info(`[IMPORT] Starting job #${jobId} type=${importType}`);
 
-        // Run the appropriate import logic
+      try {
+        await ImportJob.update({ status: 'processing', started_at: new Date() }, { where: { id: jobId } });
+
         let summary;
-        if (import_type === 'product') {
-          summary = await importService.importProducts(rows, jobId, req.user.user_id);
-        } else if (import_type === 'stock') {
-          summary = await importService.importStock(rows, jobId, warehouse_id, req.user.user_id);
-        } else if (import_type === 'warehouse') {
-          summary = await importService.importWarehouses(rows, jobId, req.user.user_id);
+        if (importType === 'product') {
+          summary = await importService.importProducts(rows, jobId, uid(req));
+        } else if (importType === 'stock') {
+          summary = await importService.importStock(rows, jobId, warehouseId, uid(req));
+        } else if (importType === 'warehouse') {
+          summary = await importService.importWarehouses(rows, jobId, uid(req));
         }
 
-        logger.info(`Finished processing import job #${jobId}. Success: ${summary.created + summary.updated}, Failed: ${summary.failed}`);
-
-        // Update job status to 'completed'
+        const allFailed = summary.failed > 0 && (summary.created + summary.updated === 0);
         await ImportJob.update({
-          status: summary.failed > 0 && (summary.created + summary.updated === 0) ? 'failed' : 'completed',
+          status:       allFailed ? 'failed' : 'completed',
           completed_at: new Date(),
-        }, {
-          where: { id: jobId },
-        });
+        }, { where: { id: jobId } });
 
-      } catch (procError) {
-        logger.error(`Error processing import job #${jobId}: ${procError.message}`);
-        
+        logger.info(`[IMPORT] Job #${jobId} done. created=${summary.created} updated=${summary.updated} failed=${summary.failed}`);
+      } catch (procErr) {
+        logger.error(`[IMPORT] Job #${jobId} processing error: ${procErr.message}`);
         await ImportJob.update({
-          status: 'failed',
+          status:       'failed',
           completed_at: new Date(),
-          error_log: JSON.stringify([{ error: procError.message }]),
-        }, {
-          where: { id: jobId },
-        });
+          error_log:    JSON.stringify([{ error: procErr.message }]),
+        }, { where: { id: jobId } });
       } finally {
-        // Clean up the temp uploaded file
         if (tempFilePath && fs.existsSync(tempFilePath)) {
-          fs.unlink(tempFilePath, (err) => {
-            if (err) {
-              logger.error(`Failed to delete temp file ${tempFilePath}: ${err.message}`);
-            } else {
-              logger.info(`Cleaned up temp import file: ${tempFilePath}`);
-            }
+          fs.unlink(tempFilePath, (e) => {
+            if (e) logger.error(`Failed to delete temp file: ${e.message}`);
           });
         }
       }
     });
 
-  } catch (error) {
-    // If we failed before database job creation, clean up upload file immediately
+  } catch (err) {
     if (tempFilePath && fs.existsSync(tempFilePath)) {
-      try {
-        fs.unlinkSync(tempFilePath);
-      } catch (err) {
-        logger.error(`Failed to delete temp file on error: ${err.message}`);
-      }
+      try { fs.unlinkSync(tempFilePath); } catch (_) {}
     }
-    logger.error(`Import upload failed: ${error.message}`);
-    res.status(400).json({ success: false, error: error.message });
+    logger.error(`[IMPORT] Upload failed: ${err.message}`);
+    res.status(400).json({ success: false, error: err.message });
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Route handlers
+═══════════════════════════════════════════════════════════════ */
+export const importProducts   = (req, res) => handleImport(req, res, 'product');
+export const importInventory  = (req, res) => handleImport(req, res, 'stock');
+export const importWarehouses = (req, res) => handleImport(req, res, 'warehouse');
+
+// Legacy unified endpoint — kept for backward compat
+export const uploadAndImport = async (req, res) => {
+  const typeMap = { product: 'product', stock: 'stock', warehouse: 'warehouse' };
+  const t = typeMap[req.body?.import_type];
+  if (!t) return res.status(400).json({ success: false, error: 'Invalid import_type.' });
+  return handleImport(req, res, t);
 };
 
-/**
- * Get the status and progress of a specific import job.
- */
-export const getImportJob = async (req, res, _next) => {
+/* ═══════════════════════════════════════════════════════════════
+   GET /api/imports/:jobId   — job status + progress
+═══════════════════════════════════════════════════════════════ */
+export const getImportJob = async (req, res) => {
   try {
-    const { jobId } = req.params;
-    const job = await ImportJob.findByPk(jobId, {
-      include: [
-        {
-          association: 'triggeredBy',
-          attributes: ['id', 'first_name', 'last_name', 'email'],
-        },
-      ],
+    const job = await ImportJob.findByPk(req.params.jobId, {
+      include: [{ association: 'triggeredBy', attributes: ['id', 'first_name', 'last_name', 'email'] }],
     });
+    if (!job) return res.status(404).json({ success: false, error: 'Import job not found.' });
 
-    if (!job) {
-      return res.status(404).json({ success: false, error: 'Import job not found.' });
+    // Parse error_log JSON safely
+    let errorLog = null;
+    if (job.error_log) {
+      try { errorLog = typeof job.error_log === 'string' ? JSON.parse(job.error_log) : job.error_log; }
+      catch { errorLog = [{ error: job.error_log }]; }
     }
 
-    res.status(200).json({
+    return res.json({
       success: true,
-      data: job,
+      data: {
+        ...job.toJSON(),
+        error_log: errorLog,
+        progress_pct: job.total_rows > 0
+          ? Math.min(100, Math.round(((job.processed_rows + job.failed_rows) / job.total_rows) * 100))
+          : job.status === 'completed' ? 100 : 0,
+      },
     });
-  } catch (error) {
-    logger.error(`Get import job error: ${error.message}`);
-    res.status(500).json({ success: false, error: error.message });
+  } catch (err) {
+    logger.error(`getImportJob: ${err.message}`);
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
-/**
- * Get import history, last 20 jobs with optional filters.
- */
-export const getImportHistory = async (req, res, _next) => {
+/* ═══════════════════════════════════════════════════════════════
+   GET /api/imports   — history (last 30)
+═══════════════════════════════════════════════════════════════ */
+export const getImportHistory = async (req, res) => {
   try {
-    const { import_type, status } = req.query;
     const where = {};
-
-    if (import_type) {
-      where.job_type = `${import_type}_import`;
-    }
-    
-    if (status) {
-      where.status = status;
-    }
+    if (req.query.import_type) where.job_type = `${req.query.import_type}_import`;
+    if (req.query.status)      where.status    = req.query.status;
 
     const jobs = await ImportJob.findAll({
       where,
-      include: [
-        {
-          association: 'triggeredBy',
-          attributes: ['id', 'first_name', 'last_name', 'email'],
-        },
-      ],
+      include: [{ association: 'triggeredBy', attributes: ['id', 'first_name', 'last_name', 'email'] }],
       order: [['created_at', 'DESC']],
-      limit: 20,
+      limit: 30,
     });
 
-    res.status(200).json({
+    return res.json({
       success: true,
-      data: jobs,
+      data: jobs.map((j) => {
+        let errorLog = null;
+        if (j.error_log) {
+          try { errorLog = typeof j.error_log === 'string' ? JSON.parse(j.error_log) : j.error_log; }
+          catch { errorLog = [{ error: j.error_log }]; }
+        }
+        return { ...j.toJSON(), error_log: errorLog };
+      }),
     });
-  } catch (error) {
-    logger.error(`Get import history error: ${error.message}`);
-    res.status(500).json({ success: false, error: error.message });
+  } catch (err) {
+    logger.error(`getImportHistory: ${err.message}`);
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
-/**
- * Download a CSV template for a specific import type.
- */
-export const downloadTemplate = async (req, res, _next) => {
-  try {
-    const { type } = req.params;
-    let headers = '';
-    let sampleRow = '';
-    let fileName = '';
+/* ═══════════════════════════════════════════════════════════════
+   GET /api/imports/template/:type   — download CSV template
+═══════════════════════════════════════════════════════════════ */
+export const downloadTemplate = (req, res) => {
+  const TEMPLATES = {
+    products: {
+      file: 'products_import_template.csv',
+      // Columns matching the task spec
+      content: [
+        'Name,SKU,Barcode,Category,Unit,ReorderLevel,CostPrice,SellingPrice,Description',
+        'Wireless Mouse,MS-WIRE-01,190128456012,Electronics,piece,15,18.00,25.99,Ergonomic 2.4GHz wireless mouse',
+        'USB-C Hub,HUB-UC-05,190128456088,Electronics,piece,10,30.00,45.00,5-in-1 multiport adapter',
+      ].join('\n'),
+    },
+    inventory: {
+      file: 'inventory_import_template.csv',
+      content: [
+        'SKU,WarehouseCode,Quantity,BatchNumber,ExpiryDate,StorageLocation',
+        'MS-WIRE-01,WH-MUM,120,BATCH-2026-01,2027-12-31,Rack A-3',
+        'HUB-UC-05,WH-DEL,85,BATCH-2026-02,,Bin B-12',
+      ].join('\n'),
+    },
+    // Legacy alias
+    stock: {
+      file: 'stock_import_template.csv',
+      content: [
+        'SKU,WarehouseCode,Quantity,BatchNumber,ExpiryDate,StorageLocation',
+        'MS-WIRE-01,WH-MUM,120,BATCH-2026-01,2027-12-31,Rack A-3',
+      ].join('\n'),
+    },
+    warehouses: {
+      file: 'warehouses_import_template.csv',
+      content: [
+        'Name,Code,Address,City,Country,ManagerEmail,Capacity',
+        'North Warehouse,WH-MUM,100 Logistics Blvd Suite 10,Mumbai,India,manager@sims.com,50000',
+        'Central Depot,WH-DEL,550 Interstate Ave,Delhi,India,depot@sims.com,120000',
+      ].join('\n'),
+    },
+  };
 
-    if (type === 'products') {
-      headers = 'name,sku,category,unit,unit_price,reorder_level,reorder_qty,description,barcode';
-      sampleRow = '\nWireless Mouse,MS-WIRE-01,Electronics,piece,25.99,15,50,Ergonomic 2.4Ghz wireless mouse,190128456012';
-      fileName = 'products_import_template.csv';
-    } else if (type === 'stock') {
-      headers = 'sku,barcode,quantity,location';
-      sampleRow = '\nMS-WIRE-01,190128456012,120,Rack A-3';
-      fileName = 'stock_import_template.csv';
-    } else if (type === 'warehouses') {
-      headers = 'name,location,address,capacity,manager_email';
-      sampleRow = '\nNorth Warehouse,New York,100 Logistics Blvd Suite 10,50000.00,manager@sims.com';
-      fileName = 'warehouses_import_template.csv';
-    } else {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid template type. Must be products, stock, or warehouses.',
-      });
-    }
-
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-    res.status(200).send(headers + sampleRow);
-  } catch (error) {
-    logger.error(`Download template error: ${error.message}`);
-    res.status(500).json({ success: false, error: error.message });
+  const tpl = TEMPLATES[req.params.type];
+  if (!tpl) {
+    return res.status(400).json({
+      success: false,
+      error: `Invalid template type. Valid: ${Object.keys(TEMPLATES).join(', ')}`,
+    });
   }
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', `attachment; filename="${tpl.file}"`);
+  res.status(200).send(tpl.content);
 };

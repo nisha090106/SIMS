@@ -1,20 +1,48 @@
 import express from 'express';
-import { ProductController } from '../controllers/productController.js';
+import {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getCategories,
+  createCategory,
+} from '../controllers/productController.js';
 import { authMiddleware, authorize } from '../middlewares/authMiddleware.js';
 import { asyncHandler } from '../middlewares/errorHandler.js';
 import { productValidators, validate } from '../validators/schemas.js';
 
 const router = express.Router();
 
-// Public routes (auth required, all roles)
-router.get('/', authMiddleware, asyncHandler(ProductController.getProducts));
-router.get('/:id', authMiddleware, asyncHandler(ProductController.getProductById));
+// All routes require auth
+router.use(authMiddleware);
 
-// Protected routes (admin and manager only)
-router.post('/', authMiddleware, authorize('admin', 'manager'), validate(productValidators.create), asyncHandler(ProductController.createProduct));
-router.put('/:id', authMiddleware, authorize('admin', 'manager'), validate(productValidators.update), asyncHandler(ProductController.updateProduct));
+// ── Categories (before /:id to avoid conflict) ──────────────────
+router.get('/categories',  asyncHandler(getCategories));
+router.post('/categories',
+  authorize('admin', 'manager'),
+  asyncHandler(createCategory),
+);
 
-// Protected route (admin only)
-router.delete('/:id', authMiddleware, authorize('admin'), asyncHandler(ProductController.deleteProduct));
+// ── Products ─────────────────────────────────────────────────────
+router.get('/',    asyncHandler(getProducts));
+router.get('/:id', asyncHandler(getProductById));
+
+router.post('/',
+  authorize('admin', 'manager'),
+  validate(productValidators.create),
+  asyncHandler(createProduct),
+);
+
+router.put('/:id',
+  authorize('admin', 'manager'),
+  validate(productValidators.update),
+  asyncHandler(updateProduct),
+);
+
+router.delete('/:id',
+  authorize('admin'),
+  asyncHandler(deleteProduct),
+);
 
 export default router;

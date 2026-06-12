@@ -5,14 +5,10 @@ import { fileURLToPath } from 'url';
 import { Op } from 'sequelize';
 import logger from '../config/logger.js';
 import {
-  ReorderRule,
-  Inventory,
-  Product,
-  PurchaseOrder,
-  Supplier,
-  User,
-  AutomationLog,
+  ReorderRule, Inventory, Product, PurchaseOrder,
+  Supplier, User, AutomationLog,
 } from '../models/index.js';
+import { autoCreatePO } from '../controllers/purchaseController.js';
 import NotificationService from './notificationService.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -47,7 +43,7 @@ export async function runLowStockChecker() {
     // Get all open auto-drafted POs once to check for existing drafts
     const openPOs = await PurchaseOrder.findAll({
       where: {
-        status: { [Op.in]: ['pending', 'approved'] },
+        status: { [Op.in]: ['draft', 'submitted', 'approved'] },
         auto_drafted: true,
       },
     });
@@ -87,7 +83,7 @@ export async function runLowStockChecker() {
           continue;
         }
 
-        // b. Create a new PurchaseOrder
+        // b. Create a new PurchaseOrder using the shared helper
         // Determine supplier
         let supplierId = rule.preferred_supplier_id;
         if (!supplierId) {
@@ -103,34 +99,20 @@ export async function runLowStockChecker() {
           continue;
         }
 
-        // Generate PO number
-        const date = new Date();
-        const dateStr = date.toISOString().split('T')[0].replace(/-/g, '');
-        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-        const po_number = `PO-${dateStr}-${random}`;
+        // Suggested qty = (reorderLevel * 2) - currentQty
+        const suggestedQty = Math.max(rule.reorder_quantity, (rule.reorder_threshold * 2) - lowStockItem.quantity);
+        const unitCost = parseFloat(rule.product.cost_price || rule.product.unit_price || 0);
 
-        const qty = rule.reorder_quantity;
-        const price = rule.product.unit_price || 0;
-        const subtotal = qty * price;
-
-        const items = [{
+        await autoCreatePO({
+          supplier_id:  supplierId,
+          warehouse_id: rule.warehouse_id || null,
           product_id,
           product_name: rule.product.name,
-          quantity: qty,
-          unit_price: price,
-          subtotal,
-        }];
-
-        await PurchaseOrder.create({
-          po_number,
-          supplier_id: supplierId,
-          order_date: new Date(),
-          status: 'pending',
-          auto_drafted: true,
-          total_amount: subtotal,
-          created_by: adminId,
-          items: JSON.stringify(items),
-          notes: `Auto-drafted: stock at ${lowStockItem.quantity}, threshold ${rule.reorder_threshold}`,
+          product_sku:  rule.product.sku,
+          unit_cost:    unitCost,
+          quantity:     suggestedQty,
+          notes:        `Auto-drafted: stock at ${lowStockItem.quantity}, threshold ${rule.reorder_threshold}`,
+          created_by:   adminId,
         });
 
         // Update rule last_triggered_at

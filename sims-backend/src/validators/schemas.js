@@ -61,20 +61,28 @@ export const productValidators = {
 
 export const warehouseValidators = {
   create: Joi.object({
-    name: Joi.string().max(100).required(),
-    location: Joi.string().max(50).required(),
-    address: Joi.string().optional(),
-    capacity: Joi.number().positive().required(),
+    name:       Joi.string().max(100).required(),
+    code:       Joi.string().max(20).allow(null, '').optional(),
+    location:   Joi.string().max(50).required(),
+    city:       Joi.string().max(80).allow(null, '').optional(),
+    country:    Joi.string().max(60).allow(null, '').optional(),
+    address:    Joi.string().optional(),
+    capacity:   Joi.number().positive().required(),
     manager_id: Joi.number().integer().required(),
+    status:     Joi.string().valid('active', 'inactive').optional(),
   }),
 
   update: Joi.object({
-    name: Joi.string().max(100).optional(),
-    location: Joi.string().max(50).optional(),
-    address: Joi.string().optional(),
-    capacity: Joi.number().positive().optional(),
+    name:       Joi.string().max(100).optional(),
+    code:       Joi.string().max(20).allow(null, '').optional(),
+    location:   Joi.string().max(50).optional(),
+    city:       Joi.string().max(80).allow(null, '').optional(),
+    country:    Joi.string().max(60).allow(null, '').optional(),
+    address:    Joi.string().optional(),
+    capacity:   Joi.number().positive().optional(),
     current_usage: Joi.number().min(0).optional(),
     manager_id: Joi.number().integer().optional(),
+    status:     Joi.string().valid('active', 'inactive').optional(),
   }),
 };
 

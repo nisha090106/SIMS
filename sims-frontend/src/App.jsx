@@ -22,17 +22,19 @@ import Register    from './pages/Register';
 import NotFound    from './pages/NotFound';
 
 // Admin / Manager / Staff pages
-import Dashboard        from './pages/Dashboard';
-import Products         from './pages/Products';
-import Inventory        from './pages/Inventory';
-import Warehouses       from './pages/Warehouses';
-import Suppliers        from './pages/Suppliers';
-import PurchaseOrders   from './pages/PurchaseOrders';
-import SalesOrders      from './pages/SalesOrders';
-import Reports          from './pages/Reports';
-import Settings         from './pages/Settings';
+import Dashboard          from './pages/Dashboard';
+import Products           from './pages/Products';
+import ProductDetail      from './pages/Products/ProductDetail';
+import Inventory          from './pages/Inventory';
+import Warehouses         from './pages/Warehouses';
+import WarehouseDetail    from './pages/Warehouses/WarehouseDetail';
+import Suppliers          from './pages/Suppliers';
+import PurchaseOrders     from './pages/PurchaseOrders';
+import SalesOrders        from './pages/SalesOrders';
+import Reports            from './pages/Reports';
+import Settings           from './pages/Settings';
 import RequestsManagement from './pages/RequestsManagement';
-import ImportCenter     from './pages/ImportCenter';
+import ImportCenter        from './pages/BulkImport';        // new folder module
 import AutomationDashboard from './pages/AutomationDashboard';
 
 // Requester pages
@@ -78,8 +80,10 @@ const AppContent = () => {
       >
         <Route path="/dashboard"       element={<Dashboard />} />
         <Route path="/products"        element={<Products />} />
+        <Route path="/products/:id"    element={<ProductDetail />} />
         <Route path="/inventory"       element={<Inventory />} />
         <Route path="/warehouses"      element={<Warehouses />} />
+        <Route path="/warehouses/:id"  element={<WarehouseDetail />} />
         <Route path="/suppliers"       element={<Suppliers />} />
         <Route path="/purchase-orders" element={<PurchaseOrders />} />
         <Route path="/sales-orders"    element={<SalesOrders />} />

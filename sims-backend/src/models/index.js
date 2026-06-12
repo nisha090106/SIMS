@@ -14,6 +14,9 @@ import UserRequestItemModel from './UserRequestItem.js';
 import BarcodeScanLogModel from './BarcodeScanLog.js';
 import AutomationLogModel from './AutomationLog.js';
 import ProductCategoryModel from './ProductCategory.js';
+import UnknownBarcodeModel from './UnknownBarcode.js';
+import RequestModel from './Request.js';
+import RequestItemModel from './RequestItem.js';
 import config from '../config/database.js';
 
 const env = process.env.NODE_ENV || 'development';
@@ -49,6 +52,9 @@ const UserRequestItem = UserRequestItemModel(sequelize);
 const BarcodeScanLog = BarcodeScanLogModel(sequelize);
 const AutomationLog = AutomationLogModel(sequelize);
 const ProductCategory = ProductCategoryModel(sequelize);
+const UnknownBarcode = UnknownBarcodeModel(sequelize);
+const Request = RequestModel(sequelize);
+const RequestItem = RequestItemModel(sequelize);
 
 // Define Associations
 // User associations
@@ -74,7 +80,10 @@ Supplier.hasMany(PurchaseOrder, { foreignKey: 'supplier_id', as: 'purchase_order
 
 // PurchaseOrder associations
 PurchaseOrder.belongsTo(Supplier, { foreignKey: 'supplier_id', as: 'supplier' });
-PurchaseOrder.belongsTo(User, { foreignKey: 'created_by', as: 'created_by_user' });
+PurchaseOrder.belongsTo(User,     { foreignKey: 'created_by',  as: 'created_by_user' });
+PurchaseOrder.belongsTo(User,     { foreignKey: 'approved_by', as: 'approved_by_user' });
+PurchaseOrder.belongsTo(User,     { foreignKey: 'received_by', as: 'received_by_user' });
+PurchaseOrder.belongsTo(Warehouse,{ foreignKey: 'warehouse_id',as: 'warehouse' });
 PurchaseOrder.belongsToMany(Product, { through: 'purchase_order_items', as: 'products' });
 
 // SalesOrder associations
@@ -112,6 +121,25 @@ User.hasMany(BarcodeScanLog, { foreignKey: 'scanned_by', as: 'barcode_scans' });
 // ProductCategory associations
 ProductCategory.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
 
+// UnknownBarcode associations
+UnknownBarcode.belongsTo(User, { foreignKey: 'scanned_by', as: 'scanner' });
+UnknownBarcode.belongsTo(Warehouse, { foreignKey: 'warehouse_id', as: 'warehouse' });
+UnknownBarcode.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+UnknownBarcode.belongsTo(User, { foreignKey: 'resolved_by', as: 'resolver' });
+
+// Request associations
+Request.belongsTo(User, { foreignKey: 'requester_id', as: 'requester' });
+Request.belongsTo(Warehouse, { foreignKey: 'warehouse_id', as: 'warehouse' });
+Request.belongsTo(User, { foreignKey: 'approved_by', as: 'approver' });
+Request.belongsTo(User, { foreignKey: 'fulfilled_by', as: 'fulfiller' });
+Request.hasMany(RequestItem, { foreignKey: 'request_id', as: 'items' });
+User.hasMany(Request, { foreignKey: 'requester_id', as: 'requests_made' });
+User.hasMany(Request, { foreignKey: 'approved_by', as: 'requests_approved' });
+
+// RequestItem associations
+RequestItem.belongsTo(Request, { foreignKey: 'request_id', as: 'request' });
+RequestItem.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+
 // Export
 export {
   sequelize,
@@ -130,6 +158,9 @@ export {
   BarcodeScanLog,
   AutomationLog,
   ProductCategory,
+  UnknownBarcode,
+  Request,
+  RequestItem,
 };
 
 export default sequelize;

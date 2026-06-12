@@ -1,20 +1,34 @@
 import express from 'express';
-import { WarehouseController } from '../controllers/warehouseController.js';
+import {
+  getAllWarehouses,
+  getWarehouseById,
+  getWarehouseStats,
+  getWarehouseInventory,
+  createWarehouse,
+  updateWarehouse,
+  deleteWarehouse,
+  getManagers,
+  getCapacityUsage,
+} from '../controllers/warehouseController.js';
 import { authMiddleware, authorize } from '../middlewares/authMiddleware.js';
 import { asyncHandler } from '../middlewares/errorHandler.js';
 import { warehouseValidators, validate } from '../validators/schemas.js';
 
 const router = express.Router();
+router.use(authMiddleware);
 
-// Public routes (auth required)
-router.get('/', authMiddleware, asyncHandler(WarehouseController.getAllWarehouses));
-router.get('/managers', authMiddleware, asyncHandler(WarehouseController.getManagers));
-router.get('/:id', authMiddleware, asyncHandler(WarehouseController.getWarehouseById));
-router.get('/:id/capacity', authMiddleware, asyncHandler(WarehouseController.getCapacityUsage));
+// ── Special paths before /:id ─────────────────────────────────
+router.get('/managers', asyncHandler(getManagers));
 
-// Protected routes (admin only for create/delete)
-router.post('/', authMiddleware, authorize('admin'), validate(warehouseValidators.create), asyncHandler(WarehouseController.createWarehouse));
-router.put('/:id', authMiddleware, authorize('admin', 'manager'), validate(warehouseValidators.update), asyncHandler(WarehouseController.updateWarehouse));
-router.delete('/:id', authMiddleware, authorize('admin'), asyncHandler(WarehouseController.deleteWarehouse));
+// ── Warehouse CRUD ────────────────────────────────────────────
+router.get('/',    asyncHandler(getAllWarehouses));
+router.get('/:id', asyncHandler(getWarehouseById));
+router.get('/:id/stats',     asyncHandler(getWarehouseStats));
+router.get('/:id/capacity',  asyncHandler(getCapacityUsage));  // backward compat
+router.get('/:id/inventory', asyncHandler(getWarehouseInventory));
+
+router.post('/',    authorize('admin'), validate(warehouseValidators.create), asyncHandler(createWarehouse));
+router.put('/:id',  authorize('admin'), validate(warehouseValidators.update), asyncHandler(updateWarehouse));
+router.delete('/:id', authorize('admin'), asyncHandler(deleteWarehouse));
 
 export default router;
