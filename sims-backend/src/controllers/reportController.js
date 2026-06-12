@@ -1,8 +1,9 @@
-import { Op, sequelize } from 'sequelize';
+import { Op } from 'sequelize';
 import { Product, Inventory, Warehouse, PurchaseOrder, AuditLog, User, Request, RequestItem, Supplier } from '../models/index.js';
 import asyncHandler from 'express-async-handler';
 import logger from '../config/logger.js';
 import { Parser } from 'json2csv';
+
 
 class ReportController {
   // Get dashboard stats (existing functionality)
