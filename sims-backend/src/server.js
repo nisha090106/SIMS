@@ -66,11 +66,17 @@ app.use(
   }),
 );
 
-// Rate Limiting
+// Rate Limiting — generous limits for development; tighten in production via .env
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-  message: 'Too many requests, please try again later',
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 min
+  max:      parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 1000,          // raised from 100
+  standardHeaders: true,   // send RateLimit-* headers so clients can see remaining quota
+  legacyHeaders: false,
+  message: { success: false, error: 'Too many requests — please wait a moment and try again.' },
+  skip: (req) => {
+    // Never rate-limit health checks or auth refreshes
+    return req.path === '/health' || req.path === '/api/auth/refresh-token';
+  },
 });
 
 app.use('/api/', limiter);

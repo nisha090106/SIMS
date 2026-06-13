@@ -68,60 +68,68 @@ export const importProducts = async (rows, jobId, _triggeredBy) => {
     const rowNum = i + 1;
 
     try {
-      const { 
-        name, 
-        sku, 
-        category, 
-        unit, 
-        unit_price, 
-        reorder_level, 
-        reorder_qty, 
-        description, 
-        barcode, 
-      } = row;
+      const nameVal = row.name || row.product_name || '';
+      const skuVal = row.sku || '';
+      const categoryVal = row.category || 'General';
+      const unitVal = row.unit || 'piece';
+      const barcodeVal = row.barcode || null;
+      const descriptionVal = row.description || null;
+
+      const rawUnitPrice = row.unit_price || row.selling_price || row.sellingprice || row.unitprice || '';
+      const rawCostPrice = row.cost_price || row.costprice || '';
+      const rawReorderLevel = row.reorder_level || row.reorderlevel || '';
+      const rawReorderQty = row.reorder_qty || row.reorderqty || '';
 
       // Validation
-      if (!sku) throw new Error('SKU is required.');
-      if (!name) throw new Error('Product Name is required.');
-      if (!unit_price) throw new Error('Unit Price is required.');
-      const price = parseFloat(unit_price);
+      if (!skuVal) throw new Error('SKU is required.');
+      if (!nameVal) throw new Error('Product Name is required.');
+      if (!rawUnitPrice) throw new Error('Unit Price is required.');
+      const price = parseFloat(rawUnitPrice);
       if (isNaN(price) || price < 0) throw new Error('Unit Price must be a positive number.');
-      if (!reorder_level) throw new Error('Reorder Level is required.');
-      const reorderLevelVal = parseInt(reorder_level, 10);
-      if (isNaN(reorderLevelVal) || reorderLevelVal < 0) throw new Error('Reorder Level must be a non-negative integer.');
       
-      const reorderQtyVal = reorder_qty ? parseInt(reorder_qty, 10) : 50;
-      if (isNaN(reorderQtyVal) || reorderQtyVal < 0) throw new Error('Reorder Quantity must be a non-negative integer.');
+      const costPrice = rawCostPrice ? parseFloat(rawCostPrice) : null;
+      if (costPrice !== null && (isNaN(costPrice) || costPrice < 0)) {
+        throw new Error('Cost Price must be a positive number.');
+      }
+
+      if (!rawReorderLevel) throw new Error('Reorder Level is required.');
+      const parsedReorderLevel = parseInt(rawReorderLevel, 10);
+      if (isNaN(parsedReorderLevel) || parsedReorderLevel < 0) throw new Error('Reorder Level must be a non-negative integer.');
+      
+      const parsedReorderQty = rawReorderQty ? parseInt(rawReorderQty, 10) : 50;
+      if (isNaN(parsedReorderQty) || parsedReorderQty < 0) throw new Error('Reorder Quantity must be a non-negative integer.');
 
       // Atomic row update / insert
       const t = await sequelize.transaction();
       try {
-        let product = await Product.findOne({ where: { sku }, transaction: t });
+        let product = await Product.findOne({ where: { sku: skuVal }, transaction: t });
         let isUpdated = false;
 
         if (product) {
           await product.update({
-            name,
-            category: category || 'General',
-            unit: unit || 'piece',
+            name: nameVal,
+            category: categoryVal,
+            unit: unitVal,
             unit_price: price,
-            reorder_level: reorderLevelVal,
-            reorder_qty: reorderQtyVal,
-            description: description || null,
-            barcode: barcode || null,
+            cost_price: costPrice,
+            reorder_level: parsedReorderLevel,
+            reorder_qty: parsedReorderQty,
+            description: descriptionVal,
+            barcode: barcodeVal,
           }, { transaction: t });
           isUpdated = true;
         } else {
           product = await Product.create({
-            sku,
-            name,
-            category: category || 'General',
-            unit: unit || 'piece',
+            sku: skuVal,
+            name: nameVal,
+            category: categoryVal,
+            unit: unitVal,
             unit_price: price,
-            reorder_level: reorderLevelVal,
-            reorder_qty: reorderQtyVal,
-            description: description || null,
-            barcode: barcode || null,
+            cost_price: costPrice,
+            reorder_level: parsedReorderLevel,
+            reorder_qty: parsedReorderQty,
+            description: descriptionVal,
+            barcode: barcodeVal,
           }, { transaction: t });
         }
 
@@ -129,8 +137,8 @@ export const importProducts = async (rows, jobId, _triggeredBy) => {
         const [rule, ruleCreated] = await ReorderRule.findOrCreate({
           where: { product_id: product.product_id },
           defaults: {
-            reorder_threshold: reorderLevelVal,
-            reorder_quantity: reorderQtyVal,
+            reorder_threshold: parsedReorderLevel,
+            reorder_quantity: parsedReorderQty,
             is_active: true,
           },
           transaction: t,
@@ -138,8 +146,8 @@ export const importProducts = async (rows, jobId, _triggeredBy) => {
 
         if (!ruleCreated) {
           await rule.update({
-            reorder_threshold: reorderLevelVal,
-            reorder_quantity: reorderQtyVal,
+            reorder_threshold: parsedReorderLevel,
+            reorder_quantity: parsedReorderQty,
           }, { transaction: t });
         }
 
@@ -193,10 +201,12 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
   let failed = 0;
   const errors = [];
 
-  // Verify warehouse exists
-  const warehouse = await Warehouse.findByPk(warehouseId);
-  if (!warehouse) {
-    throw new Error(`Warehouse with ID ${warehouseId} not found.`);
+  // Verify warehouse exists if default is passed
+  if (warehouseId) {
+    const warehouse = await Warehouse.findByPk(warehouseId);
+    if (!warehouse) {
+      throw new Error(`Warehouse with ID ${warehouseId} not found.`);
+    }
   }
 
   for (let i = 0; i < rows.length; i++) {
@@ -205,37 +215,62 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
     const rowNum = i + 1;
 
     try {
-      const { sku, barcode, quantity, location } = row;
+      const rawSku = row.sku || '';
+      const rawBarcode = row.barcode || '';
+      const rawQuantity = row.quantity || '';
+      const rawBatchNo = row.batch_no || row.batchnumber || '';
+      const rawExpiryDate = row.expiry_date || row.expirydate || '';
+      const rawLocation = row.location || row.storagelocation || row.storage_location || '';
 
       // Validation
-      if (!sku && !barcode) throw new Error('Either SKU or Barcode is required.');
-      if (quantity === undefined || quantity === '') throw new Error('Quantity is required.');
-      const qty = parseInt(quantity, 10);
+      if (!rawSku && !rawBarcode) throw new Error('Either SKU or Barcode is required.');
+      if (rawQuantity === undefined || rawQuantity === '') throw new Error('Quantity is required.');
+      const qty = parseInt(rawQuantity, 10);
       if (isNaN(qty) || qty < 0) throw new Error('Quantity must be a non-negative integer.');
 
-      // Find Product
-      const productWhere = {};
-      if (sku) productWhere.sku = sku;
-      if (barcode) productWhere.barcode = barcode;
+      let parsedExpiryDate = null;
+      if (rawExpiryDate) {
+        const d = new Date(rawExpiryDate);
+        if (!isNaN(d.getTime())) {
+          parsedExpiryDate = d;
+        }
+      }
 
+      // Resolve warehouse from row.warehouse_code or row.warehousecode if provided
+      const rawWarehouseCode = row.warehouse_code || row.warehousecode || row.warehouse || '';
+      let targetWarehouseId = warehouseId;
+      if (rawWarehouseCode) {
+        const wh = await Warehouse.findOne({
+          where: { code: rawWarehouseCode.toUpperCase() },
+        });
+        if (wh) {
+          targetWarehouseId = wh.warehouse_id;
+        }
+      }
+
+      if (!targetWarehouseId) {
+        throw new Error('A warehouse must be selected or specified in the import row.');
+      }
+
+      // Find Product
       const product = await Product.findOne({
         where: {
           [Op.or]: [
-            sku ? { sku } : null,
-            barcode ? { barcode } : null,
+            rawSku ? { sku: rawSku } : null,
+            rawBarcode ? { barcode: rawBarcode } : null,
           ].filter(Boolean),
         },
       });
 
       if (!product) {
-        throw new Error(`Product not found for SKU "${sku || ''}" or Barcode "${barcode || ''}".`);
+        throw new Error(`Product not found for SKU "${rawSku || ''}" or Barcode "${rawBarcode || ''}".`);
       }
 
       // Upsert Inventory record
       const t = await sequelize.transaction();
       try {
         let inventory = await Inventory.findOne({
-          where: { product_id: product.product_id, warehouse_id: warehouseId },
+          where: { product_id: product.product_id, warehouse_id: targetWarehouseId },
           transaction: t,
         });
 
@@ -246,19 +281,19 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
           oldQty = inventory.quantity;
           await inventory.update({
             quantity: qty,
-            sku: product.sku,  // Maintain denormalized fields
-            name: product.name,
-            location: location || inventory.location || null,
+            batch_no: rawBatchNo || inventory.batch_no || null,
+            expiry_date: parsedExpiryDate || inventory.expiry_date || null,
+            location: rawLocation || inventory.location || null,
           }, { transaction: t });
           isUpdated = true;
         } else {
           inventory = await Inventory.create({
             product_id: product.product_id,
-            warehouse_id: warehouseId,
-            sku: product.sku,  // Since these are NOT NULL in physical table
-            name: product.name,
+            warehouse_id: targetWarehouseId,
             quantity: qty,
-            location: location || null,
+            batch_no: rawBatchNo || null,
+            expiry_date: parsedExpiryDate || null,
+            location: rawLocation || null,
           }, { transaction: t });
         }
 
@@ -271,10 +306,12 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
             action: 'STOCK_IMPORT',
             inventory_id: inventory.id,
             product_id: product.product_id,
-            warehouse_id: warehouseId,
+            warehouse_id: targetWarehouseId,
             old_quantity: oldQty,
             new_quantity: qty,
-            location: location || null,
+            location: rawLocation || null,
+            batch_no: rawBatchNo || null,
+            expiry_date: parsedExpiryDate || null,
           },
           ip_address: '127.0.0.1',
         }, { transaction: t });
@@ -335,16 +372,25 @@ export const importWarehouses = async (rows, jobId, triggeredBy) => {
     const rowNum = i + 1;
 
     try {
-      const { name, location, address, capacity, manager_email } = row;
+      const nameVal = row.name || '';
+      const codeVal = row.code || '';
+      const addressVal = row.address || '';
+      const cityVal = row.city || '';
+      const countryVal = row.country || '';
+      const capacityVal = row.capacity || '';
+      const managerEmailVal = row.manager_email || row.manageremail || '';
+      
+      // location might be directly in the row. If not, construct it from city and country.
+      const rawLocation = row.location || [cityVal, countryVal].filter(Boolean).join(', ') || codeVal || '';
 
       // Validation
-      if (!name) throw new Error('Warehouse Name is required.');
-      if (!location) throw new Error('Location is required.');
-      if (!capacity) throw new Error('Capacity is required.');
-      const cap = parseFloat(capacity);
+      if (!nameVal) throw new Error('Warehouse Name is required.');
+      if (!rawLocation) throw new Error('Location is required.');
+      if (!capacityVal) throw new Error('Capacity is required.');
+      const cap = parseFloat(capacityVal);
       if (isNaN(cap) || cap <= 0) throw new Error('Capacity must be a positive number.');
 
-      let warehouse = await Warehouse.findOne({ where: { name } });
+      let warehouse = await Warehouse.findOne({ where: { name: nameVal } });
       let isUpdated = false;
 
       const t = await sequelize.transaction();
@@ -352,16 +398,19 @@ export const importWarehouses = async (rows, jobId, triggeredBy) => {
         if (warehouse) {
           // If updating, find manager or keep existing
           let finalManagerId = warehouse.manager_id;
-          if (manager_email) {
-            const manager = await User.findOne({ where: { email: manager_email }, transaction: t });
+          if (managerEmailVal) {
+            const manager = await User.findOne({ where: { email: managerEmailVal }, transaction: t });
             if (manager) {
               finalManagerId = manager.id;
             }
           }
 
           await warehouse.update({
-            location,
-            address: address || warehouse.address || null,
+            code: codeVal ? codeVal.toUpperCase() : warehouse.code,
+            location: rawLocation,
+            city: cityVal || warehouse.city || null,
+            country: countryVal || warehouse.country || null,
+            address: addressVal || warehouse.address || null,
             capacity: cap,
             manager_id: finalManagerId,
           }, { transaction: t });
@@ -369,17 +418,20 @@ export const importWarehouses = async (rows, jobId, triggeredBy) => {
         } else {
           // If creating new, find manager or fallback to triggeredBy user
           let finalManagerId = triggeredBy;
-          if (manager_email) {
-            const manager = await User.findOne({ where: { email: manager_email }, transaction: t });
+          if (managerEmailVal) {
+            const manager = await User.findOne({ where: { email: managerEmailVal }, transaction: t });
             if (manager) {
               finalManagerId = manager.id;
             }
           }
 
           warehouse = await Warehouse.create({
-            name,
-            location,
-            address: address || null,
+            name: nameVal,
+            code: codeVal ? codeVal.toUpperCase() : null,
+            location: rawLocation,
+            city: cityVal || null,
+            country: countryVal || null,
+            address: addressVal || null,
             capacity: cap,
             manager_id: finalManagerId,
           }, { transaction: t });

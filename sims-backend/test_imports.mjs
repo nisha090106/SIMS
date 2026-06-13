@@ -45,7 +45,7 @@ async function runTests() {
       .get('/api/imports/template/products')
       .set('Authorization', `Bearer ${token}`);
     
-    if (prodTemplateRes.status !== 200 || !prodTemplateRes.text.includes('sku')) {
+    if (prodTemplateRes.status !== 200 || !prodTemplateRes.text.toLowerCase().includes('sku')) {
       throw new Error(`Product template download failed: ${prodTemplateRes.status}`);
     }
     console.log('   - Product template download OK.');
@@ -54,7 +54,7 @@ async function runTests() {
       .get('/api/imports/template/stock')
       .set('Authorization', `Bearer ${token}`);
     
-    if (stockTemplateRes.status !== 200 || !stockTemplateRes.text.includes('quantity')) {
+    if (stockTemplateRes.status !== 200 || !stockTemplateRes.text.toLowerCase().includes('quantity')) {
       throw new Error(`Stock template download failed: ${stockTemplateRes.status}`);
     }
     console.log('   - Stock template download OK.');
@@ -63,7 +63,7 @@ async function runTests() {
       .get('/api/imports/template/warehouses')
       .set('Authorization', `Bearer ${token}`);
     
-    if (whTemplateRes.status !== 200 || !whTemplateRes.text.includes('manager_email')) {
+    if (whTemplateRes.status !== 200 || !whTemplateRes.text.toLowerCase().includes('manageremail')) {
       throw new Error(`Warehouse template download failed: ${whTemplateRes.status}`);
     }
     console.log('   - Warehouse template download OK.');

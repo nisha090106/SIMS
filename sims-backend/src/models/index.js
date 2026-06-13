@@ -8,6 +8,7 @@ import PurchaseOrderModel from './PurchaseOrder.js';
 import SalesOrderModel from './SalesOrder.js';
 import AuditLogModel from './AuditLog.js';
 import ImportJobModel from './ImportJob.js';
+import ImportLogModel from './ImportLog.js';
 import ReorderRuleModel from './ReorderRule.js';
 import UserRequestModel from './UserRequest.js';
 import UserRequestItemModel from './UserRequestItem.js';
@@ -46,6 +47,7 @@ const PurchaseOrder = PurchaseOrderModel(sequelize);
 const SalesOrder = SalesOrderModel(sequelize);
 const AuditLog = AuditLogModel(sequelize);
 const ImportJob = ImportJobModel(sequelize);
+const ImportLog = ImportLogModel(sequelize);
 const ReorderRule = ReorderRuleModel(sequelize);
 const UserRequest = UserRequestModel(sequelize);
 const UserRequestItem = UserRequestItemModel(sequelize);
@@ -95,6 +97,9 @@ AuditLog.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 // ImportJob associations
 ImportJob.belongsTo(User, { foreignKey: 'triggered_by', as: 'triggeredBy' });
 User.hasMany(ImportJob, { foreignKey: 'triggered_by', as: 'import_jobs' });
+
+// ImportLog associations
+ImportLog.belongsTo(User, { foreignKey: 'imported_by', as: 'importedBy' });
 
 // ReorderRule associations
 ReorderRule.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
