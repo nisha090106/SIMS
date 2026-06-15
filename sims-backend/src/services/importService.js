@@ -56,6 +56,22 @@ export const parseFile = (filePath, fileType) => {
 /**
  * Bulk imports products from rows.
  */
+/**
+ * Normalizes a barcode value — converts scientific notation (e.g. "8.90172E+11")
+ * to a full integer string so Excel-exported barcodes are stored correctly.
+ */
+const normalizeBarcode = (val) => {
+  if (!val) return null;
+  const str = val.toString().trim();
+  if (!str) return null;
+  // Detect scientific notation (e.g. 8.90172E+11)
+  if (/^\d+\.?\d*[eE][+\-]?\d+$/.test(str)) {
+    const num = Number(str);
+    if (!isNaN(num)) return Math.round(num).toString();
+  }
+  return str;
+};
+
 export const importProducts = async (rows, jobId, _triggeredBy) => {
   let created = 0;
   let updated = 0;
@@ -72,7 +88,8 @@ export const importProducts = async (rows, jobId, _triggeredBy) => {
       const skuVal = row.sku || '';
       const categoryVal = row.category || 'General';
       const unitVal = row.unit || 'piece';
-      const barcodeVal = row.barcode || null;
+      // Normalize barcode — handle Excel scientific notation
+      const barcodeVal = normalizeBarcode(row.barcode);
       const descriptionVal = row.description || null;
 
       const rawUnitPrice = row.unit_price || row.selling_price || row.sellingprice || row.unitprice || '';
@@ -99,6 +116,16 @@ export const importProducts = async (rows, jobId, _triggeredBy) => {
       const parsedReorderQty = rawReorderQty ? parseInt(rawReorderQty, 10) : 50;
       if (isNaN(parsedReorderQty) || parsedReorderQty < 0) throw new Error('Reorder Quantity must be a non-negative integer.');
 
+      // If barcode is provided, check if it's already used by a DIFFERENT product
+      let finalBarcode = barcodeVal;
+      if (barcodeVal) {
+        const existingWithBarcode = await Product.findOne({ where: { barcode: barcodeVal } });
+        if (existingWithBarcode && existingWithBarcode.sku !== skuVal) {
+          // Barcode already belongs to another product — skip setting it to avoid unique conflict
+          finalBarcode = null;
+        }
+      }
+
       // Atomic row update / insert
       const t = await sequelize.transaction();
       try {
@@ -115,7 +142,7 @@ export const importProducts = async (rows, jobId, _triggeredBy) => {
             reorder_level: parsedReorderLevel,
             reorder_qty: parsedReorderQty,
             description: descriptionVal,
-            barcode: barcodeVal,
+            ...(finalBarcode !== undefined && { barcode: finalBarcode }),
           }, { transaction: t });
           isUpdated = true;
         } else {
@@ -129,7 +156,7 @@ export const importProducts = async (rows, jobId, _triggeredBy) => {
             reorder_level: parsedReorderLevel,
             reorder_qty: parsedReorderQty,
             description: descriptionVal,
-            barcode: barcodeVal,
+            barcode: finalBarcode,
           }, { transaction: t });
         }
 
@@ -216,9 +243,9 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
 
     try {
       const rawSku = row.sku || '';
-      const rawBarcode = row.barcode || '';
+      const rawBarcode = normalizeBarcode(row.barcode);
       const rawQuantity = row.quantity || '';
-      const rawBatchNo = row.batch_no || row.batchnumber || '';
+      const rawBatchNo = row.batch_no || row.batchnumber || row.batchno || '';
       const rawExpiryDate = row.expiry_date || row.expirydate || '';
       const rawLocation = row.location || row.storagelocation || row.storage_location || '';
 
@@ -237,7 +264,7 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
       }
 
       // Resolve warehouse from row.warehouse_code or row.warehousecode if provided
-      const rawWarehouseCode = row.warehouse_code || row.warehousecode || row.warehouse || '';
+      const rawWarehouseCode = row.warehouse_code || row.warehousecode || row.warehouseCode || row.warehouse || '';
       let targetWarehouseId = warehouseId;
       if (rawWarehouseCode) {
         const wh = await Warehouse.findOne({
@@ -245,6 +272,9 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
         });
         if (wh) {
           targetWarehouseId = wh.warehouse_id;
+        } else {
+          // Warehouse code not found in DB — throw a clear error
+          throw new Error(`Warehouse with code "${rawWarehouseCode}" not found.`);
         }
       }
 

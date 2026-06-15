@@ -7,6 +7,7 @@ import theme from './theme';
 
 // Design system tokens — must come before other CSS
 import './styles/tokens.css';
+import './styles/UserLayout.css';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(

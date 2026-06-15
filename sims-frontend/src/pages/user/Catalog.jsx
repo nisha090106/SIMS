@@ -367,7 +367,7 @@ const Catalog = () => {
                           <div
                             className='qty-popover'
                             ref={popoverRef}
-                            onClick={(e) => event.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
                           >
                             <div className='popover-arrow'></div>
                             <div className='popover-title'>Specify Quantity</div>

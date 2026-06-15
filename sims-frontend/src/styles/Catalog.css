@@ -483,8 +483,9 @@
 }
 
 .popover-adjust-btn:hover {
-  background-color: #f8fafc;
-  border-color: #cbd5e1;
+  background-color: var(--primary-light-bg);
+  color: var(--primary-light);
+  border-color: var(--primary-light);
 }
 
 .popover-adjust-btn svg {
