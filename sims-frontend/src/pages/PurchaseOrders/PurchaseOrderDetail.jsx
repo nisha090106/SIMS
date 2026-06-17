@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
   ArrowBack as BackIcon,
@@ -42,14 +42,26 @@ function reducer(s, a) {
 
 /* ── Status Timeline ─────────────────────────────────────────── */
 function StatusStepper({ status }) {
-  const steps = STATUS_ORDER.filter((s) => s !== 'cancelled');
-  const activeIdx = steps.indexOf(status);
+  const steps = ['draft', 'pending', 'confirmed', 'delivered'];
+  
+  let activeIdx = 0;
+  if (status === 'submitted') activeIdx = 1;
+  else if (status === 'approved' || status === 'shipped') activeIdx = 2;
+  else if (status === 'received') activeIdx = 3;
+
   const isCancelled = status === 'cancelled';
+
+  const stepLabels = {
+    draft: { label: 'Draft', color: '#64748B' },
+    pending: { label: 'Pending', color: '#0891B2' },
+    confirmed: { label: 'Confirmed', color: '#2563EB' },
+    delivered: { label: 'Delivered', color: '#16A34A' },
+  };
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 0, overflowX: 'auto', padding: '4px 0' }}>
       {steps.map((step, i) => {
-        const cfg  = STATUS_CONFIG[step];
+        const cfg  = stepLabels[step];
         const done = isCancelled ? false : i <= activeIdx;
         const curr = !isCancelled && i === activeIdx;
 
@@ -80,7 +92,7 @@ function StatusStepper({ status }) {
             {i < steps.length - 1 && (
               <div style={{
                 flex: 1, height: 2, minWidth: 20,
-                background: i < activeIdx && !isCancelled ? STATUS_CONFIG[steps[i + 1]]?.color || 'var(--color-border)' : 'var(--color-border)',
+                background: i < activeIdx && !isCancelled ? stepLabels[steps[i + 1]]?.color || 'var(--color-border)' : 'var(--color-border)',
                 margin: '0 2px', marginBottom: 18,
               }} />
             )}
@@ -109,7 +121,9 @@ export default function PurchaseOrderDetail() {
   const [state, dispatch] = useReducer(reducer, INIT);
   const [warehouses, setWarehouses] = useState([]);
   const [actionLoading, setActionLoading] = useState('');
+  const [approveOpen, setApproveOpen] = useState(false);
   const [cancelOpen, setCancelOpen]     = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
   const [receiveOpen, setReceiveOpen]   = useState(false);
 
   /* ── Receiving modal state ── */
@@ -143,6 +157,35 @@ export default function PurchaseOrderDetail() {
       fetchPO();
     } catch (err) {
       showToast(err.response?.data?.error || `Action failed`, 'error');
+    } finally {
+      setActionLoading('');
+    }
+  }
+
+  async function doApprove() {
+    setActionLoading('approve');
+    try {
+      if (po.status === 'draft') {
+        await purchaseOrderAPI.submit(id);
+      }
+      await purchaseOrderAPI.approve(id);
+      showToast('PO approved successfully', 'success');
+      fetchPO();
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Approve failed', 'error');
+    } finally {
+      setActionLoading('');
+    }
+  }
+
+  async function doCancel() {
+    setActionLoading('cancel');
+    try {
+      await purchaseOrderAPI.cancel(id, { reason: cancelReason });
+      showToast('PO cancelled successfully', 'success');
+      fetchPO();
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Cancel failed', 'error');
     } finally {
       setActionLoading('');
     }
@@ -251,12 +294,42 @@ export default function PurchaseOrderDetail() {
                 )}
               </div>
 
-              {/* Meta row */}
-              <div style={{ display: 'flex', gap: 20, marginTop: 12, flexWrap: 'wrap' }}>
-                <MetaChip icon={<SupplierIcon style={{ fontSize: 14 }} />} label={po.supplier?.name} />
-                {po.warehouse && <MetaChip icon={<WHIcon style={{ fontSize: 14 }} />} label={po.warehouse.name} />}
-                <MetaChip icon={<DateIcon style={{ fontSize: 14 }} />} label={`Expected: ${fmtDate(po.expected_delivery)}`} />
-                <MetaChip icon={<PersonIcon style={{ fontSize: 14 }} />} label={`By: ${userName(po.created_by_user)}`} />
+              {/* Info Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px 16px', marginTop: 16, marginBottom: 16 }}>
+                <div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 2 }}>Supplier</span>
+                  {po.supplier ? (
+                    <Link to={`/suppliers/${po.supplier_id}`} style={{ color: 'var(--color-primary)', fontWeight: 600, fontFamily: 'var(--font-sans)', fontSize: 13, textDecoration: 'none' }} onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')} onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}>
+                      {po.supplier.name}
+                    </Link>
+                  ) : '—'}
+                </div>
+                <div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 2 }}>Created By</span>
+                  <span style={{ fontSize: 13, color: 'var(--color-text-primary)', fontFamily: 'var(--font-sans)', fontWeight: 500 }}>
+                    {userName(po.created_by_user)}
+                  </span>
+                </div>
+                <div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 2 }}>Created Date</span>
+                  <span style={{ fontSize: 13, color: 'var(--color-text-primary)', fontFamily: 'var(--font-sans)', fontWeight: 500 }}>
+                    {fmtDate(po.created_at)}
+                  </span>
+                </div>
+                <div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 2 }}>Total Amount</span>
+                  <span style={{ fontSize: 13, color: 'var(--color-text-primary)', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
+                    {fmt(po.grand_total ?? po.total_amount)}
+                  </span>
+                </div>
+                {po.warehouse && (
+                  <div>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 2 }}>Warehouse</span>
+                    <span style={{ fontSize: 13, color: 'var(--color-text-primary)', fontFamily: 'var(--font-sans)', fontWeight: 500 }}>
+                      {po.warehouse.name}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Status timeline */}
@@ -279,46 +352,43 @@ export default function PurchaseOrderDetail() {
 
           {/* ── Action buttons (vary by status + role) ── */}
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--color-border)' }}>
-            {status === 'draft' && canManage && (
+            {/* draft or submitted: Approve and Cancel (Admin only) */}
+            {(status === 'draft' || status === 'submitted') && isAdmin && (
               <>
-                <Button variant="secondary" size="sm" leftIcon={<EditIcon style={{ fontSize: 16 }} />} onClick={() => navigate(`/purchase-orders/${id}/edit`)}>
-                  Edit
-                </Button>
-                <Button variant="primary" size="sm" leftIcon={<SubmitIcon style={{ fontSize: 16 }} />} loading={actionLoading === 'submit'} onClick={() => doAction('submit')}>
-                  Submit for Approval
+                <Button variant="primary" size="sm" leftIcon={<ApproveIcon style={{ fontSize: 16 }} />} loading={actionLoading === 'approve'} onClick={() => setApproveOpen(true)}>
+                  Approve PO
                 </Button>
                 <Button variant="danger-ghost" size="sm" leftIcon={<CancelIcon style={{ fontSize: 16 }} />} loading={actionLoading === 'cancel'} onClick={() => setCancelOpen(true)}>
-                  Cancel
+                  Cancel PO
                 </Button>
               </>
             )}
-            {status === 'submitted' && canManage && (
-              <>
-                <Button variant="primary" size="sm" leftIcon={<ApproveIcon style={{ fontSize: 16 }} />} loading={actionLoading === 'approve'} onClick={() => doAction('approve')}>
-                  Approve
-                </Button>
-                {isAdmin && (
-                  <Button variant="danger-ghost" size="sm" leftIcon={<CancelIcon style={{ fontSize: 16 }} />} loading={actionLoading === 'cancel'} onClick={() => setCancelOpen(true)}>
-                    Cancel
-                  </Button>
-                )}
-              </>
+
+            {/* draft only: Submit for Approval (Manager only) */}
+            {status === 'draft' && isMgr && (
+              <Button variant="primary" size="sm" leftIcon={<SubmitIcon style={{ fontSize: 16 }} />} loading={actionLoading === 'submit'} onClick={() => doAction('submit')}>
+                Submit for Approval
+              </Button>
             )}
-            {status === 'approved' && canManage && (
-              <>
-                <Button variant="primary" size="sm" leftIcon={<ShipIcon style={{ fontSize: 16 }} />} loading={actionLoading === 'ship'} onClick={() => doAction('ship')}>
-                  Mark as Shipped
-                </Button>
-                {isAdmin && (
-                  <Button variant="danger-ghost" size="sm" leftIcon={<CancelIcon style={{ fontSize: 16 }} />} onClick={() => setCancelOpen(true)}>
-                    Cancel
-                  </Button>
-                )}
-              </>
+
+            {/* draft only: Edit button (Admin or Manager) */}
+            {status === 'draft' && (isAdmin || isMgr) && (
+              <Button variant="secondary" size="sm" leftIcon={<EditIcon style={{ fontSize: 16 }} />} onClick={() => navigate(`/purchase-orders/${id}/edit`)}>
+                Edit
+              </Button>
             )}
-            {status === 'shipped' && canManage && (
+
+            {/* approved or shipped (confirmed): Receive Goods (Admin or Manager) */}
+            {(status === 'approved' || status === 'shipped') && (isAdmin || isMgr) && (
               <Button variant="primary" size="sm" leftIcon={<ReceiveIcon style={{ fontSize: 16 }} />} onClick={openReceive}>
                 Receive Goods
+              </Button>
+            )}
+
+            {/* approved or shipped (confirmed): Cancel PO (Admin only) */}
+            {(status === 'approved' || status === 'shipped') && isAdmin && (
+              <Button variant="danger-ghost" size="sm" leftIcon={<CancelIcon style={{ fontSize: 16 }} />} loading={actionLoading === 'cancel'} onClick={() => setCancelOpen(true)}>
+                Cancel PO
               </Button>
             )}
           </div>
@@ -347,14 +417,20 @@ export default function PurchaseOrderDetail() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                {['#', 'Product', 'SKU', 'Ordered Qty', 'Unit Cost', 'Total Cost'].map((h) => (
-                  <th key={h} style={{ ...tdStyle, background: 'var(--color-surface-alt)', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
-                ))}
+                <th style={{ ...tdStyle, background: 'var(--color-surface-alt)', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', width: 40 }}>#</th>
+                <th style={{ ...tdStyle, background: 'var(--color-surface-alt)', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Product</th>
+                <th style={{ ...tdStyle, background: 'var(--color-surface-alt)', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>SKU</th>
+                <th style={{ ...tdStyle, background: 'var(--color-surface-alt)', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center' }}>Ordered Qty</th>
+                {po.status === 'received' && (
+                  <th style={{ ...tdStyle, background: 'var(--color-surface-alt)', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center' }}>Received Qty</th>
+                )}
+                <th style={{ ...tdStyle, background: 'var(--color-surface-alt)', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Unit Price</th>
+                <th style={{ ...tdStyle, background: 'var(--color-surface-alt)', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Line Total</th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0 ? (
-                <tr><td colSpan={6} style={{ ...tdStyle, textAlign: 'center', color: 'var(--color-text-muted)', borderBottom: 'none' }}>No items.</td></tr>
+                <tr><td colSpan={po.status === 'received' ? 7 : 6} style={{ ...tdStyle, textAlign: 'center', color: 'var(--color-text-muted)', borderBottom: 'none' }}>No items.</td></tr>
               ) : (
                 items.map((item, idx) => (
                   <tr key={idx}>
@@ -362,6 +438,11 @@ export default function PurchaseOrderDetail() {
                     <td style={tdStyle}><span style={{ fontWeight: 600 }}>{item.product_name}</span></td>
                     <td style={tdStyle}><code style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', background: 'var(--color-surface-alt)', padding: '2px 6px', borderRadius: 4 }}>{item.sku}</code></td>
                     <td style={{ ...tdStyle, textAlign: 'center', fontWeight: 700 }}>{item.quantity}</td>
+                    {po.status === 'received' && (
+                      <td style={{ ...tdStyle, textAlign: 'center', fontWeight: 700, color: 'var(--color-success)' }}>
+                        {item.quantity_received ?? item.quantity}
+                      </td>
+                    )}
                     <td style={{ ...tdStyle, textAlign: 'right', fontFamily: 'var(--font-mono)' }}>{fmt(item.unit_cost)}</td>
                     <td style={{ ...tdStyle, textAlign: 'right', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{fmt(item.total_cost)}</td>
                   </tr>
@@ -397,25 +478,55 @@ export default function PurchaseOrderDetail() {
       {/* ════════════════════════════════════════════════
           Cancel Confirmation Modal
       ════════════════════════════════════════════════ */}
+      {/* ── Approve Confirmation Modal ── */}
+      <Modal open={approveOpen} onClose={() => setApproveOpen(false)} title="Approve Purchase Order" size="sm">
+        <Modal.Body>
+          <p style={{ margin: 0, fontWeight: 600, fontFamily: 'var(--font-sans)', color: 'var(--color-text-primary)' }}>
+            Approve "{po.po_number}"?
+          </p>
+          <p style={{ margin: '6px 0 0', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-sans)', lineHeight: 1.5 }}>
+            Are you sure you want to approve this purchase order? This will move it to the Confirmed status.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" size="sm" onClick={() => setApproveOpen(false)}>Cancel</Button>
+          <Button variant="primary" size="sm" loading={actionLoading === 'approve'} onClick={async () => { setApproveOpen(false); await doApprove(); }}>
+            Approve PO
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* ── Cancel Confirmation Modal ── */}
       <Modal open={cancelOpen} onClose={() => setCancelOpen(false)} title="Cancel Purchase Order" size="sm">
         <Modal.Body>
-          <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--color-danger-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <WarnIcon style={{ color: 'var(--color-danger)', fontSize: 22 }} />
+          <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--color-danger-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <WarnIcon style={{ color: 'var(--color-danger)', fontSize: 22 }} />
+              </div>
+              <div>
+                <p style={{ margin: 0, fontWeight: 600, fontFamily: 'var(--font-sans)', color: 'var(--color-text-primary)' }}>
+                  Cancel "{po.po_number}"?
+                </p>
+                <p style={{ margin: '6px 0 0', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-sans)', lineHeight: 1.5 }}>
+                  This action cannot be undone. Cancelled POs cannot be reactivated.
+                </p>
+              </div>
             </div>
-            <div>
-              <p style={{ margin: 0, fontWeight: 600, fontFamily: 'var(--font-sans)', color: 'var(--color-text-primary)' }}>
-                Cancel "{po.po_number}"?
-              </p>
-              <p style={{ margin: '6px 0 0', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-sans)', lineHeight: 1.5 }}>
-                This action cannot be undone. Cancelled POs cannot be reactivated.
-              </p>
+            <div style={{ width: '100%', marginTop: 8 }}>
+              <Input
+                label="Reason for Cancellation"
+                placeholder="Enter reason..."
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                required
+              />
             </div>
           </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" size="sm" onClick={() => setCancelOpen(false)}>Keep PO</Button>
-          <Button variant="danger" size="sm" loading={actionLoading === 'cancel'} onClick={async () => { setCancelOpen(false); await doAction('cancel'); }}>
+          <Button variant="danger" size="sm" loading={actionLoading === 'cancel'} disabled={!cancelReason.trim()} onClick={async () => { setCancelOpen(false); await doCancel(); }}>
             Cancel PO
           </Button>
         </Modal.Footer>

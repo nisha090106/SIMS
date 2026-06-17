@@ -29,8 +29,10 @@ import {
   DialogContentText,
   DialogActions,
   Pagination,
+  Collapse,
+  Tooltip,
 } from '@mui/material';
-import { Edit2, Eye, Trash2, Plus } from 'lucide-react';
+import { Edit2, Eye, Trash2, Plus, ChevronDown, Phone, Clock, Star } from 'lucide-react';
 import api from '../../services/api';
 import SupplierForm from './SupplierForm';
 
@@ -52,6 +54,9 @@ const SupplierList = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(10);
+
+  // Expanded rows
+  const [expandedRows, setExpandedRows] = useState({});
 
   // Form Drawer
   const [formOpen, setFormOpen] = useState(false);
@@ -105,6 +110,16 @@ const SupplierList = () => {
     }
   };
 
+  const handleRatingUpdate = async (supplierId, newRating) => {
+    try {
+      await api.patch(`/suppliers/${supplierId}/rating`, { rating: newRating });
+      fetchSuppliers();
+    } catch (err) {
+      console.error('Rating update error:', err);
+      setError(err.response?.data?.error || 'Failed to update rating');
+    }
+  };
+
   const handleOpenAddForm = () => {
     setEditingSupplier(null);
     setFormOpen(true);
@@ -137,6 +152,13 @@ const SupplierList = () => {
     }
   };
 
+  const toggleRowExpand = (supplierId) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [supplierId]: !prev[supplierId],
+    }));
+  };
+
   const getStatusChipColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'active':
@@ -156,6 +178,8 @@ const SupplierList = () => {
     return term.replace('net', 'Net ');
   };
 
+  // Visible columns: Name, Contact Person, Email, Payment Terms, Status, Actions
+  // Expanded row shows: Phone, Lead Time, Rating
   return (
     <Box sx={{ p: 3 }}>
       {/* Title & Add Button */}
@@ -222,24 +246,35 @@ const SupplierList = () => {
         />
       </Paper>
 
+      {/* Error Message */}
+      {error && (
+        <Paper sx={{ p: 2, mb: 2, bgcolor: '#fff3f3', border: '1px solid #ffcdd2', borderRadius: 2 }}>
+          <Typography color="error" variant="body2">{error}</Typography>
+        </Paper>
+      )}
+
       {/* Table Section */}
       {loading && suppliers.length === 0 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
           <CircularProgress />
         </Box>
       ) : (
-        <TableContainer component={Paper} sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: 1 }}>
-          <Table>
+        <TableContainer
+          component={Paper}
+          sx={{
+            borderRadius: 2,
+            boxShadow: 1,
+            overflowX: 'auto',          // horizontal scroll on small screens
+          }}
+        >
+          <Table sx={{ minWidth: 700 }}>
             <TableHead>
               <TableRow sx={{ bgcolor: '#f8f9fa' }}>
+                <TableCell sx={{ fontWeight: 'bold', width: 48 }} />  {/* expand toggle */}
                 <TableCell sx={{ fontWeight: 'bold' }}>Company Name</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Contact Person</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Email</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Phone</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Country</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Rating</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Payment Terms</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Lead Time</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
                 <TableCell align="right" sx={{ fontWeight: 'bold' }}>Actions</TableCell>
               </TableRow>
@@ -247,76 +282,147 @@ const SupplierList = () => {
             <TableBody>
               {suppliers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} align="center" sx={{ py: 6 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
                     <Typography color="textSecondary">No suppliers found</Typography>
                   </TableCell>
                 </TableRow>
               ) : (
                 suppliers.map((supplier) => (
-                  <TableRow key={supplier.supplier_id} hover>
-                    <TableCell>
-                      <Typography
-                        onClick={() => navigate(`/suppliers/${supplier.supplier_id}`)}
-                        sx={{
-                          cursor: 'pointer',
-                          fontWeight: 'bold',
-                          color: 'primary.main',
-                          '&:hover': { textDecoration: 'underline' },
-                        }}
-                      >
-                        {supplier.name}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>{supplier.contact_person || '-'}</TableCell>
-                    <TableCell>{supplier.email || '-'}</TableCell>
-                    <TableCell>{supplier.phone || '-'}</TableCell>
-                    <TableCell>{supplier.country || '-'}</TableCell>
-                    <TableCell>
-                      <Rating value={supplier.rating ? Math.round(supplier.rating) : 0} readOnly size="small" />
-                    </TableCell>
-                    <TableCell>{formatPaymentTerms(supplier.payment_terms)}</TableCell>
-                    <TableCell>{supplier.lead_time ? `${supplier.lead_time} days` : '-'}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={supplier.status?.toUpperCase()}
-                        color={getStatusChipColor(supplier.status)}
-                        size="small"
-                        sx={{ fontWeight: 'bold' }}
-                      />
-                    </TableCell>
-                    <TableCell align="right">
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+                  <React.Fragment key={supplier.supplier_id}>
+                    {/* Main Row */}
+                    <TableRow
+                      hover
+                      sx={{
+                        '& > *': { borderBottom: expandedRows[supplier.supplier_id] ? 'none' : undefined },
+                      }}
+                    >
+                      <TableCell sx={{ pr: 0, width: 48 }}>
                         <IconButton
                           size="small"
-                          color="primary"
-                          onClick={() => navigate(`/suppliers/${supplier.supplier_id}`)}
-                          title="View Detail"
+                          onClick={() => toggleRowExpand(supplier.supplier_id)}
+                          sx={{
+                            transition: 'transform 0.2s',
+                            transform: expandedRows[supplier.supplier_id] ? 'rotate(180deg)' : 'rotate(0deg)',
+                          }}
                         >
-                          <Eye size={16} />
+                          <ChevronDown size={16} />
                         </IconButton>
-                        {isManagerOrAdmin && (
-                          <IconButton
-                            size="small"
-                            color="warning"
-                            onClick={() => handleOpenEditForm(supplier)}
-                            title="Edit Supplier"
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          onClick={() => navigate(`/suppliers/${supplier.supplier_id}`)}
+                          sx={{
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            color: 'primary.main',
+                            '&:hover': { textDecoration: 'underline' },
+                          }}
+                        >
+                          {supplier.name}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>{supplier.contact_person || '-'}</TableCell>
+                      <TableCell>{supplier.email || '-'}</TableCell>
+                      <TableCell>{formatPaymentTerms(supplier.payment_terms)}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={supplier.status?.toUpperCase()}
+                          color={getStatusChipColor(supplier.status)}
+                          size="small"
+                          sx={{ fontWeight: 'bold' }}
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+                          <Tooltip title="View Detail">
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={() => navigate(`/suppliers/${supplier.supplier_id}`)}
+                            >
+                              <Eye size={16} />
+                            </IconButton>
+                          </Tooltip>
+                          {isManagerOrAdmin && (
+                            <Tooltip title="Edit Supplier">
+                              <IconButton
+                                size="small"
+                                color="warning"
+                                onClick={() => handleOpenEditForm(supplier)}
+                              >
+                                <Edit2 size={16} />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          {isAdmin && (
+                            <Tooltip title="Delete Supplier">
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => handleOpenDeleteConfirm(supplier)}
+                              >
+                                <Trash2 size={16} />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+
+                    {/* Expandable Detail Row */}
+                    <TableRow>
+                      <TableCell colSpan={7} sx={{ py: 0, borderBottom: expandedRows[supplier.supplier_id] ? undefined : 'none' }}>
+                        <Collapse in={expandedRows[supplier.supplier_id]} timeout="auto" unmountOnExit>
+                          <Box
+                            sx={{
+                              py: 2,
+                              px: 2,
+                              display: 'flex',
+                              gap: 4,
+                              flexWrap: 'wrap',
+                              alignItems: 'center',
+                              bgcolor: '#fafbfc',
+                              borderRadius: 1,
+                              my: 1,
+                            }}
                           >
-                            <Edit2 size={16} />
-                          </IconButton>
-                        )}
-                        {isAdmin && (
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => handleOpenDeleteConfirm(supplier)}
-                            title="Delete Supplier"
-                          >
-                            <Trash2 size={16} />
-                          </IconButton>
-                        )}
-                      </Box>
-                    </TableCell>
-                  </TableRow>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Phone size={15} style={{ color: '#666' }} />
+                              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                                Phone:
+                              </Typography>
+                              <Typography variant="body2">{supplier.phone || '-'}</Typography>
+                            </Box>
+
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Clock size={15} style={{ color: '#666' }} />
+                              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                                Lead Time:
+                              </Typography>
+                              <Typography variant="body2">
+                                {supplier.lead_time ? `${supplier.lead_time} days` : '-'}
+                              </Typography>
+                            </Box>
+
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Star size={15} style={{ color: '#faaf00' }} />
+                              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                                Rating:
+                              </Typography>
+                              <Rating
+                                value={supplier.rating ? Math.round(supplier.rating) : 0}
+                                readOnly
+                                size="small"
+                              />
+                              <Typography variant="caption" color="text.secondary">
+                                ({supplier.rating ? parseFloat(supplier.rating).toFixed(1) : '0.0'})
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Collapse>
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
                 ))
               )}
             </TableBody>
@@ -342,6 +448,7 @@ const SupplierList = () => {
         onClose={() => setFormOpen(false)}
         supplier={editingSupplier}
         onSubmit={handleFormSubmit}
+        onRatingUpdate={handleRatingUpdate}
       />
 
       {/* Delete Dialog */}

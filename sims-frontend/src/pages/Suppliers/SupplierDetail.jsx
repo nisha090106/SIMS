@@ -26,6 +26,7 @@ import {
 } from '@mui/material';
 import { ArrowLeft, User, Mail, Phone, MapPin, Globe, CreditCard, Clock, Save } from 'lucide-react';
 import api from '../../services/api';
+import SupplierForm from './SupplierForm';
 
 const SupplierDetail = () => {
   const { id } = useParams();
@@ -40,6 +41,12 @@ const SupplierDetail = () => {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState(0);
+  const [editOpen, setEditOpen] = useState(false);
+
+  const handleEditSubmit = async (values) => {
+    await api.put(`/suppliers/${id}`, values);
+    fetchSupplierDetails();
+  };
 
   // Notes state
   const [notes, setNotes] = useState('');
@@ -67,8 +74,8 @@ const SupplierDetail = () => {
   const fetchSupplierOrders = async () => {
     try {
       setOrdersLoading(true);
-      const res = await api.get(`/suppliers/${id}/orders`);
-      setPurchaseOrders(res.data.data || []);
+      const res = await api.get('/purchase-orders', { params: { supplier_id: id, limit: 500 } });
+      setPurchaseOrders(res.data.data?.orders || []);
     } catch (err) {
       console.error('Failed to load supplier orders', err);
     } finally {
@@ -193,6 +200,16 @@ const SupplierDetail = () => {
               />
             </Box>
           </Box>
+          {isManagerOrAdmin && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setEditOpen(true)}
+              sx={{ textTransform: 'none' }}
+            >
+              Edit Supplier
+            </Button>
+          )}
         </Box>
       </Paper>
 
@@ -322,7 +339,17 @@ const SupplierDetail = () => {
                     <TableBody>
                       {purchaseOrders.map((po) => (
                         <TableRow key={po.po_id} hover>
-                          <TableCell sx={{ fontWeight: 'bold' }}>{po.po_number}</TableCell>
+                          <TableCell
+                            sx={{
+                              fontWeight: 'bold',
+                              color: 'primary.main',
+                              cursor: 'pointer',
+                              '&:hover': { textDecoration: 'underline' },
+                            }}
+                            onClick={() => navigate(`/purchase-orders/${po.po_id}`)}
+                          >
+                            {po.po_number}
+                          </TableCell>
                           <TableCell>{new Date(po.order_date).toLocaleDateString()}</TableCell>
                           <TableCell>{po.expected_delivery ? new Date(po.expected_delivery).toLocaleDateString() : '-'}</TableCell>
                           <TableCell align="right" sx={{ fontWeight: 'bold' }}>${po.total_amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
@@ -375,6 +402,14 @@ const SupplierDetail = () => {
           )}
         </Box>
       </Paper>
+
+      <SupplierForm
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        supplier={supplier}
+        onSubmit={handleEditSubmit}
+        onRatingUpdate={(sid, r) => setSupplier((prev) => ({ ...prev, rating: r }))}
+      />
     </Box>
   );
 };

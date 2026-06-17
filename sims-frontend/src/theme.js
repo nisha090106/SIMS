@@ -47,7 +47,7 @@ const theme = createTheme({
   },
 
   typography: {
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    fontFamily: '\'Inter\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
     fontWeightLight:   300,
     fontWeightRegular: 400,
     fontWeightMedium:  500,
@@ -104,7 +104,7 @@ const theme = createTheme({
         root: {
           borderRadius: 8,
           fontSize: '0.875rem',
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: '\'Inter\', sans-serif',
           '&:hover .MuiOutlinedInput-notchedOutline': {
             borderColor: '#CBD5E1',
           },

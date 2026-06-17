@@ -29,7 +29,10 @@ import Inventory          from './pages/Inventory';
 import Warehouses         from './pages/Warehouses';
 import WarehouseDetail    from './pages/Warehouses/WarehouseDetail';
 import Suppliers          from './pages/Suppliers';
+import SupplierDetail     from './pages/Suppliers/SupplierDetail';
 import PurchaseOrders     from './pages/PurchaseOrders';
+import PurchaseOrderForm  from './pages/PurchaseOrders/PurchaseOrderForm';
+import PurchaseOrderDetail from './pages/PurchaseOrders/PurchaseOrderDetail';
 import SalesOrders        from './pages/SalesOrders';
 import Reports            from './pages/Reports';
 import Settings           from './pages/Settings';
@@ -85,7 +88,11 @@ const AppContent = () => {
         <Route path="/warehouses"      element={<Warehouses />} />
         <Route path="/warehouses/:id"  element={<WarehouseDetail />} />
         <Route path="/suppliers"       element={<Suppliers />} />
+        <Route path="/suppliers/:id"   element={<SupplierDetail />} />
         <Route path="/purchase-orders" element={<PurchaseOrders />} />
+        <Route path="/purchase-orders/new" element={<PurchaseOrderForm />} />
+        <Route path="/purchase-orders/:id" element={<PurchaseOrderDetail />} />
+        <Route path="/purchase-orders/:id/edit" element={<PurchaseOrderForm />} />
         <Route path="/sales-orders"    element={<SalesOrders />} />
         <Route path="/reports"         element={<Reports />} />
         <Route path="/settings"        element={<Settings />} />

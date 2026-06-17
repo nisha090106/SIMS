@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
   Add as AddIcon,
@@ -8,8 +8,10 @@ import {
   DownloadOutlined as ExportIcon,
   AutoAwesome as AutoIcon,
   Inventory2Outlined as EmptyIcon,
+  WarningAmberOutlined as WarnIcon,
+  InventoryOutlined as ReceiveIcon,
 } from '@mui/icons-material';
-import { purchaseOrderAPI } from '../../services/api';
+import { purchaseOrderAPI, warehouseAPI } from '../../services/api';
 import { useToast } from '../../hooks/useToast';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
@@ -17,6 +19,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
 import Table from '../../components/ui/Table';
+import Modal from '../../components/ui/Modal';
 import { STATUS_CONFIG, fmt, fmtDate, parseItems } from './poHelpers';
 
 /* ── Constants ───────────────────────────────────────────────── */
@@ -107,14 +110,105 @@ export default function PurchaseOrderList() {
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
-  /* ── Quick actions from list ── */
-  async function quickAction(id, action) {
+  // Modal state
+  const [activePO, setActivePO] = useState(null);
+  const [approveOpen, setApproveOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [receiveOpen, setReceiveOpen] = useState(false);
+  const [receiveWH, setReceiveWH] = useState('');
+  const [receiveItems, setReceiveItems] = useState([]);
+  const [actionLoading, setActionLoading] = useState('');
+  const [warehouses, setWarehouses] = useState([]);
+
+  useEffect(() => {
+    warehouseAPI.getAll().then((r) => setWarehouses(r.data.data || [])).catch(() => {});
+  }, []);
+
+  function openApproveModal(po) {
+    setActivePO(po);
+    setApproveOpen(true);
+  }
+
+  async function confirmApprove() {
+    if (!activePO) return;
+    const poId = activePO.po_id;
+    setActionLoading(`approve-${poId}`);
     try {
-      await purchaseOrderAPI[action](id);
-      showToast(`PO ${action}d successfully`, 'success');
+      if (activePO.status === 'draft') {
+        await purchaseOrderAPI.submit(poId);
+      }
+      await purchaseOrderAPI.approve(poId);
+      showToast('PO approved successfully', 'success');
+      setApproveOpen(false);
       fetchOrders();
     } catch (err) {
-      showToast(err.response?.data?.error || `Failed to ${action} PO`, 'error');
+      showToast(err.response?.data?.error || 'Approve failed', 'error');
+    } finally {
+      setActionLoading('');
+    }
+  }
+
+  function openCancelModal(po) {
+    setActivePO(po);
+    setCancelReason('');
+    setCancelOpen(true);
+  }
+
+  async function confirmCancel() {
+    if (!activePO) return;
+    const poId = activePO.po_id;
+    setActionLoading(`cancel-${poId}`);
+    try {
+      await purchaseOrderAPI.cancel(poId, { reason: cancelReason });
+      showToast('PO cancelled successfully', 'success');
+      setCancelOpen(false);
+      fetchOrders();
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Cancel failed', 'error');
+    } finally {
+      setActionLoading('');
+    }
+  }
+
+  function openReceiveModal(po) {
+    setActivePO(po);
+    const items = parseItems(po.items).map((i) => ({
+      product_id:       i.product_id,
+      product_name:     i.product_name,
+      sku:              i.sku,
+      ordered_qty:      i.quantity,
+      quantity_received: i.quantity,
+      batch_no:         '',
+      expiry_date:      '',
+    }));
+    setReceiveItems(items);
+    setReceiveWH(po.warehouse_id || '');
+    setReceiveOpen(true);
+  }
+
+  async function confirmReceive() {
+    if (!activePO) return;
+    if (!receiveWH) { showToast('Select a destination warehouse', 'error'); return; }
+    const poId = activePO.po_id;
+    setActionLoading(`receive-${poId}`);
+    try {
+      await purchaseOrderAPI.receive(poId, {
+        warehouse_id:   receiveWH,
+        received_items: receiveItems.map((i) => ({
+          product_id:        i.product_id,
+          quantity_received: Number(i.quantity_received) || 0,
+          batch_no:          i.batch_no  || undefined,
+          expiry_date:       i.expiry_date || undefined,
+        })),
+      });
+      showToast('Goods received and stock updated', 'success');
+      setReceiveOpen(false);
+      fetchOrders();
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Receive failed', 'error');
+    } finally {
+      setActionLoading('');
     }
   }
 
@@ -137,7 +231,7 @@ export default function PurchaseOrderList() {
     { key: 'total',    label: 'Total',    width: 130, align: 'right' },
     { key: 'status',   label: 'Status',   width: 120, align: 'center' },
     { key: 'delivery', label: 'Expected', width: 120 },
-    { key: 'actions',  label: '',         width: 130, align: 'right' },
+    { key: 'actions',  label: '',         width: 180, align: 'right' },
   ];
 
   return (
@@ -228,7 +322,7 @@ export default function PurchaseOrderList() {
                       {po.po_number}
                     </span>
                     {isAuto && (
-                      <AutoIcon style={{ fontSize: 13, color: 'var(--color-warning)' }} titleAccess="Auto-drafted" />
+                      <AutoIcon className="auto-draft-icon" style={{ fontSize: 13, color: 'var(--color-warning)' }} titleAccess="Auto-drafted" />
                     )}
                   </div>
                   <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: 1 }}>
@@ -275,19 +369,33 @@ export default function PurchaseOrderList() {
 
                 {/* Quick actions */}
                 <td style={{ ...td, textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
-                  <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
-                    <Button variant="secondary" size="sm" onClick={() => navigate(`/purchase-orders/${po.po_id}`)}>
-                      View
-                    </Button>
-                    {po.status === 'draft' && canCreate && (
-                      <Button variant="primary" size="sm" onClick={(e) => { e.stopPropagation(); quickAction(po.po_id, 'submit'); }}>
-                        Submit
+                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', alignItems: 'center' }}>
+                    {(po.status === 'draft' || po.status === 'submitted') && isAdmin ? (
+                      <>
+                        <Button variant="primary" size="sm" 
+                          loading={actionLoading === `approve-${po.po_id}`} 
+                          onClick={(e) => { e.stopPropagation(); openApproveModal(po); }}>
+                          Approve
+                        </Button>
+                        <Button variant="danger-ghost" size="sm" 
+                          loading={actionLoading === `cancel-${po.po_id}`} 
+                          onClick={(e) => { e.stopPropagation(); openCancelModal(po); }}>
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (po.status === 'approved' || po.status === 'shipped') && (isAdmin || isMgr) ? (
+                      <Button variant="primary" size="sm" 
+                        loading={actionLoading === `receive-${po.po_id}`} 
+                        onClick={(e) => { e.stopPropagation(); openReceiveModal(po); }}>
+                        Receive
                       </Button>
-                    )}
-                    {po.status === 'submitted' && canCreate && (
-                      <Button variant="primary" size="sm" onClick={(e) => { e.stopPropagation(); quickAction(po.po_id, 'approve'); }}>
-                        Approve
-                      </Button>
+                    ) : (
+                      <Link to={`/purchase-orders/${po.po_id}`} 
+                        style={{ color: 'var(--color-primary)', fontSize: 'var(--text-sm)', textDecoration: 'none', fontWeight: 600 }}
+                        onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                        onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}>
+                        View details
+                      </Link>
                     )}
                   </div>
                 </td>
@@ -311,6 +419,162 @@ export default function PurchaseOrderList() {
           </div>
         )}
       </Card>
+
+      {/* ── Approve Confirmation Modal ── */}
+      <Modal open={approveOpen} onClose={() => setApproveOpen(false)} title="Approve Purchase Order" size="sm">
+        <Modal.Body>
+          {activePO && (
+            <>
+              <p style={{ margin: 0, fontWeight: 600, fontFamily: 'var(--font-sans)', color: 'var(--color-text-primary)' }}>
+                Approve "{activePO.po_number}"?
+              </p>
+              <p style={{ margin: '6px 0 0', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-sans)', lineHeight: 1.5 }}>
+                Are you sure you want to approve this purchase order? This will move it to the Confirmed status.
+              </p>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" size="sm" onClick={() => setApproveOpen(false)}>Cancel</Button>
+          <Button variant="primary" size="sm" loading={actionLoading === `approve-${activePO?.po_id}`} onClick={confirmApprove}>
+            Approve PO
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* ── Cancel Confirmation Modal ── */}
+      <Modal open={cancelOpen} onClose={() => setCancelOpen(false)} title="Cancel Purchase Order" size="sm">
+        <Modal.Body>
+          {activePO && (
+            <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--color-danger-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <WarnIcon style={{ color: 'var(--color-danger)', fontSize: 22 }} />
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 600, fontFamily: 'var(--font-sans)', color: 'var(--color-text-primary)' }}>
+                    Cancel "{activePO.po_number}"?
+                  </p>
+                  <p style={{ margin: '6px 0 0', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-sans)', lineHeight: 1.5 }}>
+                    This action cannot be undone. Cancelled POs cannot be reactivated.
+                  </p>
+                </div>
+              </div>
+              <div style={{ width: '100%', marginTop: 8 }}>
+                <Input
+                  label="Reason for Cancellation"
+                  placeholder="Enter reason..."
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" size="sm" onClick={() => setCancelOpen(false)}>Keep PO</Button>
+          <Button variant="danger" size="sm" loading={actionLoading === `cancel-${activePO?.po_id}`} disabled={!cancelReason.trim()} onClick={confirmCancel}>
+            Cancel PO
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* ── Receive Goods Modal ── */}
+      <Modal open={receiveOpen} onClose={() => !actionLoading && setReceiveOpen(false)} title="Receive Goods" size="lg">
+        <Modal.Body>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <Select
+              label="Destination Warehouse"
+              required
+              value={receiveWH}
+              onChange={(e) => setReceiveWH(e.target.value)}
+              helper="Stock will be added to this warehouse"
+            >
+              <option value="">Select warehouse…</option>
+              {warehouses.map((w) => (
+                <option key={w.warehouse_id} value={w.warehouse_id}>{w.name}</option>
+              ))}
+            </Select>
+
+            <div style={{ overflowX: 'auto', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    {['Product', 'Ordered', 'Receive Qty', 'Batch #', 'Expiry Date'].map((h) => (
+                      <th key={h} style={{
+                        padding: '8px 12px',
+                        borderBottom: '1px solid var(--color-border)',
+                        fontFamily: 'var(--font-sans)',
+                        fontSize: 'var(--text-xs)',
+                        fontWeight: 700,
+                        color: 'var(--color-text-secondary)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        background: 'var(--color-surface-alt)',
+                        verticalAlign: 'middle',
+                      }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {receiveItems.map((item, idx) => (
+                    <tr key={idx}>
+                      <td style={{ padding: '8px 12px', borderBottom: '1px solid var(--color-border)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', verticalAlign: 'middle' }}>
+                        <div style={{ fontWeight: 600 }}>{item.product_name}</div>
+                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>{item.sku}</div>
+                      </td>
+                      <td style={{ padding: '8px 12px', borderBottom: '1px solid var(--color-border)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', verticalAlign: 'middle', textAlign: 'center', fontWeight: 700 }}>{item.ordered_qty}</td>
+                      <td style={{ padding: '8px 12px', borderBottom: '1px solid var(--color-border)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', verticalAlign: 'middle', width: 100 }}>
+                        <input
+                          type="number" min="0" max={item.ordered_qty}
+                          value={item.quantity_received}
+                          onChange={(e) => {
+                            const copy = [...receiveItems];
+                            copy[idx] = { ...copy[idx], quantity_received: e.target.value };
+                            setReceiveItems(copy);
+                          }}
+                          style={{ width: 80, padding: '4px 8px', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)', textAlign: 'center' }}
+                        />
+                      </td>
+                      <td style={{ padding: '8px 12px', borderBottom: '1px solid var(--color-border)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', verticalAlign: 'middle', width: 130 }}>
+                        <input
+                          type="text" placeholder="BATCH-001"
+                          value={item.batch_no}
+                          onChange={(e) => {
+                            const copy = [...receiveItems];
+                            copy[idx] = { ...copy[idx], batch_no: e.target.value };
+                            setReceiveItems(copy);
+                          }}
+                          style={{ width: 110, padding: '4px 8px', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)' }}
+                        />
+                      </td>
+                      <td style={{ padding: '8px 12px', borderBottom: '1px solid var(--color-border)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', verticalAlign: 'middle', width: 140 }}>
+                        <input
+                          type="date"
+                          value={item.expiry_date}
+                          onChange={(e) => {
+                            const copy = [...receiveItems];
+                            copy[idx] = { ...copy[idx], expiry_date: e.target.value };
+                            setReceiveItems(copy);
+                          }}
+                          style={{ width: 130, padding: '4px 8px', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)' }}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" size="sm" onClick={() => setReceiveOpen(false)} disabled={!!actionLoading}>Cancel</Button>
+          <Button variant="primary" size="sm" loading={actionLoading === `receive-${activePO?.po_id}`} leftIcon={<ReceiveIcon style={{ fontSize: 16 }} />} onClick={confirmReceive}>
+            Confirm Receipt & Update Stock
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

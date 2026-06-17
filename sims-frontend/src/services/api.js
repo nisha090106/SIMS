@@ -136,10 +136,10 @@ export const purchaseOrderAPI = {
   create:    (data)     => api.post('/purchase-orders', data),
   update:    (id, data) => api.put(`/purchase-orders/${id}`, data),
   submit:    (id)       => api.post(`/purchase-orders/${id}/submit`),
-  approve:   (id)       => api.post(`/purchase-orders/${id}/approve`),
+  approve:   (id)       => api.patch(`/purchase-orders/${id}/approve`),
   ship:      (id)       => api.post(`/purchase-orders/${id}/ship`),
   receive:   (id, data) => api.post(`/purchase-orders/${id}/receive`, data),
-  cancel:    (id)       => api.post(`/purchase-orders/${id}/cancel`),
+  cancel:    (id)       => api.patch(`/purchase-orders/${id}/cancel`),
 };
 
 export const salesOrderAPI = {
