@@ -19,6 +19,8 @@ import importRoutes from './routes/imports.js';
 import barcodeRoutes from './routes/barcodes.js';
 import automationRoutes from './routes/automation.js';
 import requestsRoutes from './routes/requests.js';
+import salesRoutes from './routes/salesRoutes.js';
+import settingsRoutes from './routes/settings.js';
 import { initCronJobs } from './services/cronService.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
 import { requestLogger, responseTime } from './middlewares/loggingMiddleware.js';
@@ -106,6 +108,8 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/imports', importRoutes);
 app.use('/api/barcodes', barcodeRoutes);
 app.use('/api/automation', automationRoutes);
+app.use('/api/sales-orders', salesRoutes);
+app.use('/api/settings', settingsRoutes);
 app.use('/api', requestsRoutes);
 
 // 404 Handler

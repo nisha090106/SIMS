@@ -151,9 +151,21 @@ export const salesOrderAPI = {
 };
 
 export const reportAPI = {
-  getDashboard: () => api.get('/reports/dashboard'),
-  getSalesReport: (params) => api.get('/reports/sales', { params }),
-  getInventoryReport: (params) => api.get('/reports/inventory', { params }),
+  getDashboard:           ()       => api.get('/reports/dashboard'),
+  // Full inventory report with valuation, filtering, pagination
+  getInventory:           (params) => api.get('/reports/inventory', { params }),
+  // Legacy valuation endpoint
+  getInventoryValuation:  (params) => api.get('/reports/inventory-valuation', { params }),
+  getStockMovement:       (params) => api.get('/reports/stock-movement', { params }),
+  getLowStock:            (params) => api.get('/reports/low-stock', { params }),
+  getPurchaseOrders:      (params) => api.get('/reports/purchase-orders', { params }),
+  getRequestFulfillment:  (params) => api.get('/reports/request-fulfillment', { params }),
+  getAuditLog:            (params) => api.get('/reports/audit-log', { params }),
+  getSupplierPerformance: (params) => api.get('/reports/supplier-performance', { params }),
+  getSalesReport:         (params) => api.get('/reports/sales', { params }),
+  // Alias matching new reportAPI module naming
+  getSales:               (params) => api.get('/reports/sales', { params }),
+  exportReport:           (type, params) => api.get(`/reports/export/${type}`, { params, responseType: 'blob' }),
 };
 
 export const dashboardAPI = {
@@ -201,6 +213,24 @@ export const barcodeAPI = {
   getScanHistory: (params) => api.get('/barcodes/history', { params }),
   getUnrecognised: (params) => api.get('/barcodes/unrecognised', { params }),
   linkScan: (scanId, product_id) => api.patch(`/barcodes/${scanId}/link`, { product_id }),
+};
+
+export const settingsAPI = {
+  // Profile — any authenticated user
+  getProfile:     ()       => api.get('/settings/profile'),
+  updateProfile:  (data)   => api.put('/settings/profile', data),
+  changePassword: (data)   => api.put('/settings/password', data),
+
+  // User Management — admin only
+  getUsers:          (params)   => api.get('/settings/users', { params }),
+  createUser:        (data)     => api.post('/settings/users', data),
+  updateUser:        (id, data) => api.put(`/settings/users/${id}`, data),
+  setUserStatus:     (id, status) => api.patch(`/settings/users/${id}/status`, { status }),
+  resetUserPassword: (id, new_password) => api.post(`/settings/users/${id}/reset-password`, { new_password }),
+  deleteUser:        (id)       => api.delete(`/settings/users/${id}`),
+
+  // Audit Log — admin only
+  getAuditLog: (params) => api.get('/settings/audit-log', { params }),
 };
 
 export default api;

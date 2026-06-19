@@ -90,6 +90,7 @@ PurchaseOrder.belongsToMany(Product, { through: 'purchase_order_items', as: 'pro
 
 // SalesOrder associations
 SalesOrder.belongsTo(User, { foreignKey: 'created_by', as: 'created_by_user' });
+SalesOrder.belongsTo(Warehouse, { foreignKey: 'warehouse_id', as: 'warehouse' });
 
 // AuditLog associations
 AuditLog.belongsTo(User, { foreignKey: 'user_id', as: 'user' });

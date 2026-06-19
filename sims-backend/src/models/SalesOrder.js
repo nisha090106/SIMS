@@ -18,6 +18,14 @@ export default (sequelize) => {
         type: DataTypes.STRING(150),
         allowNull: false,
       },
+      warehouse_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      items: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
       order_date: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
