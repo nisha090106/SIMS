@@ -225,6 +225,108 @@
   font-size: 16px !important;
 }
 
+/* Barcode Generation Card */
+.barcode-gen-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all var(--transition-normal);
+}
+
+.barcode-gen-card:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header-section {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1;
+}
+
+.card-icon-box {
+  background: linear-gradient(135deg, #ec4899, #f43f5e);
+  color: #ffffff;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+.card-icon-box .card-icon {
+  font-size: 28px !important;
+}
+
+.card-text-section h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin: 0 0 0.35rem 0;
+}
+
+.card-text-section p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.card-actions-section {
+  flex-shrink: 0;
+}
+
+.barcode-gen-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #ec4899, #f43f5e);
+  color: #ffffff;
+  border: none;
+  padding: 0.65rem 1.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+  transition: all var(--transition-fast);
+}
+
+.barcode-gen-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #db2777, #e11d48);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4);
+}
+
+.barcode-gen-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.barcode-gen-btn svg {
+  font-size: 18px !important;
+}
+
+.barcode-gen-btn svg.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Two Columns Layout */
 .auto-two-col-layout {
   display: grid;
@@ -632,72 +734,73 @@ input:checked + .slider:before {
   margin: 0;
 }
 
-.recent-scans-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+/* Recent scans table */
+.recent-scans-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
 }
 
-.recent-scan-row {
-  display: flex;
-  flex-direction: column;
+.recent-scans-table th {
+  background-color: #f8fafc;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 750;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.recent-scans-table td {
   padding: 0.55rem 0.75rem;
-  background-color: #ffffff;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
   font-size: 0.8rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
 }
 
-.recent-scan-row.ok {
+.recent-scans-table td code {
+  background-color: #f1f5f9;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #334155;
+}
+
+.recent-scans-table tr:last-child td {
+  border-bottom: none;
+}
+
+.recent-scans-table .scan-row-ok {
   border-left: 3px solid #10b981;
 }
 
-.recent-scan-row.fail {
+.recent-scans-table .scan-row-fail {
   border-left: 3px solid #ef4444;
+  background-color: #fef2f2;
 }
 
-.recent-scan-row .row-main {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.recent-scan-row .text-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.recent-scan-row .text-info strong {
-  color: var(--text-main);
-}
-
-.recent-scan-row .text-info .sku {
-  font-size: 0.725rem;
+.recent-scans-table .scan-time {
+  font-size: 0.75rem;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
-.recent-scan-row .badge-type {
+.recent-scans-table .badge-type {
   font-size: 9px;
   font-weight: 800;
-  padding: 0.1rem 0.35rem;
+  padding: 0.15rem 0.4rem;
   border-radius: 3px;
   color: white;
+  white-space: nowrap;
 }
 
-.recent-scan-row .badge-type.stock_in {
+.recent-scans-table .badge-type.stock_in {
   background-color: #10b981;
 }
 
-.recent-scan-row .badge-type.stock_out {
+.recent-scans-table .badge-type.stock_out {
   background-color: #f59e0b;
-}
-
-.recent-scan-row .error-small {
-  margin-top: 0.25rem;
-  font-size: 0.725rem;
-  color: #dc2626;
-  text-align: left;
 }
 
 /* Execution Audit Logs */

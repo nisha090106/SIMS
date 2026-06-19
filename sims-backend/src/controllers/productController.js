@@ -205,7 +205,7 @@ export async function getProductById(req, res, next) {
         return {
           log_id:    log.log_id,
           action:    log.action,
-          user:      u ? `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email : 'System',
+          user:      u ? u.full_name || u.email : 'System',
           timestamp: log.timestamp,
           changes:   log.changes,
         };

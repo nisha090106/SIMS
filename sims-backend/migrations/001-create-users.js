@@ -14,9 +14,11 @@ export async function up(queryInterface, Sequelize) {
       type: Sequelize.STRING(255),
       allowNull: false,
     },
-    full_name: {
+    first_name: {
       type: Sequelize.STRING(100),
-      allowNull: false,
+    },
+    last_name: {
+      type: Sequelize.STRING(100),
     },
     role: {
       type: Sequelize.ENUM('admin', 'manager', 'staff'),

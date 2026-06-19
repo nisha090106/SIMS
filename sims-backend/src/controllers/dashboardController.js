@@ -103,20 +103,33 @@ export async function getDashboardStats(req, res, next) {
         { type: sequelize.QueryTypes.SELECT },
       ),
 
-      // Low stock count (products where any inventory row qty <= reorder_level)
+      // Low stock count (products where total qty across all warehouses <= reorder_level)
       sequelize.query(
-        `SELECT COUNT(DISTINCT i.product_id) AS cnt
-         FROM inventory i
-         JOIN products p ON i.product_id = p.product_id
-         WHERE i.quantity > 0 AND i.quantity <= p.reorder_level ${whSQL}`,
+        `SELECT COUNT(*) AS cnt
+         FROM (
+           SELECT i.product_id
+           FROM inventory i
+           JOIN products p ON i.product_id = p.product_id
+           ${whSQL}
+           GROUP BY i.product_id, p.reorder_level
+           HAVING SUM(i.quantity) > 0 AND SUM(i.quantity) <= p.reorder_level
+         ) AS low
+         WHERE 1=1`,
         { type: sequelize.QueryTypes.SELECT },
       ),
 
-      // Out of stock count
+      // Out of stock count (products where total qty = 0)
       sequelize.query(
-        `SELECT COUNT(DISTINCT i.product_id) AS cnt
-         FROM inventory i
-         WHERE i.quantity = 0 ${whSQL}`,
+        `SELECT COUNT(*) AS cnt
+         FROM (
+           SELECT i.product_id
+           FROM inventory i
+           JOIN products p ON i.product_id = p.product_id
+           ${whSQL}
+           GROUP BY i.product_id
+           HAVING SUM(i.quantity) = 0
+         ) AS oos
+         WHERE 1=1`,
         { type: sequelize.QueryTypes.SELECT },
       ),
 
@@ -148,7 +161,7 @@ export async function getDashboardStats(req, res, next) {
     const recentActivity = recentLogs.map((log) => {
       const u = log.user;
       const name = u
-        ? `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email
+        ? u.full_name || u.email
         : 'System';
       return {
         action:     log.action,

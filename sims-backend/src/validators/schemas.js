@@ -10,10 +10,11 @@ export const authValidators = {
       'string.min': 'Password must be at least 8 characters',
       'any.required': 'Password is required',
     }),
-    full_name: Joi.string().min(2).required().messages({
-      'string.min': 'Full name must be at least 2 characters',
-      'any.required': 'Full name is required',
+    first_name: Joi.string().min(2).required().messages({
+      'string.min': 'First name must be at least 2 characters',
+      'any.required': 'First name is required',
     }),
+    last_name: Joi.string().allow('', null).optional(),
     department: Joi.string().optional(),
   }),
 
@@ -92,14 +93,14 @@ export const inventoryValidators = {
     warehouse_id: Joi.number().integer().required(),
     quantity: Joi.number().integer().min(0).required(),
     batch_no: Joi.string().optional(),
-    expiry_date: Joi.date().optional(),
+    expiry_date: Joi.date().optional().allow('', null),
     location: Joi.string().optional(),
   }),
 
   update: Joi.object({
     quantity: Joi.number().integer().min(0).optional(),
     batch_no: Joi.string().optional(),
-    expiry_date: Joi.date().optional(),
+    expiry_date: Joi.date().optional().allow('', null),
     location: Joi.string().optional(),
   }),
 };

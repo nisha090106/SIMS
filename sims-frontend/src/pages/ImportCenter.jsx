@@ -12,6 +12,28 @@ import { importAPI, warehouseAPI } from '../services/api';
 import { useToast } from '../hooks/useToast';
 import '../styles/ImportCenter.css';
 
+const formatImportError = (err, jobType) => {
+  const errMsg = err.error || err.message || '';
+  if (jobType !== 'stock' && jobType !== 'stock_import') {
+    return errMsg;
+  }
+  
+  const raw = err.rawData || {};
+  const sku = raw.SKU || raw.sku || '';
+  const whCode = raw.WarehouseCode || raw.warehouse_code || raw.warehousecode || '';
+
+  if (errMsg.toLowerCase().includes('product not found') || errMsg.toLowerCase().includes('sku')) {
+    return `SKU ${sku} not found in products table (row skipped)`;
+  }
+  if (errMsg.toLowerCase().includes('warehouse') && errMsg.toLowerCase().includes('not found')) {
+    return `Warehouse ${whCode || 'unknown'} not found (row skipped)`;
+  }
+  if (errMsg.toLowerCase().includes('expiry') || errMsg.toLowerCase().includes('expirydate')) {
+    return `ExpiryDate — value is empty (stored as null, row succeeded)`;
+  }
+  return errMsg;
+};
+
 const ImportCenter = () => {
   const { showToast } = useToast();
   const fileInputRef = useRef(null);
@@ -132,8 +154,8 @@ const ImportCenter = () => {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) { // 10MB
-      showToast('File is too large. Maximum supported size is 10MB.', 'error');
+    if (file.size > 50 * 1024 * 1024) { // 50MB
+      showToast('File is too large. Maximum supported size is 50MB.', 'error');
       return;
     }
 
@@ -368,7 +390,7 @@ const ImportCenter = () => {
             ) : (
               <div className="prompt-text">
                 <p>Drag and drop your CSV or Excel file here, or <span>click to browse</span></p>
-                <span className="subtext">Supported formats: CSV, XLSX, XLS (Max size: 10MB)</span>
+                <span className="subtext">Supported formats: CSV, XLSX, XLS (Max size: 50MB)</span>
               </div>
             )}
           </div>
@@ -479,12 +501,15 @@ const ImportCenter = () => {
                       try {
                         const parsed = typeof activeJob.error_log === 'string' ? JSON.parse(activeJob.error_log) : activeJob.error_log;
                         if (!parsed || parsed.length === 0) return <p className="no-errors">No error summary available.</p>;
-                        return parsed.map((err, idx) => (
-                          <div key={idx} className="error-item">
-                            <span className="row-num">Row {err.row || idx + 1}</span>
-                            <span className="err-desc">{err.error || err.message}</span>
-                          </div>
-                        ));
+                        return parsed.map((err, idx) => {
+                          const formattedErr = formatImportError(err, activeJob.job_type || 'stock');
+                          return (
+                            <div key={idx} className="error-item">
+                              <span className="row-num">Row {err.row || idx + 1}:</span>
+                              <span className="err-desc"> {formattedErr}</span>
+                            </div>
+                          );
+                        });
                       } catch (e) {
                         return <p className="error-log-raw">{activeJob.error_log}</p>;
                       }
@@ -610,12 +635,15 @@ const ImportCenter = () => {
                                       try {
                                         const parsed = typeof job.error_log === 'string' ? JSON.parse(job.error_log) : job.error_log;
                                         if (!parsed || parsed.length === 0) return <p className="no-errors">No error summary available.</p>;
-                                        return parsed.map((err, idx) => (
-                                          <div key={idx} className="error-log-item-row">
-                                            <strong className="row-num text-danger">Row {err.row || idx + 1}:</strong>
-                                            <span className="reason">{err.error || err.message}</span>
-                                          </div>
-                                        ));
+                                        return parsed.map((err, idx) => {
+                                          const formattedErr = formatImportError(err, job.job_type);
+                                          return (
+                                            <div key={idx} className="error-log-item-row">
+                                              <strong className="row-num text-danger">Row {err.row || idx + 1}:</strong>
+                                              <span className="reason">{formattedErr}</span>
+                                            </div>
+                                          );
+                                        });
                                       } catch (e) {
                                         return <pre className="raw-log-dump">{job.error_log}</pre>;
                                       }

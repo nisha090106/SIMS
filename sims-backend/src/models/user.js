@@ -28,6 +28,12 @@ export default (sequelize) => {
       last_name: {
         type: DataTypes.STRING(100),
       },
+      full_name: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          return `${this.first_name || ''} ${this.last_name || ''}`.trim();
+        },
+      },
       role: {
         type: DataTypes.ENUM('admin', 'manager', 'staff', 'user'),
         defaultValue: 'staff',

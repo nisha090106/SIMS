@@ -21,164 +21,11 @@ async function getAdminCreatorId() {
 }
 
 /**
- * JOB 1: lowStockChecker
- * Runs every 30 minutes. Checks active reorder rules and drafts POs if stock is low.
+ * Recalculate inventory stock values and status flags
+ * Called both by cron (nightly) and by import service (immediately)
+ * @returns {Object} Summary stats: totalProducts, totalStockValue, lowStockCount, outOfStockCount
  */
-export async function runLowStockChecker() {
-  const startTime = Date.now();
-  logger.info('[CRON] Starting lowStockChecker job...');
-  
-  let recordsAffected = 0;
-  const triggeredProducts = [];
-  
-  try {
-    const adminId = await getAdminCreatorId();
-    
-    // 1. Query all active reorder rules
-    const rules = await ReorderRule.findAll({
-      where: { is_active: true },
-      include: [{ model: Product, as: 'product' }],
-    });
-
-    // Get all open auto-drafted POs once to check for existing drafts
-    const openPOs = await PurchaseOrder.findAll({
-      where: {
-        status: { [Op.in]: ['draft', 'submitted', 'approved'] },
-        auto_drafted: true,
-      },
-    });
-
-    for (const rule of rules) {
-      if (!rule.product) {
-        logger.warn(`[CRON] ReorderRule #${rule.id} has no associated product.`);
-        continue;
-      }
-
-      // 2. Find inventory records for this product (+ warehouse_id if set)
-      const invWhere = { product_id: rule.product_id };
-      if (rule.warehouse_id) {
-        invWhere.warehouse_id = rule.warehouse_id;
-      }
-
-      const inventoryItems = await Inventory.findAll({ where: invWhere });
-      
-      // Check if any inventory item falls below threshold
-      const lowStockItem = inventoryItems.find(inv => inv.quantity <= rule.reorder_threshold);
-
-      if (lowStockItem) {
-        const product_id = rule.product_id;
-
-        // a. Check if an auto-drafted open PO already exists for this product
-        const isAlreadyDrafted = openPOs.some(po => {
-          try {
-            const items = typeof po.items === 'string' ? JSON.parse(po.items) : po.items;
-            return Array.isArray(items) && items.some(item => item.product_id === product_id);
-          } catch (err) {
-            return false;
-          }
-        });
-
-        if (isAlreadyDrafted) {
-          logger.info(`[CRON] Skip PO creation for Product ID ${product_id}: PO already drafted.`);
-          continue;
-        }
-
-        // b. Create a new PurchaseOrder using the shared helper
-        // Determine supplier
-        let supplierId = rule.preferred_supplier_id;
-        if (!supplierId) {
-          const firstSupplier = await Supplier.findOne({
-            where: { status: 'active' },
-            order: [['supplier_id', 'ASC']],
-          });
-          supplierId = firstSupplier ? firstSupplier.supplier_id : null;
-        }
-
-        if (!supplierId) {
-          logger.error(`[CRON] No active supplier found for Product ID ${product_id}. Cannot create PO.`);
-          continue;
-        }
-
-        // Suggested qty = (reorderLevel * 2) - currentQty
-        const suggestedQty = Math.max(rule.reorder_quantity, (rule.reorder_threshold * 2) - lowStockItem.quantity);
-        const unitCost = parseFloat(rule.product.cost_price || rule.product.unit_price || 0);
-
-        await autoCreatePO({
-          supplier_id:  supplierId,
-          warehouse_id: rule.warehouse_id || null,
-          product_id,
-          product_name: rule.product.name,
-          product_sku:  rule.product.sku,
-          unit_cost:    unitCost,
-          quantity:     suggestedQty,
-          notes:        `Auto-drafted: stock at ${lowStockItem.quantity}, threshold ${rule.reorder_threshold}`,
-          created_by:   adminId,
-        });
-
-        // Update rule last_triggered_at
-        rule.last_triggered_at = new Date();
-        await rule.save();
-
-        // Create notifications for all admin users
-        const admins = await User.findAll({ where: { role: 'admin' } });
-        for (const admin of admins) {
-          await NotificationService.createNotification({
-            type: 'low_stock_auto_po',
-            message: `Auto PO drafted for ${rule.product.name} — needs your approval`,
-            product_id,
-            warehouse_id: rule.warehouse_id || null,
-            current_quantity: lowStockItem.quantity,
-            reorder_level: rule.reorder_threshold,
-          });
-        }
-
-        recordsAffected++;
-        triggeredProducts.push(rule.product.name);
-      }
-    }
-
-    const duration = Date.now() - startTime;
-    const summary = triggeredProducts.length > 0
-      ? `Auto-created ${recordsAffected} PO(s) for products: ${triggeredProducts.join(', ')}`
-      : 'Checked reorder rules. No low stock items triggered.';
-
-    await AutomationLog.create({
-      job_name: 'low_stock_checker',
-      status: 'success',
-      summary,
-      records_affected: recordsAffected,
-      duration_ms: duration,
-      ran_at: new Date(),
-    });
-
-    logger.info(`[CRON] lowStockChecker completed. ${summary}`);
-    return { status: 'success', recordsAffected, summary, duration };
-
-  } catch (error) {
-    const duration = Date.now() - startTime;
-    logger.error('[CRON] lowStockChecker failed:', error);
-
-    await AutomationLog.create({
-      job_name: 'low_stock_checker',
-      status: 'failed',
-      summary: `Job failed: ${error.message}`,
-      records_affected: 0,
-      duration_ms: duration,
-      ran_at: new Date(),
-    });
-
-    return { status: 'failed', error: error.message, duration };
-  }
-}
-
-/**
- * JOB 2: nightlyInventorySync
- * Runs every night at 2am.
- */
-export async function runNightlyInventorySync() {
-  const startTime = Date.now();
-  logger.info('[CRON] Starting nightlyInventorySync job...');
-
+export async function recalculateInventoryValues() {
   try {
     const inventoryItems = await Inventory.findAll({
       include: [{ model: Product, as: 'product' }],
@@ -225,13 +72,224 @@ export async function runNightlyInventorySync() {
       await item.save();
     }
 
+    return {
+      totalProducts,
+      totalStockValue,
+      lowStockCount,
+      outOfStockCount,
+      warehouseCount: uniqueWarehouses.size,
+    };
+  } catch (error) {
+    logger.error('[INVENTORY] recalculateInventoryValues failed:', error);
+    throw error;
+  }
+}
+
+/**
+ * Run low stock checker inline (used by import service)
+ * @returns {Object} { triggered: count, products: [], poIds: [] }
+ */
+export async function runLowStockCheckerInline() {
+  logger.info('[LOW-STOCK] Starting inline low stock checker...');
+  
+  let recordsAffected = 0;
+  const triggeredProducts = [];
+  const createdPOs = [];
+  
+  try {
+    const adminId = await getAdminCreatorId();
+    
+    // 1. Query all active reorder rules
+    const rules = await ReorderRule.findAll({
+      where: { is_active: true },
+      include: [{ model: Product, as: 'product' }],
+    });
+
+    // Get all open auto-drafted POs once to check for existing drafts
+    const openPOs = await PurchaseOrder.findAll({
+      where: {
+        status: { [Op.in]: ['draft', 'submitted', 'approved'] },
+        auto_drafted: true,
+      },
+    });
+
+    for (const rule of rules) {
+      if (!rule.product) {
+        logger.warn(`[LOW-STOCK] ReorderRule #${rule.id} has no associated product.`);
+        continue;
+      }
+
+      // 2. Find inventory records for this product (+ warehouse_id if set)
+      const invWhere = { product_id: rule.product_id };
+      if (rule.warehouse_id) {
+        invWhere.warehouse_id = rule.warehouse_id;
+      }
+
+      const inventoryItems = await Inventory.findAll({ where: invWhere });
+      
+      // Check if any inventory item falls below threshold
+      const lowStockItem = inventoryItems.find(inv => inv.quantity <= rule.reorder_threshold);
+
+      if (lowStockItem) {
+        const product_id = rule.product_id;
+
+        // a. Check if an auto-drafted open PO already exists for this product
+        const isAlreadyDrafted = openPOs.some(po => {
+          try {
+            const items = typeof po.items === 'string' ? JSON.parse(po.items) : po.items;
+            return Array.isArray(items) && items.some(item => item.product_id === product_id);
+          } catch (err) {
+            return false;
+          }
+        });
+
+        if (isAlreadyDrafted) {
+          logger.info(`[LOW-STOCK] Skip PO creation for Product ID ${product_id}: PO already drafted.`);
+          continue;
+        }
+
+        // b. Create a new PurchaseOrder using the shared helper
+        // Determine supplier
+        let supplierId = rule.preferred_supplier_id;
+        if (!supplierId) {
+          const firstSupplier = await Supplier.findOne({
+            where: { status: 'active' },
+            order: [['supplier_id', 'ASC']],
+          });
+          supplierId = firstSupplier ? firstSupplier.supplier_id : null;
+        }
+
+        if (!supplierId) {
+          logger.error(`[LOW-STOCK] No active supplier found for Product ID ${product_id}. Cannot create PO.`);
+          continue;
+        }
+
+        // Suggested qty = (reorderLevel * 2) - currentQty
+        const suggestedQty = Math.max(rule.reorder_quantity, (rule.reorder_threshold * 2) - lowStockItem.quantity);
+        const unitCost = parseFloat(rule.product.cost_price || rule.product.unit_price || 0);
+
+        const poResult = await autoCreatePO({
+          supplier_id:  supplierId,
+          warehouse_id: rule.warehouse_id || null,
+          product_id,
+          product_name: rule.product.name,
+          product_sku:  rule.product.sku,
+          unit_cost:    unitCost,
+          quantity:     suggestedQty,
+          notes:        `Auto-drafted: stock at ${lowStockItem.quantity}, threshold ${rule.reorder_threshold}`,
+          created_by:   adminId,
+        });
+
+        // Update rule last_triggered_at
+        rule.last_triggered_at = new Date();
+        await rule.save();
+
+        // Create notifications for all admin users
+        const admins = await User.findAll({ where: { role: 'admin' } });
+        for (const admin of admins) {
+          await NotificationService.createNotification({
+            type: 'low_stock_auto_po',
+            message: `Auto PO drafted for ${rule.product.name} — needs your approval`,
+            product_id,
+            warehouse_id: rule.warehouse_id || null,
+            current_quantity: lowStockItem.quantity,
+            reorder_level: rule.reorder_threshold,
+          });
+        }
+
+        recordsAffected++;
+        triggeredProducts.push(rule.product.name);
+        if (poResult && poResult.purchase_order_id) {
+          createdPOs.push(poResult.purchase_order_id);
+        }
+      }
+    }
+
+    logger.info(`[LOW-STOCK] Inline check completed. Triggered: ${recordsAffected}`);
+    return { 
+      triggered: recordsAffected, 
+      products: triggeredProducts,
+      poIds: createdPOs,
+    };
+
+  } catch (error) {
+    logger.error('[LOW-STOCK] Inline low stock checker failed:', error);
+    return { 
+      triggered: 0, 
+      products: [],
+      poIds: [],
+      error: error.message,
+    };
+  }
+}
+
+/**
+ * JOB 1: lowStockChecker
+ * Runs every 30 minutes. Checks active reorder rules and drafts POs if stock is low.
+ */
+export async function runLowStockChecker() {
+  const startTime = Date.now();
+  logger.info('[CRON] Starting lowStockChecker job...');
+
+  try {
+    // Use the inline low stock checker
+    const result = await runLowStockCheckerInline();
+    const { triggered, products } = result;
+
+    const duration = Date.now() - startTime;
+    const summary = triggered > 0
+      ? `Auto-created ${triggered} PO(s) for products: ${products.join(', ')}`
+      : 'Checked reorder rules. No low stock items triggered.';
+
+    await AutomationLog.create({
+      job_name: 'low_stock_checker',
+      status: 'success',
+      summary,
+      records_affected: triggered,
+      duration_ms: duration,
+      ran_at: new Date(),
+    });
+
+    logger.info(`[CRON] lowStockChecker completed. ${summary}`);
+    return { status: 'success', recordsAffected: triggered, summary, duration };
+
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    logger.error('[CRON] lowStockChecker failed:', error);
+
+    await AutomationLog.create({
+      job_name: 'low_stock_checker',
+      status: 'failed',
+      summary: `Job failed: ${error.message}`,
+      records_affected: 0,
+      duration_ms: duration,
+      ran_at: new Date(),
+    });
+
+    return { status: 'failed', error: error.message, duration };
+  }
+}
+
+/**
+ * JOB 2: nightlyInventorySync
+ * Runs every night at 2am.
+ */
+export async function runNightlyInventorySync() {
+  const startTime = Date.now();
+  logger.info('[CRON] Starting nightlyInventorySync job...');
+
+  try {
+    // Use the extracted recalculation function
+    const stats = await recalculateInventoryValues();
+    const { totalProducts, totalStockValue, lowStockCount, outOfStockCount, warehouseCount } = stats;
+
     const timestamp = new Date();
     const summaryData = {
       total_products: totalProducts,
       total_stock_value: totalStockValue,
       low_stock_count: lowStockCount,
       out_of_stock_count: outOfStockCount,
-      warehouses_synced: uniqueWarehouses.size,
+      warehouses_synced: warehouseCount,
       timestamp,
     };
 
@@ -279,6 +337,7 @@ export async function runNightlyInventorySync() {
     return { status: 'failed', error: error.message, duration };
   }
 }
+
 
 /**
  * JOB 3: cleanupTempFiles

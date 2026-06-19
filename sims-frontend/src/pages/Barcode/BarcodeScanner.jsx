@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Html5Qrcode } from 'html5-qrcode';
-import axios from 'axios';
+import React, { useState, useRef, useCallback } from 'react';
+import { useZxing } from 'react-zxing';
 import {
   Box,
   Card,
@@ -18,10 +17,11 @@ import {
   Grid,
 } from '@mui/material';
 import { AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import { barcodeAPI } from '../../services/api';
 
 const BarcodeScanner = () => {
   const [mode, setMode] = useState(0); // 0: Stock In, 1: Stock Out, 2: Audit
-  const [useCamera, setUseCamera] = useState(true);
+  const [useCamera, setUseCamera] = useState(false); // default off — camera needs HTTPS
   const [barcode, setBarcode] = useState('');
   const [productInfo, setProductInfo] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -42,74 +42,64 @@ const BarcodeScanner = () => {
   const [countedQty, setCountedQty] = useState('');
   const [auditVariance, setAuditVariance] = useState(null);
 
-  const qrScannerRef = useRef(null);
-  const html5QrcodeScanner = useRef(null);
+  // Recent scans (session only, last 10)
+  const [recentScans, setRecentScans] = useState([]);
+
+  const barcodeInputRef = useRef(null);
   const warehouseId = useRef(localStorage.getItem('warehouseId') || '1');
-  const userId = useRef(localStorage.getItem('userId') || '');
 
-  // Initialize camera scanner
-  useEffect(() => {
-    if (useCamera && !html5QrcodeScanner.current) {
-      const config = {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        rememberLastUsedCamera: true,
-        supportedScanTypes: ['QR_CODE', 'BAR_CODE'],
-      };
+  // react-zxing camera scanner hook
+  const { ref: cameraRef } = useZxing({
+    paused: !useCamera,
+    onDecodeResult(result) {
+      const decoded = result.getText();
+      setBarcode(decoded);
+      lookupBarcode(decoded);
+    },
+    onError(err) {
+      console.error('Camera scanner error:', err);
+    },
+  });
 
-      html5QrcodeScanner.current = new Html5Qrcode('qr-reader');
-      html5QrcodeScanner.current.start(
-        { facingMode: 'environment' },
-        config,
-        onQrCodeSuccess,
-        onQrCodeError
-      ).catch(err => {
-        console.error('Failed to start camera:', err);
-        setError('Unable to access camera. Please use manual input mode.');
-      });
-    }
-
-    return () => {
-      if (html5QrcodeScanner.current && useCamera) {
-        html5QrcodeScanner.current.stop();
-        html5QrcodeScanner.current = null;
-      }
-    };
-  }, [useCamera]);
-
-  const onQrCodeSuccess = (decodedText) => {
-    setBarcode(decodedText);
-    lookupBarcode(decodedText);
-  };
-
-  const onQrCodeError = (err) => {
-    // Silently fail on repeated reads
-  };
-
-  const lookupBarcode = async (barcodeValue) => {
+  const lookupBarcode = useCallback(async (barcodeValue) => {
     try {
       setLoading(true);
       setError('');
+      setSuccess('');
       setUnknownBarcode(false);
 
-      const response = await axios.get(`/api/barcodes/scan/${barcodeValue}`, {
-        params: { warehouse_id: warehouseId.current },
-      });
+      const response = await barcodeAPI.lookup(barcodeValue);
 
-      setProductInfo(response.data.product);
-      setCountedQty(response.data.inventory.current_qty || '0');
+      if (response.data?.success) {
+        const product = response.data.data;
+        setProductInfo({
+          product_id: product.product_id,
+          name: product.name,
+          sku: product.sku,
+          barcode: product.barcode,
+          unit: product.unit,
+          image_url: product.image_url,
+        });
+        // Pre-fill system qty for audit
+        const totalStock = product.inventory?.reduce((sum, inv) => sum + inv.quantity, 0) || 0;
+        setCountedQty(String(totalStock));
+      }
     } catch (err) {
-      if (err.response?.status === 404 && err.response?.data?.unknownBarcode) {
+      if (err.response?.status === 404) {
         setUnknownBarcode(true);
         setProductInfo(null);
-        setError('Barcode not recognized. Please assign it to a product.');
+        setError('Barcode/SKU not recognized. Please assign it to a product.');
       } else {
         setError(err.response?.data?.error || 'Failed to lookup barcode');
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const addRecentScan = useCallback((scan) => {
+    setRecentScans(prev => [scan, ...prev.slice(0, 9)]);
+  }, []);
 
   const handleStockIn = async () => {
     if (!productInfo) {
@@ -119,16 +109,27 @@ const BarcodeScanner = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post('/api/barcodes/stock-in', {
+      const response = await barcodeAPI.scan({
         barcode,
+        warehouse_id: parseInt(warehouseId.current),
+        scan_type: 'stock_in',
         quantity: parseInt(quantity),
-        warehouse_id: warehouseId.current,
-        batch_no: batchNo,
-        expiry_date: expiryDate,
       });
 
-      setSuccess(`Stock-in completed: ${response.data.before_qty} → ${response.data.after_qty}`);
-      resetForm();
+      if (response.data?.success) {
+        const data = response.data;
+        const qtyNum = parseInt(quantity);
+        setSuccess(`${productInfo.name} — +${qtyNum} updated. New stock: ${data.after_qty}`);
+        addRecentScan({
+          id: Date.now(),
+          sku: productInfo.sku,
+          name: productInfo.name,
+          action: 'Stock In',
+          qty: `+${qtyNum}`,
+          time: new Date(),
+        });
+        resetForm();
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Stock-in failed');
     } finally {
@@ -144,15 +145,27 @@ const BarcodeScanner = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post('/api/barcodes/stock-out', {
+      const response = await barcodeAPI.scan({
         barcode,
+        warehouse_id: parseInt(warehouseId.current),
+        scan_type: 'stock_out',
         quantity: parseInt(stockOutQty),
-        warehouse_id: warehouseId.current,
-        reference_no: referenceNo,
       });
 
-      setSuccess(`Stock-out completed: ${response.data.before_qty} → ${response.data.after_qty}`);
-      resetForm();
+      if (response.data?.success) {
+        const data = response.data;
+        const qtyNum = parseInt(stockOutQty);
+        setSuccess(`${productInfo.name} — -${qtyNum} updated. New stock: ${data.after_qty}`);
+        addRecentScan({
+          id: Date.now(),
+          sku: productInfo.sku,
+          name: productInfo.name,
+          action: 'Stock Out',
+          qty: `-${qtyNum}`,
+          time: new Date(),
+        });
+        resetForm();
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Stock-out failed');
     } finally {
@@ -168,15 +181,26 @@ const BarcodeScanner = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post('/api/barcodes/audit', {
+      const response = await barcodeAPI.scan({
         barcode,
-        counted_quantity: parseInt(countedQty),
-        warehouse_id: warehouseId.current,
+        warehouse_id: parseInt(warehouseId.current),
+        scan_type: 'audit',
+        quantity: parseInt(countedQty),
       });
 
-      setAuditVariance(response.data.variance);
-      setSuccess(`Audit recorded. Variance: ${response.data.variance > 0 ? '+' : ''}${response.data.variance}`);
-      resetForm();
+      if (response.data?.success) {
+        setAuditVariance(response.data.variance);
+        setSuccess(`Audit recorded. Variance: ${response.data.variance > 0 ? '+' : ''}${response.data.variance}`);
+        addRecentScan({
+          id: Date.now(),
+          sku: productInfo.sku,
+          name: productInfo.name,
+          action: 'Audit',
+          qty: `Var: ${response.data.variance}`,
+          time: new Date(),
+        });
+        resetForm();
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Audit failed');
     } finally {
@@ -194,10 +218,12 @@ const BarcodeScanner = () => {
     setReferenceNo('');
     setCountedQty('');
     setAuditVariance(null);
+    // Auto-focus barcode input for next scan
+    setTimeout(() => barcodeInputRef.current?.focus(), 100);
     setTimeout(() => {
       setError('');
       setSuccess('');
-    }, 3000);
+    }, 4000);
   };
 
   return (
@@ -221,32 +247,41 @@ const BarcodeScanner = () => {
             />
           </Box>
 
-          {/* Camera Scanner */}
+          {/* Camera Scanner (react-zxing) */}
           {useCamera && (
             <Box
-              id="qr-reader"
-              ref={qrScannerRef}
               sx={{
                 width: '100%',
                 maxWidth: '500px',
                 mb: 2,
                 border: '2px solid #ccc',
                 borderRadius: 1,
+                overflow: 'hidden',
               }}
-            />
+            >
+              <video
+                ref={cameraRef}
+                style={{ width: '100%', display: 'block' }}
+              />
+            </Box>
           )}
 
-          {/* Manual Input */}
+          {/* Manual Input — onKeyDown triggers instant lookup on Enter */}
           <TextField
-            label="Barcode"
+            inputRef={barcodeInputRef}
+            label="Barcode / SKU"
             value={barcode}
             onChange={(e) => setBarcode(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') lookupBarcode(barcode);
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && barcode.trim()) {
+                e.preventDefault();
+                lookupBarcode(barcode.trim());
+              }
             }}
             fullWidth
-            placeholder="Enter or scan barcode"
+            placeholder="Scan barcode or type SKU, then press Enter"
             sx={{ mb: 2 }}
+            autoFocus
           />
 
           <Button
@@ -399,6 +434,52 @@ const BarcodeScanner = () => {
                   </Button>
                 </>
               )}
+            </Paper>
+          )}
+
+          {/* Recent Scans Table */}
+          {recentScans.length > 0 && (
+            <Paper sx={{ mt: 3, overflow: 'hidden' }}>
+              <Typography variant="subtitle2" sx={{ p: 2, pb: 0, fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', fontSize: '0.75rem' }}>
+                Recent Scans (Session)
+              </Typography>
+              <Box sx={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f8fafc' }}>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>SKU</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>Product Name</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>Action</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>Qty</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentScans.map(s => (
+                      <tr key={s.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '8px 12px' }}><code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: 3, fontSize: '0.78rem' }}>{s.sku}</code></td>
+                        <td style={{ padding: '8px 12px' }}>{s.name}</td>
+                        <td style={{ padding: '8px 12px' }}>
+                          <span style={{
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            padding: '2px 8px',
+                            borderRadius: 3,
+                            color: '#fff',
+                            backgroundColor: s.action === 'Stock In' ? '#10b981' : s.action === 'Stock Out' ? '#f59e0b' : '#6366f1',
+                          }}>
+                            {s.action}
+                          </span>
+                        </td>
+                        <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 600 }}>{s.qty}</td>
+                        <td style={{ padding: '8px 12px', fontSize: '0.78rem', color: '#64748b' }}>
+                          {new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Box>
             </Paper>
           )}
         </CardContent>

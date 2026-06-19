@@ -22,7 +22,7 @@ async function auditLog(req, action, changes) {
 
 function managerName(u) {
   if (!u) return 'Unassigned';
-  return `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email;
+  return u.full_name || u.email;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -153,7 +153,7 @@ export async function getWarehouseStats(req, res, next) {
         activePOs,
         recentActivity: recentActivity.map((log) => ({
           action:    log.action,
-          user:      `${log.user?.first_name || ''} ${log.user?.last_name || ''}`.trim() || 'System',
+          user:      log.user?.full_name || 'System',
           timestamp: log.timestamp,
           changes:   log.changes,
         })),
@@ -299,7 +299,7 @@ export async function getManagers(req, res, next) {
       data: managers.map((u) => ({
         user_id:   u.id,
         id:        u.id,
-        full_name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email,
+        full_name: u.full_name || u.email,
         email:     u.email,
         role:      u.role,
       })),

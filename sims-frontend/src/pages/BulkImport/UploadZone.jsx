@@ -5,7 +5,7 @@ import {
   CloseOutlined as ClearIcon,
 } from '@mui/icons-material';
 
-const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB
 const VALID_EXTS = ['.csv', '.xlsx', '.xls'];
 
 /**
@@ -30,7 +30,7 @@ export default function UploadZone({ onFileSelect, onClear, file, disabled = fal
       return false;
     }
     if (f.size > MAX_SIZE_BYTES) {
-      setFileError('File exceeds 10 MB limit.');
+      setFileError('File exceeds 50 MB limit.');
       return false;
     }
     return true;
@@ -139,7 +139,7 @@ export default function UploadZone({ onFileSelect, onClear, file, disabled = fal
               <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>click to browse</span>
             </p>
             <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
-              CSV, XLSX, XLS — max 10 MB
+              CSV, XLSX, XLS — max 50 MB
             </p>
           </div>
         )}

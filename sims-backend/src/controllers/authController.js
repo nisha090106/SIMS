@@ -6,17 +6,17 @@ export class AuthController {
   // Register
   static async register(req, res, next) {
     try {
-      const { email, password, full_name, role, department } = req.body;
+      const { email, password, first_name, last_name, role, department } = req.body;
 
       // Validate input
-      if (!email || !password || !full_name) {
+      if (!email || !password || !first_name) {
         return res.status(400).json({
           success: false,
-          error: 'Email, password, and full_name are required',
+          error: 'Email, password, and first_name are required',
         });
       }
 
-      const result = await AuthService.register(email, password, full_name, role, department);
+      const result = await AuthService.register(email, password, first_name, last_name, role, department);
       const user = result.data;
       
       // Log registration action (use standard 'create' to match enum constraints)
@@ -25,7 +25,7 @@ export class AuthController {
           user_id: user.id,
           action: 'create',
           table_name: 'users',
-          changes: JSON.stringify({ email, full_name, role, department }),
+          changes: JSON.stringify({ email, first_name, last_name, role, department }),
           ip_address: req.ip,
         }).catch((err) => logger.error('Audit log error:', err));
       }

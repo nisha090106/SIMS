@@ -42,7 +42,7 @@ export class AuditService {
         include: [
           {
             association: 'user',
-            attributes: ['user_id', 'email', 'full_name'],
+            attributes: ['id', 'email', 'first_name', 'last_name'],
           },
         ],
         limit,

@@ -226,7 +226,9 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
   let created = 0;
   let updated = 0;
   let failed = 0;
+  let barcodesMissing = 0;
   const errors = [];
+  const importedProductIds = [];
 
   // Verify warehouse exists if default is passed
   if (warehouseId) {
@@ -246,7 +248,7 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
       const rawBarcode = normalizeBarcode(row.barcode);
       const rawQuantity = row.quantity || '';
       const rawBatchNo = row.batch_no || row.batchnumber || row.batchno || '';
-      const rawExpiryDate = row.expiry_date || row.expirydate || '';
+      const rawExpiryDate = rawRow.ExpiryDate || rawRow.expiry_date || row.expiry_date || row.expirydate || '';
       const rawLocation = row.location || row.storagelocation || row.storage_location || '';
 
       // Validation
@@ -255,11 +257,15 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
       const qty = parseInt(rawQuantity, 10);
       if (isNaN(qty) || qty < 0) throw new Error('Quantity must be a non-negative integer.');
 
+      // Pre-processing step: normalize the expiry date
+      const expiryDate = (typeof rawExpiryDate === 'string' ? rawExpiryDate.trim() : '') || null;
       let parsedExpiryDate = null;
-      if (rawExpiryDate) {
-        const d = new Date(rawExpiryDate);
+      if (expiryDate && expiryDate.toLowerCase() !== 'null' && expiryDate.toLowerCase() !== 'undefined') {
+        const d = new Date(expiryDate);
         if (!isNaN(d.getTime())) {
           parsedExpiryDate = d;
+        } else {
+          throw new Error(`Invalid date format for ExpiryDate: "${expiryDate}"`);
         }
       }
 
@@ -274,7 +280,7 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
           targetWarehouseId = wh.warehouse_id;
         } else {
           // Warehouse code not found in DB — throw a clear error
-          throw new Error(`Warehouse with code "${rawWarehouseCode}" not found.`);
+          throw new Error(`Warehouse ${rawWarehouseCode} not found`);
         }
       }
 
@@ -312,7 +318,7 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
           await inventory.update({
             quantity: qty,
             batch_no: rawBatchNo || inventory.batch_no || null,
-            expiry_date: parsedExpiryDate || inventory.expiry_date || null,
+            expiry_date: parsedExpiryDate,
             location: rawLocation || inventory.location || null,
           }, { transaction: t });
           isUpdated = true;
@@ -322,7 +328,7 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
             warehouse_id: targetWarehouseId,
             quantity: qty,
             batch_no: rawBatchNo || null,
-            expiry_date: parsedExpiryDate || null,
+            expiry_date: parsedExpiryDate,
             location: rawLocation || null,
           }, { transaction: t });
         }
@@ -341,7 +347,7 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
             new_quantity: qty,
             location: rawLocation || null,
             batch_no: rawBatchNo || null,
-            expiry_date: parsedExpiryDate || null,
+            expiry_date: parsedExpiryDate,
           },
           ip_address: '127.0.0.1',
         }, { transaction: t });
@@ -384,7 +390,18 @@ export const importStock = async (rows, jobId, warehouseId, triggeredBy) => {
     }
   }
 
-  return { created, updated, failed, errors };
+  // After import completes, check how many imported products are missing barcodes
+  if (importedProductIds.length > 0) {
+    const productsWithoutBarcode = await Product.findAll({
+      where: {
+        product_id: importedProductIds,
+        barcode: null,
+      },
+    });
+    barcodesMissing = productsWithoutBarcode.length;
+  }
+
+  return { created, updated, failed, errors, barcodesMissing, importedProductIds };
 };
 
 /**

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { ImportJob, Warehouse } from '../models/index.js';
 import * as importService from '../services/importService.js';
+import * as cronService from '../services/cronService.js';
 import logger from '../config/logger.js';
 
 /* ── helpers ─────────────────────────────────────────────────── */
@@ -86,17 +87,53 @@ async function handleImport(req, res, importType) {
           summary = await importService.importProducts(rows, jobId, uid(req));
         } else if (importType === 'stock') {
           summary = await importService.importStock(rows, jobId, warehouseId, uid(req));
+          
+          // After successful stock import, run post-import hooks
+          if (summary.created > 0 || summary.updated > 0) {
+            try {
+              // 1. Recalculate inventory values immediately (don't wait for 2AM cron)
+              logger.info(`[IMPORT] Recalculating inventory values for ${summary.importedProductIds?.length || 0} products...`);
+              await cronService.recalculateInventoryValues();
+
+              // 2. Run low stock checker inline (don't wait 30 minutes)
+              logger.info('[IMPORT] Running inline low stock checker...');
+              const lowStockResult = await cronService.runLowStockCheckerInline();
+              
+              // Attach results to summary
+              summary.lowStockTriggered = lowStockResult.triggered;
+              summary.lowStockProducts = lowStockResult.products;
+              summary.lowStockPOs = lowStockResult.poIds;
+            } catch (hookErr) {
+              logger.error('[IMPORT] Post-import hooks failed:', hookErr);
+              // Don't fail the import just because hooks failed
+            }
+          }
         } else if (importType === 'warehouse') {
           summary = await importService.importWarehouses(rows, jobId, uid(req));
         }
 
         const allFailed = summary.failed > 0 && (summary.created + summary.updated === 0);
-        await ImportJob.update({
+        
+        // Store enhanced summary in ImportJob for retrieval
+        const jobUpdateData = {
           status:       allFailed ? 'failed' : 'completed',
           completed_at: new Date(),
-        }, { where: { id: jobId } });
+        };
+        
+        // If stock import, store additional metadata
+        if (importType === 'stock') {
+          jobUpdateData.metadata = JSON.stringify({
+            lowStockTriggered: summary.lowStockTriggered || 0,
+            barcodesMissing: summary.barcodesMissing || 0,
+            importedProductIds: summary.importedProductIds || [],
+            lowStockProducts: summary.lowStockProducts || [],
+            lowStockPOs: summary.lowStockPOs || [],
+          });
+        }
+        
+        await ImportJob.update(jobUpdateData, { where: { id: jobId } });
 
-        logger.info(`[IMPORT] Job #${jobId} done. created=${summary.created} updated=${summary.updated} failed=${summary.failed}`);
+        logger.info(`[IMPORT] Job #${jobId} done. created=${summary.created} updated=${summary.updated} failed=${summary.failed} lowStockTriggered=${summary.lowStockTriggered || 0} barcodesMissing=${summary.barcodesMissing || 0}`);
       } catch (procErr) {
         logger.error(`[IMPORT] Job #${jobId} processing error: ${procErr.message}`);
         await ImportJob.update({
@@ -154,11 +191,19 @@ export const getImportJob = async (req, res) => {
       catch { errorLog = [{ error: job.error_log }]; }
     }
 
+    // Parse metadata JSON safely
+    let metadata = null;
+    if (job.metadata) {
+      try { metadata = typeof job.metadata === 'string' ? JSON.parse(job.metadata) : job.metadata; }
+      catch { metadata = null; }
+    }
+
     return res.json({
       success: true,
       data: {
         ...job.toJSON(),
         error_log: errorLog,
+        metadata: metadata,
         progress_pct: job.total_rows > 0
           ? Math.min(100, Math.round(((job.processed_rows + job.failed_rows) / job.total_rows) * 100))
           : job.status === 'completed' ? 100 : 0,

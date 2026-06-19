@@ -125,7 +125,7 @@ You should see:
 ## 📊 Database Models & Relationships
 
 ### User
-- **Fields**: user_id, email, password, full_name, role, department, status, last_login
+- **Fields**: user_id, email, password, first_name, last_name, role, department, status, last_login
 - **Relationships**: 
   - ➡️ Has many Warehouses (as manager)
   - ➡️ Has many PurchaseOrders (as creator)

@@ -5,7 +5,8 @@ export async function up(queryInterface, Sequelize) {
     {
       email: 'admin@sims.com',
       password: hashedPassword,
-      full_name: 'Admin User',
+      first_name: 'Admin',
+      last_name: 'User',
       role: 'admin',
       department: 'Management',
       status: 'active',
@@ -15,7 +16,8 @@ export async function up(queryInterface, Sequelize) {
     {
       email: 'manager@sims.com',
       password: hashedPassword,
-      full_name: 'Manager User',
+      first_name: 'Manager',
+      last_name: 'User',
       role: 'manager',
       department: 'Operations',
       status: 'active',
@@ -25,7 +27,8 @@ export async function up(queryInterface, Sequelize) {
     {
       email: 'staff1@sims.com',
       password: hashedPassword,
-      full_name: 'Staff User One',
+      first_name: 'Staff User',
+      last_name: 'One',
       role: 'staff',
       department: 'Warehouse',
       status: 'active',
@@ -35,7 +38,8 @@ export async function up(queryInterface, Sequelize) {
     {
       email: 'staff2@sims.com',
       password: hashedPassword,
-      full_name: 'Staff User Two',
+      first_name: 'Staff User',
+      last_name: 'Two',
       role: 'staff',
       department: 'Warehouse',
       status: 'active',

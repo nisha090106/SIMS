@@ -443,16 +443,25 @@ export async function getValuation(req, res, next) {
     const whParam = scope !== null ? scope.join(',') : null;
     const whSQL   = whParam ? `WHERE i.warehouse_id IN (${whParam})` : '';
 
+    // Subquery: aggregated inventory by product
     const [summary] = await sequelize.query(
       `SELECT
-         COUNT(DISTINCT i.product_id) AS unique_products,
-         SUM(i.quantity)              AS total_qty,
-         SUM(i.quantity * p.unit_price) AS total_value,
-         SUM(CASE WHEN i.quantity = 0 THEN 1 ELSE 0 END)                          AS out_of_stock,
-         SUM(CASE WHEN i.quantity > 0 AND i.quantity <= p.reorder_level THEN 1 ELSE 0 END) AS low_stock
-       FROM inventory i
-       JOIN products p ON i.product_id = p.product_id
-       ${whSQL}`,
+         COUNT(DISTINCT prod_inv.product_id) AS unique_products,
+         COALESCE(SUM(prod_inv.total_qty), 0) AS total_qty,
+         COALESCE(SUM(prod_inv.total_value), 0) AS total_value,
+         COUNT(CASE WHEN prod_inv.total_qty = 0 THEN 1 END) AS out_of_stock,
+         COUNT(CASE WHEN prod_inv.total_qty > 0 AND prod_inv.total_qty <= prod_inv.reorder_level THEN 1 END) AS low_stock
+       FROM (
+         SELECT
+           i.product_id,
+           p.reorder_level,
+           SUM(i.quantity) AS total_qty,
+           SUM(i.quantity * p.unit_price) AS total_value
+         FROM inventory i
+         JOIN products p ON i.product_id = p.product_id
+         ${whSQL}
+         GROUP BY i.product_id, p.reorder_level
+       ) AS prod_inv`,
       { type: sequelize.QueryTypes.SELECT },
     );
 

@@ -192,6 +192,7 @@ export const automationAPI = {
   updateReorderRule: (id, data) => api.put(`/automation/reorder-rules/${id}`, data),
   toggleReorderRule: (id) => api.patch(`/automation/reorder-rules/${id}/toggle`),
   triggerJob: (jobName) => api.post(`/automation/trigger/${jobName}`),
+  generateBarcodes: () => api.post('/automation/admin/generate-barcodes'),
 };
 
 export const barcodeAPI = {

@@ -153,7 +153,7 @@ export const createRequest = async (req, res) => {
 
     // Notify all admin and manager users
     const requester = await User.findByPk(userId);
-    const requesterName = requester ? `${requester.first_name || ''} ${requester.last_name || ''}`.trim() : 'User';
+    const requesterName = requester ? requester.full_name : 'User';
     
     const managersAndAdmins = await User.findAll({
       where: { role: { [Op.in]: ['admin', 'manager'] } },
@@ -360,7 +360,7 @@ export const getAllRequests = async (req, res) => {
     });
 
     const mapped = rows.map(r => {
-      const requesterName = r.requester ? `${r.requester.first_name || ''} ${r.requester.last_name || ''}`.trim() : 'Unknown';
+      const requesterName = r.requester ? r.requester.full_name : 'Unknown';
       const itemCount = r.items ? r.items.length : 0;
       const totalItems = r.items ? r.items.reduce((sum, item) => sum + (item.quantity_requested || 0), 0) : 0;
 

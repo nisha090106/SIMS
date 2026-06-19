@@ -160,6 +160,7 @@ export default function ProductList() {
     { key: 'image',    label: '',              width: 48 },
     { key: 'name',     label: 'Product',       sortable: false },
     { key: 'sku',      label: 'SKU',           width: 120 },
+    { key: 'barcode',  label: 'Barcode',       width: 140 },
     { key: 'category', label: 'Category',      width: 130 },
     { key: 'stock',    label: 'Stock',         width: 150,  align: 'center' },
     { key: 'reorder',  label: 'Reorder Lvl',  width: 110,  align: 'center' },
@@ -311,6 +312,17 @@ export default function ProductList() {
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', background: 'var(--color-surface-alt)', padding: '2px 6px', borderRadius: 4 }}>
                   {p.sku}
                 </span>
+              </td>
+
+              {/* Barcode */}
+              <td style={tdStyle}>
+                {p.barcode ? (
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: '#047857', background: '#d1fae5', padding: '4px 8px', borderRadius: 6, fontWeight: 600 }}>
+                    {p.barcode}
+                  </span>
+                ) : (
+                  <Badge variant="warning" size="sm">No barcode</Badge>
+                )}
               </td>
 
               {/* Category */}

@@ -331,3 +331,48 @@ export const triggerJobManually = async (req, res) => {
     return res.status(500).json({ success: false, error: 'Failed to trigger job manually' });
   }
 };
+
+/**
+ * POST /api/admin/generate-barcodes
+ * Generate barcodes for products with NULL barcode field (Admin only)
+ * Format: SIMS + product_id (padded to 8 digits)
+ * Returns: { success: true, updated: N }
+ */
+export const generateBarcodes = async (req, res) => {
+  try {
+    // Find all products with NULL barcode
+    const productsWithoutBarcode = await Product.findAll({
+      where: {
+        barcode: null,
+      },
+    });
+
+    let updatedCount = 0;
+
+    // Update each product with generated barcode
+    for (const product of productsWithoutBarcode) {
+      try {
+        // Format: SIMS + product_id padded to 8 digits
+        const barcode = `SIMS${product.product_id.toString().padStart(8, '0')}`;
+        await product.update({ barcode });
+        updatedCount++;
+      } catch (error) {
+        console.error(`Error updating product ${product.product_id}:`, error);
+        // Continue with next product on error
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully generated barcodes for ${updatedCount} products`,
+      updated: updatedCount,
+    });
+  } catch (error) {
+    console.error('Error generating barcodes:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to generate barcodes',
+    });
+  }
+};
+

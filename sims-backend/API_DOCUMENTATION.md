@@ -24,7 +24,8 @@ Content-Type: application/json
 {
   "email": "user@example.com",
   "password": "password123",
-  "full_name": "John Doe",
+  "first_name": "John",
+  "last_name": "Doe",
   "department": "Sales"
 }
 ```
@@ -36,7 +37,8 @@ Content-Type: application/json
   "data": {
     "user_id": 5,
     "email": "user@example.com",
-    "full_name": "John Doe",
+    "first_name": "John",
+    "last_name": "Doe",
     "role": "staff"
   }
 }
@@ -65,7 +67,8 @@ Content-Type: application/json
     "user": {
       "user_id": 1,
       "email": "admin@sims.com",
-      "full_name": "Admin User",
+      "first_name": "Admin",
+      "last_name": "User",
       "role": "admin",
       "department": "Management"
     }
@@ -88,7 +91,8 @@ Authorization: Bearer <access_token>
   "data": {
     "user_id": 1,
     "email": "admin@sims.com",
-    "full_name": "Admin User",
+    "first_name": "Admin",
+    "last_name": "User",
     "role": "admin",
     "department": "Management",
     "status": "active",
@@ -263,7 +267,8 @@ Authorization: Bearer <access_token>
       "current_usage": "4500.00",
       "manager": {
         "user_id": 2,
-        "full_name": "Manager User",
+        "first_name": "Manager",
+        "last_name": "User",
         "email": "manager@sims.com"
       },
       "created_at": "2026-05-29T12:00:00Z",

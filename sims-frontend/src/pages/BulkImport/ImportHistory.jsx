@@ -59,6 +59,28 @@ function reducer(s, a) {
 /* ══════════════════════════════════════════════════════════════
    ImportHistory
 ══════════════════════════════════════════════════════════════ */
+const formatImportError = (err, jobType) => {
+  const errMsg = err.error || err.message || '';
+  if (jobType !== 'stock' && jobType !== 'stock_import') {
+    return errMsg;
+  }
+  
+  const raw = err.rawData || {};
+  const sku = raw.SKU || raw.sku || '';
+  const whCode = raw.WarehouseCode || raw.warehouse_code || raw.warehousecode || '';
+
+  if (errMsg.toLowerCase().includes('product not found') || errMsg.toLowerCase().includes('sku')) {
+    return `SKU ${sku} not found in products table (row skipped)`;
+  }
+  if (errMsg.toLowerCase().includes('warehouse') && errMsg.toLowerCase().includes('not found')) {
+    return `Warehouse ${whCode || 'unknown'} not found (row skipped)`;
+  }
+  if (errMsg.toLowerCase().includes('expiry') || errMsg.toLowerCase().includes('expirydate')) {
+    return `ExpiryDate — value is empty (stored as null, row succeeded)`;
+  }
+  return errMsg;
+};
+
 export default function ImportHistory({ refreshTrigger }) {
   const [state, dispatch] = useReducer(reducer, INIT);
   const [typeFilter, setTypeFilter]   = useState('');
@@ -285,7 +307,7 @@ export default function ImportHistory({ refreshTrigger }) {
                                       Row {e.row ?? i + 1}
                                     </span>
                                     <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-sans)', lineHeight: 1.4 }}>
-                                      {e.error ?? e.message ?? 'Unknown error'}
+                                      {formatImportError(e, job.job_type)}
                                     </span>
                                   </div>
                                 ))}

@@ -66,7 +66,7 @@ class ReportController {
     });
     const recentActivity = recentLogs.map(log => ({
       action: log.action,
-      user: `${log.user?.first_name || ''} ${log.user?.last_name || ''}`,
+      user: log.user?.full_name || 'System',
       timestamp: log.timestamp,
     }));
 
@@ -199,7 +199,7 @@ class ReportController {
       const changes = log.changes || {};
       return {
         timestamp: log.timestamp,
-        user: `${log.user.first_name} ${log.user.last_name}`,
+        user: log.user.full_name,
         action: log.action,
         entity: log.table_name,
         quantity: changes.quantity_change || changes.quantity || 0,
@@ -328,7 +328,7 @@ class ReportController {
       orderDate: po.created_at,
       receivedDate: po.updated_at,
       leadTime: po.supplier.lead_time,
-      createdBy: `${po.creator.first_name} ${po.creator.last_name}`,
+      createdBy: po.creator.full_name,
     }));
 
     res.json({
@@ -387,7 +387,7 @@ class ReportController {
 
     const data = requests.map(req => ({
       requestNumber: req.request_number,
-      requester: `${req.requester.first_name} ${req.requester.last_name}`,
+      requester: req.requester.full_name,
       itemCount: req.items ? req.items.length : 0,
       totalRequested: req.items ? req.items.reduce((sum, item) => sum + item.requested_qty, 0) : 0,
       totalApproved: req.items ? req.items.reduce((sum, item) => sum + (item.approved_qty || 0), 0) : 0,
@@ -464,7 +464,7 @@ class ReportController {
 
     const data = logs.map(log => ({
       timestamp: log.timestamp,
-      user: `${log.user.first_name} ${log.user.last_name}`,
+      user: log.user.full_name,
       email: log.user.email,
       role: log.user.role,
       action: log.action,
@@ -540,7 +540,7 @@ class ReportController {
 
         reportData = logs.map(log => ({
           Timestamp: log.timestamp,
-          User: `${log.user.first_name} ${log.user.last_name}`,
+          User: log.user.full_name,
           Role: log.user.role,
           Action: log.action,
           Entity: log.table_name,

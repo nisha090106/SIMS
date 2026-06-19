@@ -6,6 +6,7 @@ import {
   updateReorderRule,
   toggleReorderRule,
   triggerJobManually,
+  generateBarcodes,
 } from '../controllers/automationController.js';
 import { authMiddleware, authorize } from '../middlewares/authMiddleware.js';
 import { asyncHandler } from '../middlewares/errorHandler.js';
@@ -58,6 +59,14 @@ router.post(
   authMiddleware,
   authorize('admin'),
   asyncHandler(triggerJobManually),
+);
+
+// POST  /api/automation/admin/generate-barcodes → generateBarcodes (admin only)
+router.post(
+  '/admin/generate-barcodes',
+  authMiddleware,
+  authorize('admin'),
+  asyncHandler(generateBarcodes),
 );
 
 export default router;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -99,6 +99,10 @@ const AutomationDashboard = () => {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
   const [recentScans, setRecentScans] = useState([]);
+  const barcodeInputRef = useRef(null);
+
+  // 6. Barcode Generation State
+  const [generatingBarcodes, setGeneratingBarcodes] = useState(false);
 
   // Fetch Cron statuses from recent logs
   const fetchCronJobStatuses = useCallback(async () => {
@@ -259,6 +263,30 @@ const AutomationDashboard = () => {
     }
   };
 
+  // Handle Barcode Generation
+  const handleGenerateBarcodes = async () => {
+    if (!isAdmin) {
+      showToast('Only administrators can generate barcodes.', 'error');
+      return;
+    }
+
+    setGeneratingBarcodes(true);
+    try {
+      const res = await automationAPI.generateBarcodes();
+      if (res.data && res.data.success) {
+        const updated = res.data.updated || 0;
+        showToast(`Updated ${updated} products with barcodes`, 'success');
+        fetchCronJobStatuses();
+        fetchLogs();
+      }
+    } catch (err) {
+      console.error(err);
+      showToast(err.response?.data?.error || 'Failed to generate barcodes.', 'error');
+    } finally {
+      setGeneratingBarcodes(false);
+    }
+  };
+
   // Toggle Rule Status
   const handleToggleRule = async (ruleId) => {
     try {
@@ -368,7 +396,7 @@ const AutomationDashboard = () => {
         const data = res.data;
         setScanResult(data);
         
-        // Log to recent scans local state list
+        // Log to recent scans local state list (keep last 10)
         const logItem = {
           id: Date.now(),
           timestamp: new Date(),
@@ -378,9 +406,11 @@ const AutomationDashboard = () => {
           sku: data.found ? data.product.sku : 'N/A',
           scanType: scanType,
           quantity: scanQty,
+          beforeQty: data.before_qty,
+          afterQty: data.after_qty,
           success: true
         };
-        setRecentScans(prev => [logItem, ...prev.slice(0, 4)]);
+        setRecentScans(prev => [logItem, ...prev.slice(0, 9)]);
         
         // Notify counts or log tables
         fetchUnrecognisedCount();
@@ -391,7 +421,16 @@ const AutomationDashboard = () => {
         setScannerNotes('');
         setScanQty(1);
 
-        showToast(data.found ? 'Scan processed successfully.' : 'Unrecognised barcode scan logged.', 'success');
+        // Show detailed success toast
+        if (data.found) {
+          const qtyDelta = scanType === 'stock_in' ? `+${scanQty}` : `-${scanQty}`;
+          showToast(`${data.product.name} — ${qtyDelta} updated. New stock: ${data.after_qty}`, 'success');
+        } else {
+          showToast('Unrecognised barcode scan logged.', 'success');
+        }
+
+        // Auto-focus back to barcode input for next scan
+        setTimeout(() => barcodeInputRef.current?.focus(), 100);
       }
     } catch (err) {
       console.error(err);
@@ -411,7 +450,10 @@ const AutomationDashboard = () => {
         success: false,
         message: errMsg
       };
-      setRecentScans(prev => [logItem, ...prev.slice(0, 4)]);
+      setRecentScans(prev => [logItem, ...prev.slice(0, 9)]);
+
+      // Still re-focus for next attempt
+      setTimeout(() => barcodeInputRef.current?.focus(), 100);
     } finally {
       setScanning(false);
     }
@@ -491,6 +533,42 @@ const AutomationDashboard = () => {
               </div>
             );
           })}
+        </div>
+      </section>
+
+      {/* Section: Auto-Generate Barcodes Card */}
+      <section className="auto-section-block">
+        <h2 className="section-title">Product Barcode Management</h2>
+        <div className="barcode-gen-card">
+          <div className="card-header-section">
+            <div className="card-icon-box">
+              <BarcodeIcon className="card-icon" />
+            </div>
+            <div className="card-text-section">
+              <h3>Auto-generate product barcodes</h3>
+              <p>Generate barcodes for products without barcode values. Format: SIMS + product ID (padded to 8 digits)</p>
+            </div>
+          </div>
+          <div className="card-actions-section">
+            <button
+              className="barcode-gen-btn"
+              onClick={handleGenerateBarcodes}
+              disabled={generatingBarcodes || !isAdmin}
+              title={!isAdmin ? 'Admin privilege required' : 'Generate barcodes for all products without barcodes'}
+            >
+              {generatingBarcodes ? (
+                <>
+                  <AutoIcon className="btn-icon spinning" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <RunIcon className="btn-icon" />
+                  Run Now
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </section>
 
@@ -578,10 +656,18 @@ const AutomationDashboard = () => {
                   <BarcodeIcon className="input-icon" />
                   <input
                     id="scan-code-input"
+                    ref={barcodeInputRef}
                     type="text"
-                    placeholder="Scan barcode or type digits..."
+                    placeholder="Scan barcode or type SKU..."
                     value={barcodeInput}
                     onChange={(e) => setBarcodeInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && barcodeInput.trim()) {
+                        e.preventDefault();
+                        handleBarcodeScanSubmit(e);
+                      }
+                    }}
+                    autoFocus
                   />
                 </div>
               </div>
@@ -688,19 +774,37 @@ const AutomationDashboard = () => {
               {recentScans.length === 0 ? (
                 <p className="empty-txt">No barcodes scanned yet in this window.</p>
               ) : (
-                <div className="recent-scans-stack">
-                  {recentScans.map(s => (
-                    <div key={s.id} className={`recent-scan-row ${s.success ? 'ok' : 'fail'}`}>
-                      <div className="row-main">
-                        <span className={`badge-type ${s.scanType}`}>{s.scanType === 'stock_in' ? 'IN' : 'OUT'}</span>
-                        <div className="text-info">
-                          <strong>{s.productName}</strong>
-                          <span className="sku">Qty: {s.quantity} | {s.barcode}</span>
-                        </div>
-                      </div>
-                      {!s.success && <span className="error-small">{s.message}</span>}
-                    </div>
-                  ))}
+                <div className="table-responsive">
+                  <table className="recent-scans-table">
+                    <thead>
+                      <tr>
+                        <th>SKU</th>
+                        <th>Product Name</th>
+                        <th>Action</th>
+                        <th className="align-center">Qty</th>
+                        <th>Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentScans.map(s => (
+                        <tr key={s.id} className={s.success ? 'scan-row-ok' : 'scan-row-fail'}>
+                          <td><code>{s.sku}</code></td>
+                          <td>{s.productName}</td>
+                          <td>
+                            <span className={`badge-type ${s.scanType}`}>
+                              {s.scanType === 'stock_in' ? 'Stock In' : 'Stock Out'}
+                            </span>
+                          </td>
+                          <td className="align-center font-semibold">
+                            {s.scanType === 'stock_in' ? '+' : '-'}{s.quantity}
+                          </td>
+                          <td className="scan-time">
+                            {new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>

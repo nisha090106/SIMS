@@ -12,7 +12,8 @@
     "format": "prettier --write \"src/**/*.js\"",
     "migrate": "sequelize db:migrate",
     "migrate:undo": "sequelize db:migrate:undo:all",
-    "seed": "sequelize db:seed:all"
+    "seed": "sequelize db:seed:all",
+    "generate-barcodes": "node scripts/generateBarcodes.js"
   },
   "keywords": [
     "inventory",

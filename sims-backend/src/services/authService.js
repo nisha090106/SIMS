@@ -10,14 +10,13 @@ const REFRESH_TOKEN_EXPIRE = '30d';
 export class AuthService {
   // Generate JWT token
   static generateToken(user) {
-    const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
     return jwt.sign(
       {
         user_id: user.id,
         id: user.id,
         email: user.email,
         role: user.role,
-        full_name: fullName,
+        full_name: user.full_name,
       },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRE },
@@ -47,18 +46,13 @@ export class AuthService {
   }
 
   // Register user
-  static async register(email, password, full_name, role = 'staff', department = null) {
+  static async register(email, password, first_name, last_name, role = 'staff', department = null) {
     try {
       // Check if user already exists
       const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
         throw new Error('Email already registered');
       }
-
-      // Parse full_name into first_name and last_name
-      const nameParts = full_name.trim().split(/\s+/);
-      const first_name = nameParts[0] || '';
-      const last_name = nameParts.slice(1).join(' ') || '';
 
       // Validate role
       const validRoles = ['admin', 'manager', 'staff', 'user'];
@@ -74,7 +68,7 @@ export class AuthService {
         status: 'active',
       });
 
-      const fullName = `${user.first_name} ${user.last_name}`.trim();
+      const fullName = user.full_name;
       logger.info(`New user registered: ${email} with role ${userRole}`);
 
       return {
@@ -120,7 +114,6 @@ export class AuthService {
       const accessToken = this.generateToken(user);
       const refreshToken = this.generateRefreshToken(user);
 
-      const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
       logger.info(`User logged in: ${email}`);
 
       return {
@@ -132,7 +125,7 @@ export class AuthService {
             user_id: user.id,
             id: user.id,
             email: user.email,
-            full_name: fullName,
+            full_name: user.full_name,
             role: user.role,
           },
         },

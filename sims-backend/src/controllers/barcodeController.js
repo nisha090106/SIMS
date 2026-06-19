@@ -45,8 +45,10 @@ export class BarcodeController {
         return res.status(400).json({ success: false, error: 'Warehouse not found' });
       }
 
-      // Find product by barcode
-      const product = await Product.findOne({ where: { barcode } });
+      // Find product by barcode OR SKU (many products lack a barcode value)
+      const product = await Product.findOne({
+        where: { [Op.or]: [{ barcode }, { sku: barcode }] },
+      });
 
       // Scenario: Product not recognised
       if (!product) {
@@ -184,7 +186,7 @@ export class BarcodeController {
       }
 
       const product = await Product.findOne({
-        where: { barcode },
+        where: { [Op.or]: [{ barcode }, { sku: barcode }] },
         include: [
           {
             association: 'inventory',
@@ -484,7 +486,10 @@ export class BarcodeController {
         warehouseFilter = req.user.warehouse_id;
       }
 
-      const product = await Product.findOne({ where: { barcode } });
+      // Find product by barcode OR SKU
+      const product = await Product.findOne({
+        where: { [Op.or]: [{ barcode }, { sku: barcode }] },
+      });
 
       if (!product) {
         // Create unknown barcode record
@@ -557,7 +562,10 @@ export class BarcodeController {
         whId = req.user.warehouse_id;
       }
 
-      const product = await Product.findOne({ where: { barcode } });
+      // Find product by barcode OR SKU
+      const product = await Product.findOne({
+        where: { [Op.or]: [{ barcode }, { sku: barcode }] },
+      });
       if (!product) {
         await UnknownBarcode.create({
           barcode,
@@ -652,7 +660,10 @@ export class BarcodeController {
         whId = req.user.warehouse_id;
       }
 
-      const product = await Product.findOne({ where: { barcode } });
+      // Find product by barcode OR SKU
+      const product = await Product.findOne({
+        where: { [Op.or]: [{ barcode }, { sku: barcode }] },
+      });
       if (!product) {
         await UnknownBarcode.create({
           barcode,
@@ -753,7 +764,10 @@ export class BarcodeController {
         whId = req.user.warehouse_id;
       }
 
-      const product = await Product.findOne({ where: { barcode } });
+      // Find product by barcode OR SKU
+      const product = await Product.findOne({
+        where: { [Op.or]: [{ barcode }, { sku: barcode }] },
+      });
       if (!product) {
         return res.status(404).json({ success: false, unknownBarcode: true });
       }

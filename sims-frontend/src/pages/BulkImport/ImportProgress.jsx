@@ -19,6 +19,28 @@ import Spinner from '../../components/ui/Spinner';
  *   jobId      — import job ID to poll
  *   onComplete — called when job finishes (job object passed)
  */
+const formatImportError = (err, jobType) => {
+  const errMsg = err.error || err.message || '';
+  if (jobType !== 'stock' && jobType !== 'stock_import') {
+    return errMsg;
+  }
+  
+  const raw = err.rawData || {};
+  const sku = raw.SKU || raw.sku || '';
+  const whCode = raw.WarehouseCode || raw.warehouse_code || raw.warehousecode || '';
+
+  if (errMsg.toLowerCase().includes('product not found') || errMsg.toLowerCase().includes('sku')) {
+    return `SKU ${sku} not found in products table (row skipped)`;
+  }
+  if (errMsg.toLowerCase().includes('warehouse') && errMsg.toLowerCase().includes('not found')) {
+    return `Warehouse ${whCode || 'unknown'} not found (row skipped)`;
+  }
+  if (errMsg.toLowerCase().includes('expiry') || errMsg.toLowerCase().includes('expirydate')) {
+    return `ExpiryDate — value is empty (stored as null, row succeeded)`;
+  }
+  return errMsg;
+};
+
 export default function ImportProgress({ jobId, onComplete }) {
   const [job, setJob]           = useState(null);
   const [errOpen, setErrOpen]   = useState(false);
@@ -200,7 +222,7 @@ export default function ImportProgress({ jobId, onComplete }) {
                       Row {e.row ?? i + 1}
                     </span>
                     <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-sans)', lineHeight: 1.4 }}>
-                      {e.error ?? e.message ?? 'Unknown error'}
+                      {formatImportError(e, job.job_type)}
                     </span>
                   </div>
                 ))}

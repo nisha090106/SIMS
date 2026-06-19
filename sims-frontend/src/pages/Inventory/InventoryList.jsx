@@ -104,12 +104,23 @@ export default function InventoryList({ warehouseId: fixedWarehouseId } = {}) {
   const [warehouses, setWarehouses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [valuation, setValuation]   = useState(null);
+  const [lastRefresh, setLastRefresh] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Modal state
   const [opModal, setOpModal]       = useState(null); // 'stock-in' | 'stock-out' | 'adjust'
   const [transferOpen, setTransfer] = useState(false);
 
   const debRef = useRef(null);
+  const refreshIntervalRef = useRef(null);
+
+  // Define loadValuation callback first
+  const loadValuation = useCallback(() => {
+    inventoryAPI.getValuation().then((r) => {
+      setValuation(r.data.data);
+      setLastRefresh(new Date());
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     clearTimeout(debRef.current);
@@ -117,18 +128,23 @@ export default function InventoryList({ warehouseId: fixedWarehouseId } = {}) {
     return () => clearTimeout(debRef.current);
   }, [search]);
 
-  // Load filter data once
+  // Load filter data once and setup auto-refresh
   useEffect(() => {
     if (isAdmin) {
       warehouseAPI.getAll().then((r) => setWarehouses(r.data.data || [])).catch(() => {});
     }
     categoryAPI.getAll().then((r) => setCategories(r.data.data || [])).catch(() => {});
     loadValuation();
-  }, [isAdmin]);
 
-  const loadValuation = () => {
-    inventoryAPI.getValuation().then((r) => setValuation(r.data.data)).catch(() => {});
-  };
+    // Auto-refresh valuation every 30 seconds
+    refreshIntervalRef.current = setInterval(() => {
+      loadValuation();
+    }, 30000);
+
+    return () => {
+      if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
+    };
+  }, [isAdmin, loadValuation]);
 
   const buildParams = useCallback(() => ({
     page, limit,
@@ -154,7 +170,12 @@ export default function InventoryList({ warehouseId: fixedWarehouseId } = {}) {
 
   useEffect(() => { fetchInventory(); }, [fetchInventory]);
 
-  const refresh = () => { fetchInventory(); loadValuation(); };
+  const refresh = async () => {
+    setRefreshing(true);
+    await Promise.all([fetchInventory(), loadValuation()]);
+    setRefreshing(false);
+    showToast('Inventory updated', 'success');
+  };
 
   const { rows, total, totalPages, loading } = state;
 
@@ -212,8 +233,8 @@ export default function InventoryList({ warehouseId: fixedWarehouseId } = {}) {
           <Button variant="ghost" size="sm" leftIcon={<ExportIcon style={{ fontSize: 16 }} />} onClick={() => exportCSV(rows)}>
             Export CSV
           </Button>
-          <Button variant="ghost" size="sm" leftIcon={<RefreshIcon style={{ fontSize: 16 }} />} onClick={refresh} loading={loading}>
-            Refresh
+          <Button variant="ghost" size="sm" leftIcon={<RefreshIcon style={{ fontSize: 16, animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />} onClick={refresh} loading={refreshing || loading} title={lastRefresh ? `Last updated: ${lastRefresh.toLocaleTimeString()}` : 'Click to refresh'}>
+            Refresh {lastRefresh && <span style={{ fontSize: '11px', opacity: 0.7, marginLeft: '4px' }}>({lastRefresh.toLocaleTimeString()})</span>}
           </Button>
         </div>
       </div>
