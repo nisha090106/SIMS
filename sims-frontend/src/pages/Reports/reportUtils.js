@@ -14,11 +14,11 @@ export function downloadBlob(data, filename) {
   URL.revokeObjectURL(url);
 }
 
-/** Format a number as USD currency */
+/** Format a number as INR currency */
 export function fmtCurrency(n, opts = {}) {
   if (n === null || n === undefined) return '—';
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency', currency: 'USD',
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency', currency: 'INR',
     minimumFractionDigits: 0, maximumFractionDigits: 0,
     ...opts,
   }).format(Number(n));

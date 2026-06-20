@@ -3,7 +3,7 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
 } from 'recharts';
-import { Package, Layers, DollarSign, TrendingDown, AlertTriangle } from 'lucide-react';
+import { Package, Layers, IndianRupee, TrendingDown, AlertTriangle } from 'lucide-react';
 import { warehouseAPI } from '../../../services/api';
 import reportAPI from '../../../services/reportAPI';
 import KpiCard from '../shared/KpiCard';
@@ -67,7 +67,7 @@ export default function InventoryTab() {
     }
   };
 
-  const f = (v) => `$${Number(v || 0).toFixed(2)}`;
+  const f = (v) => `₹${Number(v || 0).toFixed(2)}`;
 
   // Category pie data
   const catData = data
@@ -135,9 +135,9 @@ export default function InventoryTab() {
       <div className="reports-kpi-grid">
         <KpiCard icon={<Layers size={20}/>} label="Total SKUs"    color="blue"   loading={loading} value={fmtNum(data?.summary?.totalSkus)} />
         <KpiCard icon={<Package size={20}/>} label="Total Units"  color="green"  loading={loading} value={fmtNum(data?.summary?.totalUnits)} />
-        <KpiCard icon={<DollarSign size={20}/>} label="Total Value (Sell)" color="purple" loading={loading}
+        <KpiCard icon={<IndianRupee size={20}/>} label="Total Value (Sell)" color="purple" loading={loading}
           value={fmtCurrency(data?.summary?.totalValue)} sub="at selling price" />
-        <KpiCard icon={<DollarSign size={20}/>} label="Total Cost Basis"  color="cyan"  loading={loading}
+        <KpiCard icon={<IndianRupee size={20}/>} label="Total Cost Basis"  color="cyan"  loading={loading}
           value={fmtCurrency(data?.summary?.totalCost)} sub="at cost price" />
         <KpiCard icon={<TrendingDown size={20}/>} label="Gross Margin" color="orange" loading={loading}
           value={fmtCurrency(data?.summary?.grossMarginValue)}
@@ -158,7 +158,7 @@ export default function InventoryTab() {
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
                   {catData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
-                <Tooltip formatter={v => [`$${Number(v).toLocaleString()}`, 'Value']} />
+                <Tooltip formatter={v => [`₹${Number(v).toLocaleString('en-IN')}`, 'Value']} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
               </PieChart>
             </ResponsiveContainer>

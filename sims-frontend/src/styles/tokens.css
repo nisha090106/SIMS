@@ -13,19 +13,19 @@
   --color-border:       #E2E8F0;
 
   /* ── Primary (Blue) ──────────────────────────────────────── */
-  --color-primary:      #2563EB;
+  --color-primary:      #3B82F6;
   --color-primary-soft: #EFF6FF;
-  --color-primary-dark: #1D4ED8;
+  --color-primary-dark: #2563EB;
 
   /* ── Semantic ────────────────────────────────────────────── */
-  --color-success:      #16A34A;
-  --color-success-soft: #F0FDF4;
-  --color-warning:      #D97706;
-  --color-warning-soft: #FFFBEB;
-  --color-danger:       #DC2626;
-  --color-danger-soft:  #FEF2F2;
-  --color-info:         #0891B2;
-  --color-info-soft:    #ECFEFF;
+  --color-success:      #10B981;
+  --color-success-soft: #D1FAE5;
+  --color-warning:      #F59E0B;
+  --color-warning-soft: #FEF3C7;
+  --color-danger:       #EF4444;
+  --color-danger-soft:  #FEE2E2;
+  --color-info:         #3B82F6;
+  --color-info-soft:    #DBEAFE;
 
   /* ── Typography ──────────────────────────────────────────── */
   --color-text-primary:   #0F172A;

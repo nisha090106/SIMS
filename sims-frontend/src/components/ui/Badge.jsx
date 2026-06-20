@@ -2,45 +2,49 @@ import React from 'react';
 
 /**
  * Badge — inline status chip
- * variants: success | warning | danger | info | neutral
- * sizes: sm | md
+ *
+ * variants: success | warning | danger | info | neutral | primary
+ * sizes:    sm | md
+ *
+ * Colour spec (light theme):
+ *   success  → #D1FAE5 bg / #065F46 text
+ *   warning  → #FEF3C7 bg / #92400E text
+ *   danger   → #FEE2E2 bg / #991B1B text
+ *   info     → #DBEAFE bg / #1E40AF text   (also used for "approved"/"draft")
+ *   primary  → #DBEAFE bg / #1E40AF text
+ *   neutral  → #F1F5F9 bg / #475569 text
  */
+
 const VARIANT_STYLES = {
   success: {
-    background: 'var(--color-success-soft)',
-    color: 'var(--color-success)',
-    border: '1px solid #bbf7d0',
+    backgroundColor: '#D1FAE5',
+    color:           '#065F46',
   },
   warning: {
-    background: 'var(--color-warning-soft)',
-    color: 'var(--color-warning)',
-    border: '1px solid #fde68a',
+    backgroundColor: '#FEF3C7',
+    color:           '#92400E',
   },
   danger: {
-    background: 'var(--color-danger-soft)',
-    color: 'var(--color-danger)',
-    border: '1px solid #fecaca',
+    backgroundColor: '#FEE2E2',
+    color:           '#991B1B',
   },
   info: {
-    background: 'var(--color-info-soft)',
-    color: 'var(--color-info)',
-    border: '1px solid #a5f3fc',
-  },
-  neutral: {
-    background: 'var(--color-surface-alt)',
-    color: 'var(--color-text-secondary)',
-    border: '1px solid var(--color-border)',
+    backgroundColor: '#DBEAFE',
+    color:           '#1E40AF',
   },
   primary: {
-    background: 'var(--color-primary-soft)',
-    color: 'var(--color-primary)',
-    border: '1px solid #bfdbfe',
+    backgroundColor: '#DBEAFE',
+    color:           '#1E40AF',
+  },
+  neutral: {
+    backgroundColor: '#F1F5F9',
+    color:           '#475569',
   },
 };
 
 const SIZE_STYLES = {
-  sm: { fontSize: 'var(--text-xs)', padding: '2px 7px', borderRadius: 'var(--radius-sm)' },
-  md: { fontSize: 'var(--text-sm)', padding: '3px 9px', borderRadius: 'var(--radius-md)' },
+  sm: { fontSize: 11, padding: '2px 7px',  borderRadius: 6,  fontWeight: 700, lineHeight: '16px' },
+  md: { fontSize: 12, padding: '3px 10px', borderRadius: 6,  fontWeight: 700, lineHeight: '18px' },
 };
 
 const Badge = ({
@@ -53,7 +57,7 @@ const Badge = ({
   ...rest
 }) => {
   const variantStyle = VARIANT_STYLES[variant] || VARIANT_STYLES.neutral;
-  const sizeStyle = SIZE_STYLES[size] || SIZE_STYLES.sm;
+  const sizeStyle    = SIZE_STYLES[size]        || SIZE_STYLES.sm;
 
   return (
     <span
@@ -62,11 +66,11 @@ const Badge = ({
         display: 'inline-flex',
         alignItems: 'center',
         gap: dot ? 5 : 0,
-        fontFamily: 'var(--font-sans)',
-        fontWeight: 600,
-        lineHeight: 1,
+        fontFamily: "'Inter', -apple-system, sans-serif",
+        fontWeight: 700,
         whiteSpace: 'nowrap',
         letterSpacing: '0.01em',
+        verticalAlign: 'middle',
         ...variantStyle,
         ...sizeStyle,
         ...extraStyle,
@@ -74,15 +78,13 @@ const Badge = ({
       {...rest}
     >
       {dot && (
-        <span
-          style={{
-            width: 6,
-            height: 6,
-            borderRadius: '50%',
-            backgroundColor: 'currentColor',
-            flexShrink: 0,
-          }}
-        />
+        <span style={{
+          width: 5,
+          height: 5,
+          borderRadius: '50%',
+          backgroundColor: 'currentColor',
+          flexShrink: 0,
+        }} />
       )}
       {children}
     </span>

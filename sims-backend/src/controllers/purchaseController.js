@@ -4,6 +4,7 @@ import {
   Warehouse, AuditLog, User, sequelize,
 } from '../models/index.js';
 import logger from '../config/logger.js';
+import NotificationService from '../services/notificationService.js';
 
 /* ── helpers ─────────────────────────────────────────────────── */
 const uid  = (req) => req.user?.user_id || req.user?.id;
@@ -179,6 +180,8 @@ export const createPurchaseOrder = async (req, res, next) => {
     logger.info(`PO created: ${po.po_number}`);
 
     const full = await PurchaseOrder.findByPk(po.po_id, { include: PO_INCLUDE });
+    // Fire notification (non-blocking)
+    NotificationService.onPOCreated(po, uid(req)).catch(() => {});
     return res.status(201).json({ success: true, data: formatPO(full) });
   } catch (err) { logger.error(`createPurchaseOrder: ${err.message}`); next(err); }
 };
@@ -242,6 +245,14 @@ async function transition(req, res, next, fromStatuses, toStatus, extraFields = 
     await audit(req, `${toStatus.toUpperCase()}_PURCHASE_ORDER`, { status: { from: old, to: toStatus } });
 
     const full = await PurchaseOrder.findByPk(po.po_id, { include: PO_INCLUDE });
+
+    // Fire notifications asynchronously — never block the response
+    const poData = po.toJSON();
+    if (toStatus === 'submitted')  NotificationService.onPOSubmitted(poData, uid(req)).catch(() => {});
+    if (toStatus === 'approved')   NotificationService.onPOApproved(poData, uid(req)).catch(() => {});
+    if (toStatus === 'shipped')    NotificationService.onPOShipped(poData).catch(() => {});
+    if (toStatus === 'cancelled')  NotificationService.onPOCancelled(poData, uid(req)).catch(() => {});
+
     return res.json({ success: true, data: formatPO(full) });
   } catch (err) { logger.error(`PO transition to ${toStatus}: ${err.message}`); next(err); }
 }
@@ -319,6 +330,8 @@ export const receivePurchaseOrder = async (req, res, next) => {
     logger.info(`PO received: ${po.po_number}`);
 
     const full = await PurchaseOrder.findByPk(po.po_id, { include: PO_INCLUDE });
+    // Fire notification (non-blocking)
+    NotificationService.onPOReceived(po.toJSON(), uid(req)).catch(() => {});
     return res.json({ success: true, data: formatPO(full) });
   } catch (err) {
     await t.rollback();

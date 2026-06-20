@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  AttachMoney as ValueIcon,
+  CurrencyRupee as ValueIcon,
   WarningAmber as LowIcon,
   ErrorOutline as OutIcon,
   Inventory2Outlined as TotalIcon,

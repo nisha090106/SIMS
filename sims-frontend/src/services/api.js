@@ -143,11 +143,28 @@ export const purchaseOrderAPI = {
 };
 
 export const salesOrderAPI = {
-  getAll: (params) => api.get('/sales-orders', { params }),
-  getById: (id) => api.get(`/sales-orders/${id}`),
-  create: (data) => api.post('/sales-orders', data),
-  update: (id, data) => api.put(`/sales-orders/${id}`, data),
-  delete: (id) => api.delete(`/sales-orders/${id}`),
+  // ── Read ──────────────────────────────────────────────────────────────────
+  // params: page, limit, status, search, warehouseId, from, to
+  getAll:   (params)   => api.get('/sales-orders', { params }),
+  getById:  (id)       => api.get(`/sales-orders/${id}`),
+
+  // ── Create / Edit ─────────────────────────────────────────────────────────
+  // body: { customer_name, warehouse_id, items, delivery_date?, notes? }
+  create:   (data)     => api.post('/sales-orders', data),
+  // body: { customer_name?, delivery_date?, items?, notes? }  (draft/pending only)
+  update:   (id, data) => api.put(`/sales-orders/${id}`, data),
+
+  // ── Workflow ──────────────────────────────────────────────────────────────
+  // draft|pending → dispatched (deducts stock)
+  fulfill:  (id)       => api.post(`/sales-orders/${id}/fulfill`),
+  // dispatched → delivered
+  deliver:  (id)       => api.post(`/sales-orders/${id}/deliver`),
+  // draft|pending|dispatched(admin) → cancelled
+  cancel:   (id, data) => api.post(`/sales-orders/${id}/cancel`, data || {}),
+
+  // ── Delete ────────────────────────────────────────────────────────────────
+  // draft or cancelled only
+  delete:   (id)       => api.delete(`/sales-orders/${id}`),
 };
 
 export const reportAPI = {
@@ -231,6 +248,15 @@ export const settingsAPI = {
 
   // Audit Log — admin only
   getAuditLog: (params) => api.get('/settings/audit-log', { params }),
+};
+
+export const notificationsAPI = {
+  getAll:        (params) => api.get('/notifications', { params }),
+  getUnreadCount:()       => api.get('/notifications/unread-count'),
+  markRead:      (id)     => api.patch(`/notifications/${id}/read`),
+  markAllRead:   ()       => api.post('/notifications/mark-all-read'),
+  delete:        (id)     => api.delete(`/notifications/${id}`),
+  clearRead:     ()       => api.delete('/notifications/clear-all'),
 };
 
 export default api;

@@ -7,6 +7,7 @@ import {
   ReorderRule, 
   Inventory, 
   Warehouse, 
+  Supplier,
   User, 
   AuditLog, 
   ImportJob, 

@@ -324,15 +324,22 @@
   text-transform: capitalize;
 }
 
-.status-pill.draft     { background: #f1f5f9; color: #64748b; }
-.status-pill.pending   { background: #fef3c7; color: #d97706; }
-.status-pill.approved  { background: #dbeafe; color: #2563eb; }
-.status-pill.dispatched { background: #e0f2fe; color: #0891b2; }
-.status-pill.delivered { background: #dcfce7; color: #16a34a; }
-.status-pill.cancelled { background: #fee2e2; color: #dc2626; }
-.status-pill.received  { background: #dcfce7; color: #16a34a; }
-.status-pill.fulfilled { background: #dcfce7; color: #16a34a; }
-.status-pill.rejected  { background: #fee2e2; color: #dc2626; }
+.status-pill.draft      { background: #DBEAFE; color: #1E40AF; }
+.status-pill.pending    { background: #FEF3C7; color: #92400E; }
+.status-pill.submitted  { background: #FEF3C7; color: #92400E; }
+.status-pill.approved   { background: #DBEAFE; color: #1E40AF; }
+.status-pill.dispatched { background: #FEF3C7; color: #92400E; }
+.status-pill.shipped    { background: #FEF3C7; color: #92400E; }
+.status-pill.delivered  { background: #D1FAE5; color: #065F46; }
+.status-pill.received   { background: #D1FAE5; color: #065F46; }
+.status-pill.fulfilled  { background: #D1FAE5; color: #065F46; }
+.status-pill.active     { background: #D1FAE5; color: #065F46; }
+.status-pill.in_stock   { background: #D1FAE5; color: #065F46; }
+.status-pill.cancelled  { background: #FEE2E2; color: #991B1B; }
+.status-pill.rejected   { background: #FEE2E2; color: #991B1B; }
+.status-pill.inactive   { background: #FEE2E2; color: #991B1B; }
+.status-pill.out_of_stock { background: #FEE2E2; color: #991B1B; }
+.status-pill.low_stock  { background: #FEF3C7; color: #92400E; }
 
 /* ── Pagination ──────────────────────────────────────────── */
 .reports-pagination {

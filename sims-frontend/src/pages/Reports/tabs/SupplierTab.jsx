@@ -4,7 +4,7 @@ import {
   Tooltip, Legend, RadarChart, Radar, PolarGrid, PolarAngleAxis,
   PolarRadiusAxis, Cell,
 } from 'recharts';
-import { Truck, DollarSign, Star, CheckCircle, TrendingUp } from 'lucide-react';
+import { Truck, IndianRupee, Star, CheckCircle, TrendingUp } from 'lucide-react';
 import { supplierAPI } from '../../../services/api';
 import reportAPI from '../../../services/reportAPI';
 import KpiCard from '../shared/KpiCard';
@@ -156,7 +156,7 @@ export default function SupplierTab() {
               <BarChart data={top6} margin={{ left: -10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `$${(v/1000).toFixed(0)}k`} />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `₹${(v/1000).toFixed(0)}k`} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={v => [fmtCurrency(v), 'Spent']} />
                 <Bar dataKey="totalSpent" name="Total Spent" radius={[4,4,0,0]}>
                   {top6.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}

@@ -1,17 +1,25 @@
+/* ============================================================
+   Sidebar — light theme
+   The layouts/Sidebar.jsx uses inline styles for all dynamic
+   state (active, hover, collapsed). This file covers the
+   legacy .sidebar class used by the old Sidebar component and
+   scrollbar styling shared by both.
+   ============================================================ */
+
 .sidebar {
   width: var(--sidebar-width);
   height: 100vh;
-  background: #0f172a; /* Slate 900 */
-  color: #f8fafc; /* Slate 50 */
+  background: #ffffff;
+  color: #1e293b;
   position: fixed;
   left: 0;
   top: 0;
-  transition: width var(--transition-speed) var(--transition-bezier);
+  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  z-index: 1000;
+  z-index: 1100;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #1e293b; /* Slate 800 */
+  border-right: 1px solid #e2e8f0;
   box-sizing: border-box;
 }
 
@@ -25,7 +33,7 @@
   display: flex;
   align-items: center;
   padding: 0 16px;
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 1px solid #e2e8f0;
   box-sizing: border-box;
 }
 
@@ -44,96 +52,93 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   border-radius: 8px;
   color: white;
   flex-shrink: 0;
-  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.28);
 }
 
-.logo-icon {
-  font-size: 20px !important;
-}
+.logo-icon { font-size: 20px !important; }
 
 .logo-text {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
   letter-spacing: 1.5px;
-  color: white;
+  color: #1e293b;
   text-transform: uppercase;
+  font-family: 'Inter', sans-serif;
 }
 
 /* Nav Menu */
 .sidebar-nav {
-  padding: 16px 8px;
+  padding: 12px 8px;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-.sidebar-nav::-webkit-scrollbar {
-  width: 4px;
-}
-
+.sidebar-nav::-webkit-scrollbar { width: 4px; }
 .sidebar-nav::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #e2e8f0;
   border-radius: 4px;
 }
+.sidebar-nav::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
 
+/* Nav items */
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
+  gap: 10px;
+  height: 40px;
+  padding: 0 12px;
   border-radius: 8px;
-  color: #94a3b8; /* Slate 400 */
+  color: #64748b;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: background 200ms ease, color 200ms ease;
   font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
   box-sizing: border-box;
+  border-left: 3px solid transparent;
+  font-family: 'Inter', sans-serif;
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.03);
-  color: #f8fafc;
+  background: #f8fafc;
+  color: #1e293b;
 }
 
 .nav-item.active {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6; /* Blue 500 */
+  background: #eff6ff;
+  color: #3b82f6;
   font-weight: 600;
+  border-left-color: #3b82f6;
 }
 
 .nav-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
+  color: inherit;
+  position: relative;
 }
 
-.nav-icon svg {
-  font-size: 20px !important;
-}
+.nav-icon svg { font-size: 18px !important; }
+.nav-item.active .nav-icon svg { color: #3b82f6; }
 
-.nav-item.active .nav-icon svg {
-  color: #3b82f6;
-}
+.nav-label { transition: opacity 200ms ease; }
 
-.nav-label {
-  transition: opacity 0.2s ease;
-}
-
-/* Footer Toggler */
+/* Footer */
 .sidebar-footer {
-  padding: 12px 8px;
-  border-top: 1px solid #1e293b;
+  padding: 10px 8px;
+  border-top: 1px solid #e2e8f0;
   box-sizing: border-box;
 }
 
@@ -141,61 +146,41 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
+  gap: 10px;
+  height: 40px;
+  padding: 0 10px;
   background: none;
   border: none;
-  color: #64748b; /* Slate 500 */
+  color: #94a3b8;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 200ms ease, color 200ms ease;
   font-size: 14px;
   font-weight: 500;
   text-align: left;
   white-space: nowrap;
   box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
 }
 
 .sidebar-toggle:hover {
-  background: rgba(255, 255, 255, 0.03);
-  color: #f8fafc;
+  background: #f8fafc;
+  color: #1e293b;
 }
 
-.sidebar-toggle svg {
-  font-size: 20px !important;
-  flex-shrink: 0;
-}
+.sidebar-toggle svg { font-size: 18px !important; flex-shrink: 0; }
+.toggle-text { font-size: 13px; }
 
-.toggle-text {
-  font-size: 13px;
-}
-
-/* Mobile responsive triggers */
-@media (max-width: 768px) {
-  .sidebar {
-    width: var(--sidebar-width) !important;
-    transform: translateX(-100%);
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-}
-
-/* Sidebar pending badges */
-.nav-icon {
-  position: relative;
-}
-
+/* Badges */
 .nav-icon-badge-dot {
   position: absolute;
   top: -2px;
   right: -2px;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   background-color: #ef4444;
   border-radius: 50%;
-  border: 1.5px solid #0f172a;
+  border: 1.5px solid #ffffff;
 }
 
 .nav-label-badge {
@@ -209,4 +194,13 @@
   min-width: 14px;
   text-align: center;
   line-height: 1;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .sidebar {
+    width: var(--sidebar-width) !important;
+    transform: translateX(-100%);
+  }
+  .sidebar.open { transform: translateX(0); }
 }

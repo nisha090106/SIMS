@@ -18,6 +18,7 @@ import ProductCategoryModel from './ProductCategory.js';
 import UnknownBarcodeModel from './UnknownBarcode.js';
 import RequestModel from './Request.js';
 import RequestItemModel from './RequestItem.js';
+import NotificationModel from './Notification.js';
 import config from '../config/database.js';
 
 const env = process.env.NODE_ENV || 'development';
@@ -57,6 +58,7 @@ const ProductCategory = ProductCategoryModel(sequelize);
 const UnknownBarcode = UnknownBarcodeModel(sequelize);
 const Request = RequestModel(sequelize);
 const RequestItem = RequestItemModel(sequelize);
+const Notification = NotificationModel(sequelize);
 
 // Define Associations
 // User associations
@@ -146,6 +148,10 @@ User.hasMany(Request, { foreignKey: 'approved_by', as: 'requests_approved' });
 RequestItem.belongsTo(Request, { foreignKey: 'request_id', as: 'request' });
 RequestItem.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
 
+// Notification associations
+Notification.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+User.hasMany(Notification, { foreignKey: 'user_id', as: 'notifications' });
+
 // Export
 export {
   sequelize,
@@ -167,6 +173,7 @@ export {
   UnknownBarcode,
   Request,
   RequestItem,
+  Notification,
 };
 
 export default sequelize;

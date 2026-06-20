@@ -136,10 +136,10 @@ export default function InventoryList({ warehouseId: fixedWarehouseId } = {}) {
     categoryAPI.getAll().then((r) => setCategories(r.data.data || [])).catch(() => {});
     loadValuation();
 
-    // Auto-refresh valuation every 30 seconds
+    // Auto-refresh valuation every 15 seconds for near-real-time stock value updates
     refreshIntervalRef.current = setInterval(() => {
       loadValuation();
-    }, 30000);
+    }, 15_000);
 
     return () => {
       if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
@@ -205,9 +205,28 @@ export default function InventoryList({ warehouseId: fixedWarehouseId } = {}) {
           <h1 style={{ margin: 0, fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'var(--font-sans)' }}>
             Inventory
           </h1>
-          <p style={{ margin: '4px 0 0', fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
-            {total} records
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+            <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
+              {total} records — stock values in ₹ INR
+            </p>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{
+                width: 7, height: 7, borderRadius: '50%',
+                background: '#10B981',
+                boxShadow: '0 0 0 2px rgba(16,185,129,0.25)',
+                animation: 'livePulse 2s ease-in-out infinite',
+                display: 'inline-block',
+              }} />
+              <span style={{ fontSize: 11, color: '#10B981', fontWeight: 600, fontFamily: 'var(--font-sans)' }}>
+                Live
+              </span>
+            </span>
+            {lastRefresh && (
+              <span style={{ fontSize: 11, color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
+                · {lastRefresh.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+            )}
+          </div>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {canWrite && (
@@ -233,11 +252,20 @@ export default function InventoryList({ warehouseId: fixedWarehouseId } = {}) {
           <Button variant="ghost" size="sm" leftIcon={<ExportIcon style={{ fontSize: 16 }} />} onClick={() => exportCSV(rows)}>
             Export CSV
           </Button>
-          <Button variant="ghost" size="sm" leftIcon={<RefreshIcon style={{ fontSize: 16, animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />} onClick={refresh} loading={refreshing || loading} title={lastRefresh ? `Last updated: ${lastRefresh.toLocaleTimeString()}` : 'Click to refresh'}>
-            Refresh {lastRefresh && <span style={{ fontSize: '11px', opacity: 0.7, marginLeft: '4px' }}>({lastRefresh.toLocaleTimeString()})</span>}
+          <Button variant="ghost" size="sm"
+            leftIcon={<RefreshIcon style={{ fontSize: 16, animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />}
+            onClick={refresh} loading={refreshing || loading}
+            title={lastRefresh ? `Last updated: ${lastRefresh.toLocaleTimeString()}` : 'Click to refresh'}>
+            Refresh
           </Button>
         </div>
       </div>
+      <style>{`
+        @keyframes livePulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50%       { opacity: 0.5; transform: scale(1.3); }
+        }
+      `}</style>
 
       {/* ── Valuation summary ── */}
       <ValuationSummary valuation={valuation} isAdmin={isAdmin} />

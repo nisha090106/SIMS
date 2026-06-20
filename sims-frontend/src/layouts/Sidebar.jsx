@@ -48,6 +48,7 @@ const NAV = {
     { path: '/inventory',       label: 'Inventory',       icon: WarehouseIcon },
     { path: '/suppliers',       label: 'Suppliers',       icon: PeopleIcon },
     { path: '/purchase-orders', label: 'Purchase Orders', icon: PurchaseIcon },
+    { path: '/sales-orders',    label: 'Sales Orders',    icon: SalesIcon },
     { path: '/requests',        label: 'Requests',        icon: RequestsIcon, badge: true },
     { path: '/barcode',         label: 'Barcode',         icon: BarcodeIcon },
     { path: '/import-center',   label: 'Bulk Import',     icon: ImportIcon },
@@ -132,14 +133,15 @@ const Sidebar = ({ collapsed, onToggle }) => {
         left: 0,
         height: '100vh',
         width: collapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
-        background: '#0F172A',
-        borderRight: '1px solid #1E293B',
+        background: '#FFFFFF',
+        borderRight: '1px solid #E2E8F0',
         display: 'flex',
         flexDirection: 'column',
         transition: 'width var(--transition-slow)',
         overflow: 'hidden',
         zIndex: 1100,
         boxSizing: 'border-box',
+        boxShadow: '1px 0 0 0 #E2E8F0',
       }}
     >
       {/* ── Brand header ── */}
@@ -149,7 +151,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
           display: 'flex',
           alignItems: 'center',
           padding: '0 16px',
-          borderBottom: '1px solid #1E293B',
+          borderBottom: '1px solid #E2E8F0',
           flexShrink: 0,
           gap: 10,
           overflow: 'hidden',
@@ -160,12 +162,12 @@ const Sidebar = ({ collapsed, onToggle }) => {
             width: 32,
             height: 32,
             borderRadius: 'var(--radius-md)',
-            background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+            background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
-            boxShadow: '0 4px 10px rgba(59,130,246,0.35)',
+            boxShadow: '0 2px 8px rgba(59,130,246,0.30)',
           }}
         >
           <WarehouseIcon style={{ fontSize: 18, color: '#fff' }} />
@@ -175,7 +177,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
             style={{
               fontSize: 16,
               fontWeight: 800,
-              color: '#F8FAFC',
+              color: '#1E293B',
               letterSpacing: '1px',
               textTransform: 'uppercase',
               fontFamily: 'var(--font-sans)',
@@ -216,34 +218,34 @@ const Sidebar = ({ collapsed, onToggle }) => {
                   alignItems: 'center',
                   gap: 10,
                   height: 40,
-                  padding: `0 ${collapsed ? 0 : 10}px`,
-                  paddingLeft: collapsed ? 0 : 10,
+                  paddingLeft: collapsed ? 0 : 12,
+                  paddingRight: collapsed ? 0 : 10,
                   justifyContent: collapsed ? 'center' : 'flex-start',
                   borderRadius: 'var(--radius-md)',
                   textDecoration: 'none',
                   fontFamily: 'var(--font-sans)',
                   fontSize: 'var(--text-base)',
                   fontWeight: isActive ? 600 : 500,
-                  color: isActive ? 'var(--color-primary)' : '#94A3B8',
-                  background: isActive ? 'rgba(37,99,235,0.12)' : 'transparent',
-                  transition: 'background var(--transition-base), color var(--transition-base)',
+                  color: isActive ? '#3B82F6' : '#64748B',
+                  background: isActive ? '#EFF6FF' : 'transparent',
+                  borderLeft: isActive ? '3px solid #3B82F6' : '3px solid transparent',
+                  transition: 'all var(--transition-base)',
                   position: 'relative',
                   overflow: 'hidden',
                   whiteSpace: 'nowrap',
                 })}
                 onMouseEnter={(e) => {
-                  if (!e.currentTarget.className.includes('active')) {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                    e.currentTarget.style.color = '#F1F5F9';
+                  const isActive = e.currentTarget.getAttribute('aria-current') === 'page';
+                  if (!isActive) {
+                    e.currentTarget.style.background = '#F8FAFC';
+                    e.currentTarget.style.color = '#1E293B';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  // NavLink active state restored by inline style fn above on next render
-                  // so we just clear the hover override
                   const isActive = e.currentTarget.getAttribute('aria-current') === 'page';
                   if (!isActive) {
                     e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = '#94A3B8';
+                    e.currentTarget.style.color = '#64748B';
                   }
                 }}
               >
@@ -258,9 +260,9 @@ const Sidebar = ({ collapsed, onToggle }) => {
                         right: -3,
                         width: 7,
                         height: 7,
-                        background: 'var(--color-danger)',
+                        background: '#EF4444',
                         borderRadius: '50%',
-                        border: '1.5px solid #0F172A',
+                        border: '1.5px solid #FFFFFF',
                       }}
                     />
                   )}
@@ -288,7 +290,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
       {/* ── User section + collapse toggle ── */}
       <div
         style={{
-          borderTop: '1px solid #1E293B',
+          borderTop: '1px solid #E2E8F0',
           padding: '10px 8px',
           display: 'flex',
           flexDirection: 'column',
@@ -313,7 +315,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
                 width: 32,
                 height: 32,
                 borderRadius: 'var(--radius-md)',
-                background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+                background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -332,7 +334,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
                 style={{
                   fontSize: 'var(--text-sm)',
                   fontWeight: 600,
-                  color: '#F1F5F9',
+                  color: '#1E293B',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
@@ -374,8 +376,8 @@ const Sidebar = ({ collapsed, onToggle }) => {
               whiteSpace: 'nowrap',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(220,38,38,0.1)';
-              e.currentTarget.style.color = 'var(--color-danger)';
+              e.currentTarget.style.background = '#FEE2E2';
+              e.currentTarget.style.color = '#EF4444';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'none';
@@ -402,7 +404,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
             background: 'none',
             border: 'none',
             borderRadius: 'var(--radius-md)',
-            color: '#475569',
+            color: '#94A3B8',
             fontSize: 'var(--text-base)',
             fontWeight: 500,
             fontFamily: 'var(--font-sans)',
@@ -411,12 +413,12 @@ const Sidebar = ({ collapsed, onToggle }) => {
             whiteSpace: 'nowrap',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-            e.currentTarget.style.color = '#F1F5F9';
+            e.currentTarget.style.background = '#F8FAFC';
+            e.currentTarget.style.color = '#1E293B';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'none';
-            e.currentTarget.style.color = '#475569';
+            e.currentTarget.style.color = '#94A3B8';
           }}
         >
           {collapsed

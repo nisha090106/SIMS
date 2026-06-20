@@ -21,6 +21,7 @@ import automationRoutes from './routes/automation.js';
 import requestsRoutes from './routes/requests.js';
 import salesRoutes from './routes/salesRoutes.js';
 import settingsRoutes from './routes/settings.js';
+import notificationRoutes from './routes/notifications.js';
 import { initCronJobs } from './services/cronService.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
 import { requestLogger, responseTime } from './middlewares/loggingMiddleware.js';
@@ -110,6 +111,7 @@ app.use('/api/barcodes', barcodeRoutes);
 app.use('/api/automation', automationRoutes);
 app.use('/api/sales-orders', salesRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api', requestsRoutes);
 
 // 404 Handler
@@ -132,7 +134,9 @@ const startServer = async () => {
     // NOTE: Using { alter: false } — schema is managed by Sequelize migrations.
     // alter: true causes destructive FK-drop errors on existing tables.
     if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: false });
+      // sync({ force: false }) creates missing tables without altering existing ones.
+      // Use migrations (sequelize db:migrate) for schema changes on existing tables.
+      await sequelize.sync({ force: false });
       logger.info('Database synced');
     }
 

@@ -4,20 +4,39 @@ import { authMiddleware, authorize } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
+// All endpoints require a valid JWT
 router.use(authMiddleware);
 
-// All roles can view
+// ── Read ─────────────────────────────────────────────────────────────────────
+// GET  /api/sales-orders
+//   Query: page, limit, status, search, warehouseId, from, to
 router.get('/', SalesController.getAll);
+
+// GET  /api/sales-orders/:id
 router.get('/:id', SalesController.getById);
 
-// Creation
+// ── Create ────────────────────────────────────────────────────────────────────
+// POST /api/sales-orders
+//   Body: { customer_name, warehouse_id, items, delivery_date?, notes? }
 router.post('/', authorize('admin', 'manager', 'staff'), SalesController.create);
 
-// Update/Delete
+// ── Edit ──────────────────────────────────────────────────────────────────────
+// PUT  /api/sales-orders/:id   (draft / pending only)
 router.put('/:id', authorize('admin', 'manager', 'staff'), SalesController.update);
-router.delete('/:id', authorize('admin', 'manager', 'staff'), SalesController.delete);
 
-// Workflow
-router.post('/:id/status', authorize('admin', 'manager', 'staff'), SalesController.updateStatus);
+// ── Workflow ──────────────────────────────────────────────────────────────────
+// POST /api/sales-orders/:id/fulfill   draft|pending → dispatched  + stock deducted
+router.post('/:id/fulfill',  authorize('admin', 'manager', 'staff'), SalesController.fulfill);
+
+// POST /api/sales-orders/:id/deliver   dispatched → delivered
+router.post('/:id/deliver',  authorize('admin', 'manager', 'staff'), SalesController.deliver);
+
+// POST /api/sales-orders/:id/cancel    draft|pending → cancelled
+//   Body: { reason? }
+router.post('/:id/cancel',   authorize('admin', 'manager', 'staff'), SalesController.cancel);
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+// DELETE /api/sales-orders/:id   (draft or cancelled only)
+router.delete('/:id', authorize('admin', 'manager'), SalesController.delete);
 
 export default router;

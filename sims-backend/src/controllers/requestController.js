@@ -11,6 +11,7 @@ import {
 import { Op } from 'sequelize';
 import logger from '../config/logger.js';
 import { getClientIP } from '../utils/helpers.js';
+import NotificationService from '../services/notificationService.js';
 
 export class RequestController {
   /**
@@ -109,6 +110,14 @@ export class RequestController {
         await t.commit();
 
         logger.info(`Request ${requestNumber} created by user ${req.user.user_id}`);
+
+        // Fire notification to managers/admins (non-blocking)
+        NotificationService.onRequestCreated({
+          id: newRequest.id,
+          request_number: requestNumber,
+          requester_id: req.user.user_id,
+          priority: priority || 'medium',
+        }).catch(() => {});
 
         return res.status(201).json({
           success: true,
@@ -334,6 +343,9 @@ export class RequestController {
 
         logger.info(`Request ${request.request_number} approved by user ${req.user.user_id}`);
 
+        // Notify the requester (non-blocking)
+        NotificationService.onRequestApproved(request, req.user.user_id).catch(() => {});
+
         return res.status(200).json({
           success: true,
           message: 'Request approved successfully',
@@ -402,6 +414,9 @@ export class RequestController {
         await t.commit();
 
         logger.info(`Request ${request.request_number} rejected by user ${req.user.user_id}`);
+
+        // Notify the requester (non-blocking)
+        NotificationService.onRequestRejected(request, req.user.user_id, rejection_reason).catch(() => {});
 
         return res.status(200).json({
           success: true,
@@ -518,6 +533,11 @@ export class RequestController {
 
         logger.info(`Request ${request.request_number} fulfilled by user ${req.user.user_id}`);
 
+        // Notify the requester if fully fulfilled (non-blocking)
+        if (newStatus === 'fulfilled') {
+          NotificationService.onRequestFulfilled(request, req.user.user_id).catch(() => {});
+        }
+
         return res.status(200).json({
           success: true,
           message: 'Request fulfilled successfully',
@@ -583,6 +603,9 @@ export class RequestController {
         await t.commit();
 
         logger.info(`Request ${request.request_number} cancelled by user ${req.user.user_id}`);
+
+        // Notify managers/admins (non-blocking)
+        NotificationService.onRequestCancelled(request).catch(() => {});
 
         return res.status(200).json({
           success: true,

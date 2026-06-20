@@ -36,6 +36,7 @@ import PurchaseOrderDetail from './pages/PurchaseOrders/PurchaseOrderDetail';
 import SalesOrders        from './pages/SalesOrders';
 import Reports            from './pages/Reports';
 import Settings           from './pages/Settings';
+import Notifications      from './pages/Notifications';
 import RequestsManagement from './pages/RequestsManagement';
 import ImportCenter        from './pages/BulkImport';        // new folder module
 import AutomationDashboard from './pages/AutomationDashboard';
@@ -95,6 +96,7 @@ const AppContent = () => {
         <Route path="/purchase-orders/:id/edit" element={<PurchaseOrderForm />} />
         <Route path="/sales-orders"    element={<SalesOrders />} />
         <Route path="/reports"         element={<Reports />} />
+        <Route path="/notifications"   element={<Notifications />} />
         <Route path="/settings"        element={<Settings />} />
         <Route path="/barcode"         element={<AutomationDashboard />} />
 

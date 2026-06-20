@@ -4,7 +4,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   PieChart, Pie, Cell,
 } from 'recharts';
-import { ShoppingCart, DollarSign, TrendingUp, CheckCircle, XCircle } from 'lucide-react';
+import { ShoppingCart, IndianRupee, TrendingUp, CheckCircle, XCircle } from 'lucide-react';
 import { warehouseAPI } from '../../../services/api';
 import reportAPI from '../../../services/reportAPI';
 import KpiCard from '../shared/KpiCard';
@@ -124,7 +124,7 @@ export default function SalesTab() {
       {/* KPI Cards */}
       <div className="reports-kpi-grid">
         <KpiCard icon={<ShoppingCart size={20}/>} label="Total Orders"    color="blue"   loading={loading} value={fmtNum(data?.summary?.totalOrders)} />
-        <KpiCard icon={<DollarSign size={20}/>}   label="Total Revenue"   color="green"  loading={loading} value={fmtCurrency(data?.summary?.totalRevenue)} />
+        <KpiCard icon={<IndianRupee size={20}/>}   label="Total Revenue"   color="green"  loading={loading} value={fmtCurrency(data?.summary?.totalRevenue)} />
         <KpiCard icon={<TrendingUp size={20}/>}   label="Avg Order Value" color="purple" loading={loading}
           value={data?.summary?.avgOrderValue ? fmtCurrency(data.summary.avgOrderValue) : '—'} />
         <KpiCard icon={<CheckCircle size={20}/>}  label="Delivered"       color="cyan"   loading={loading} value={fmtNum(data?.summary?.deliveredOrders)} />
@@ -141,16 +141,16 @@ export default function SalesTab() {
               <LineChart data={data.monthlyAggregation} margin={{ left: -10, right: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                <YAxis yAxisId="revenue" tick={{ fontSize: 11 }} tickFormatter={v => `$${(v/1000).toFixed(0)}k`} />
+                <YAxis yAxisId="revenue" tick={{ fontSize: 11 }} tickFormatter={v => `₹${(v/1000).toFixed(0)}k`} />
                 <YAxis yAxisId="orders" orientation="right" tick={{ fontSize: 11 }} allowDecimals={false} />
                 <Tooltip {...TOOLTIP_STYLE}
                   formatter={(v, name) =>
-                    name === 'Revenue ($)' ? [fmtCurrency(v), name] : [fmtNum(v), name]
+                    name === 'Revenue (₹)' ? [fmtCurrency(v), name] : [fmtNum(v), name]
                   }
                 />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Line yAxisId="revenue" type="monotone" dataKey="totalRevenue" stroke="#10b981" strokeWidth={3}
-                  name="Revenue ($)" dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                  name="Revenue (₹)" dot={{ r: 4 }} activeDot={{ r: 6 }} />
                 <Line yAxisId="orders" type="monotone" dataKey="orderCount" stroke="#3b82f6" strokeWidth={2}
                   name="Orders" dot={{ r: 3 }} strokeDasharray="5 3" />
               </LineChart>
@@ -184,7 +184,7 @@ export default function SalesTab() {
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={topProds} layout="vertical" margin={{ left: 20, right: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis type="number" tick={{ fontSize: 11 }} tickFormatter={v => `$${(v/1000).toFixed(0)}k`} />
+                <XAxis type="number" tick={{ fontSize: 11 }} tickFormatter={v => `₹${(v/1000).toFixed(0)}k`} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={100} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={v => [fmtCurrency(v), 'Revenue']} />
                 <Bar dataKey="revenue" fill="#8b5cf6" radius={[0,4,4,0]}>

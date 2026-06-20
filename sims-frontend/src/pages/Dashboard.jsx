@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import {
   Inventory2 as StockIcon,
-  AttachMoney as ValueIcon,
+  CurrencyRupee as ValueIcon,
   WarningAmber as LowStockIcon,
   ShoppingCart as POIcon,
   Assignment as RequestIcon,
@@ -246,6 +246,7 @@ export default function Dashboard() {
   const role = user?.role || 'staff';
 
   const [state, dispatch] = useReducer(reducer, INIT);
+  const [lastUpdated, setLastUpdated] = React.useState(null);
 
   const fetchAll = useCallback(async () => {
     dispatch({ type: 'FETCH_START' });
@@ -264,6 +265,7 @@ export default function Dashboard() {
           charts:             chartsRes.data,
         },
       });
+      setLastUpdated(new Date());
     } catch (err) {
       const msg = err.response?.data?.error || 'Failed to load dashboard';
       dispatch({ type: 'FETCH_ERR', error: msg });
@@ -271,7 +273,32 @@ export default function Dashboard() {
     }
   }, [showToast]);
 
+  // Initial load
   useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  // ── Real-time polling: refresh every 30 seconds automatically ──
+  useEffect(() => {
+    const id = setInterval(() => {
+      // Silent background refresh — don't show loading spinner
+      Promise.all([dashboardAPI.getStats(), dashboardAPI.getCharts()])
+        .then(([statsRes, chartsRes]) => {
+          dispatch({
+            type: 'FETCH_OK',
+            payload: {
+              stats:              statsRes.data.stats,
+              recentActivity:     statsRes.data.recentActivity     || [],
+              warehouseBreakdown: statsRes.data.warehouseBreakdown || [],
+              recentRequests:     statsRes.data.recentRequests     || [],
+              charts:             chartsRes.data,
+            },
+          });
+          setLastUpdated(new Date());
+        })
+        .catch(() => { /* silent — don't disrupt UX on background poll failure */ });
+    }, 30_000); // every 30 s
+
+    return () => clearInterval(id);
+  }, []); // run once, no deps needed — uses stable API functions
 
   /* ── Quick-action: create PO for low stock item ── */
   const handleReorder = async (item) => {
@@ -354,14 +381,40 @@ export default function Dashboard() {
           <h1 style={{ margin: 0, fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'var(--font-sans)' }}>
             Dashboard
           </h1>
-          <p style={{ margin: '4px 0 0', fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
-            Real-time inventory and operations overview
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+            <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
+              Real-time inventory and operations overview
+            </p>
+            {/* Live indicator dot */}
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{
+                width: 7, height: 7, borderRadius: '50%',
+                background: '#10B981',
+                boxShadow: '0 0 0 2px rgba(16,185,129,0.25)',
+                animation: 'livePulse 2s ease-in-out infinite',
+                display: 'inline-block',
+              }} />
+              <span style={{ fontSize: 11, color: '#10B981', fontWeight: 600, fontFamily: 'var(--font-sans)' }}>
+                Live
+              </span>
+            </span>
+            {lastUpdated && (
+              <span style={{ fontSize: 11, color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
+                · Updated {lastUpdated.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+            )}
+          </div>
         </div>
-        <Button variant="secondary" size="sm" leftIcon={<RefreshIcon style={{ fontSize: 16 }} />} onClick={fetchAll} loading={loading}>
+        <Button variant="secondary" size="sm" leftIcon={<RefreshIcon style={{ fontSize: 16 }} />} onClick={() => { fetchAll(); setLastUpdated(new Date()); }} loading={loading}>
           Refresh
         </Button>
       </div>
+      <style>{`
+        @keyframes livePulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50%       { opacity: 0.5; transform: scale(1.3); }
+        }
+      `}</style>
 
       {/* ── KPI Cards ── */}
       <div style={{
