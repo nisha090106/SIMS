@@ -2,23 +2,29 @@ import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useSelector } from 'react-redux';
 import {
   Package, ArrowUpDown, Truck, ShoppingCart,
-  BarChart3, RefreshCw,
+  BarChart3, RefreshCw, FileText, History,
 } from 'lucide-react';
 import reportAPI from '../services/reportAPI';
 import '../styles/Reports.css';
 
 // Lazy-load tab panels so each tab's bundle is only fetched on demand
-const InventoryTab     = lazy(() => import('./Reports/tabs/InventoryTab'));
-const StockMovementTab = lazy(() => import('./Reports/tabs/StockMovementTab'));
-const SupplierTab      = lazy(() => import('./Reports/tabs/SupplierTab'));
-const SalesTab         = lazy(() => import('./Reports/tabs/SalesTab'));
+const InventoryTab          = lazy(() => import('./Reports/tabs/InventoryTab'));
+const StockMovementTab      = lazy(() => import('./Reports/tabs/StockMovementTab'));
+const SupplierTab           = lazy(() => import('./Reports/tabs/SupplierTab'));
+const SalesTab              = lazy(() => import('./Reports/tabs/SalesTab'));
+const PurchaseOrderTab      = lazy(() => import('./Reports/tabs/PurchaseOrderTab'));
+const RequestFulfillmentTab = lazy(() => import('./Reports/tabs/RequestFulfillmentTab'));
+const AuditLogTab           = lazy(() => import('./Reports/tabs/AuditLogTab'));
 
 /* ── Tab registry ──────────────────────────────────────────── */
 const TABS = [
-  { id: 'inventory',       label: 'Inventory',           icon: <Package size={15} />,     component: InventoryTab },
-  { id: 'stock-movement',  label: 'Stock Movement',      icon: <ArrowUpDown size={15} />, component: StockMovementTab },
-  { id: 'supplier',        label: 'Supplier Performance',icon: <Truck size={15} />,       component: SupplierTab },
-  { id: 'sales',           label: 'Sales',               icon: <ShoppingCart size={15} />, component: SalesTab },
+  { id: 'inventory',          label: 'Inventory',           icon: <Package size={15} />,     component: InventoryTab },
+  { id: 'stock-movement',     label: 'Stock Movement',      icon: <ArrowUpDown size={15} />, component: StockMovementTab },
+  { id: 'supplier',           label: 'Supplier Performance',icon: <Truck size={15} />,       component: SupplierTab },
+  { id: 'sales',              label: 'Sales',               icon: <ShoppingCart size={15} />, component: SalesTab },
+  { id: 'purchase-orders',    label: 'Purchase Orders',     icon: <ShoppingCart size={15} />, component: PurchaseOrderTab },
+  { id: 'request-fulfillment',label: 'Request Fulfillment', icon: <FileText size={15} />,     component: RequestFulfillmentTab },
+  { id: 'audit-log',          label: 'Audit Log',           icon: <History size={15} />,      component: AuditLogTab, adminOnly: true },
 ];
 
 /* ── Overview KPI strip at the top ────────────────────────── */
@@ -39,9 +45,9 @@ function OverviewStrip() {
 
   const items = [
     { label: 'Total Products',   value: stats?.totalProducts?.toLocaleString() },
-    { label: 'Total Stock Value',value: stats?.totalStockValue != null ? `$${Number(stats.totalStockValue).toLocaleString()}` : null },
+    { label: 'Total Stock Value',value: stats?.totalStockValue != null ? `₹${Number(stats.totalStockValue).toLocaleString('en-IN')}` : null },
     { label: 'Low Stock Items',  value: stats?.lowStockCount?.toLocaleString(),  warn: stats?.lowStockCount > 0 },
-    { label: 'Pending Orders',   value: stats?.pendingOrdersCount?.toLocaleString() },
+    { label: 'Pending Orders',   value: stats?.draftSubmittedOrdersCount?.toLocaleString() },
   ];
 
   return (
@@ -92,7 +98,8 @@ export default function Reports() {
   const { user } = useSelector(s => s.auth);
   const [activeTab, setActiveTab] = useState('inventory');
 
-  const ActiveComponent = TABS.find(t => t.id === activeTab)?.component;
+  const visibleTabs = TABS.filter(tab => !tab.adminOnly || user?.role === 'admin');
+  const ActiveComponent = visibleTabs.find(t => t.id === activeTab)?.component;
 
   return (
     <div className="reports-page">
@@ -112,7 +119,7 @@ export default function Reports() {
 
       {/* Tab bar */}
       <div className="reports-tabs">
-        {TABS.map(tab => (
+        {visibleTabs.map(tab => (
           <button
             key={tab.id}
             className={`reports-tab ${activeTab === tab.id ? 'active' : ''}`}

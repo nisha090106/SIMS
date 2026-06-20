@@ -70,11 +70,9 @@ export default function InventoryTab() {
   const f = (v) => `₹${Number(v || 0).toFixed(2)}`;
 
   // Category pie data
-  const catData = data
-    ? Object.entries(data.categoryBreakdown?.reduce((a, c) => { a[c.category] = c.value; return a; }, {}) || {})
-        .map(([name, value]) => ({ name, value: Math.round(Number(value)) }))
-        .sort((a, b) => b.value - a.value)
-    : [];
+  const catData = (data?.categoryBreakdown || [])
+    .map(c => ({ name: c.category, value: Math.round(c.value || 0) }))
+    .sort((a, b) => b.value - a.value);
 
   const barData = data?.categoryBreakdown?.slice(0, 8) || [];
 

@@ -63,6 +63,7 @@ const Notification = NotificationModel(sequelize);
 // Define Associations
 // User associations
 User.hasMany(Warehouse, { foreignKey: 'manager_id', as: 'warehouses' });
+User.belongsTo(Warehouse, { foreignKey: 'warehouse_id', as: 'staff_warehouse' });
 User.hasMany(PurchaseOrder, { foreignKey: 'created_by', as: 'purchase_orders' });
 User.hasMany(SalesOrder, { foreignKey: 'created_by', as: 'sales_orders' });
 User.hasMany(AuditLog, { foreignKey: 'user_id', as: 'audit_logs' });

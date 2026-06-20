@@ -26,6 +26,11 @@ async function warehouseScope(req, warehouseIdParam) {
     return ids.length ? { [Op.in]: ids } : { [Op.in]: [-1] }; // no match if no warehouses
   }
 
+  if (role === 'staff') {
+    const user = await User.findByPk(userId, { attributes: ['warehouse_id'] });
+    return user?.warehouse_id ? user.warehouse_id : { [Op.in]: [-1] };
+  }
+
   if (role === 'admin' && warehouseIdParam) {
     return parseInt(warehouseIdParam);
   }
@@ -50,7 +55,7 @@ class ReportController {
     const whScope = await warehouseScope(req, req.query.warehouseId);
     const invWhere = whScope ? { warehouse_id: whScope } : {};
 
-    const [totalProducts, stockValueRows, lowStockRows, pendingOrdersCount,
+    const [totalProducts, stockValueRows, lowStockRows, draftSubmittedOrdersCount,
       warehouseStock, categoryDist, recentLogs] = await Promise.all([
       Product.count(),
       sequelize.query(
@@ -65,7 +70,7 @@ class ReportController {
          WHERE i.quantity <= p.reorder_level`,
         { type: sequelize.QueryTypes.SELECT },
       ),
-      PurchaseOrder.count({ where: { status: 'pending' } }),
+      PurchaseOrder.count({ where: { status: { [Op.in]: ['draft', 'submitted'] } } }),
       sequelize.query(
         `SELECT w.name AS warehouse, COALESCE(SUM(i.quantity), 0) AS totalStock
          FROM warehouses w LEFT JOIN inventory i ON w.warehouse_id = i.warehouse_id
@@ -89,7 +94,7 @@ class ReportController {
         totalProducts,
         totalStockValue: Number(stockValueRows[0]?.total_value || 0),
         lowStockCount:   Number(lowStockRows[0]?.cnt || 0),
-        pendingOrdersCount,
+        draftSubmittedOrdersCount,
         warehouseStockData:   warehouseStock.map(r => ({ warehouse: r.warehouse, totalStock: Number(r.totalStock || 0) })),
         categoryDistribution: categoryDist.map(r => ({ category: r.category, count: Number(r.cnt || 0) })),
         recentActivity:       recentLogs.map(l => ({
@@ -115,27 +120,28 @@ class ReportController {
     // Build product include filters
     const productWhere = {};
     if (category) productWhere.category = category;
-    if (search)   productWhere.name = { [Op.iLike]: `%${search}%` };
+    if (search)   productWhere.name = { [Op.like]: `%${search}%` };
 
-    // status filter: 'low_stock' → quantity <= reorder_level, 'out_of_stock' → quantity = 0
-    const havingClauses = [];
-    if (status === 'low_stock')     invWhere[Op.and] = literal('inventory.quantity <= (SELECT reorder_level FROM products p WHERE p.product_id = inventory.product_id)');
     if (status === 'out_of_stock')  invWhere.quantity = 0;
 
-    const { count, rows } = await Inventory.findAndCountAll({
+    let allRows = await Inventory.findAll({
       where: invWhere,
       include: [
         { model: Product,   as: 'product',   where: productWhere, attributes: ['product_id', 'sku', 'name', 'category', 'unit_price', 'cost_price', 'reorder_level', 'reorder_qty'] },
         { model: Warehouse, as: 'warehouse', attributes: ['warehouse_id', 'name', 'location'] },
       ],
       order: [['product', 'name', 'ASC']],
-      limit,
-      offset,
-      distinct: true,
     });
 
+    if (status === 'low_stock') {
+      allRows = allRows.filter(inv => inv.quantity <= inv.product.reorder_level);
+    }
+
+    const count = allRows.length;
+    const paginatedRows = allRows.slice(offset, offset + limit);
+
     // Compute per-item valuation
-    const items = rows.map(inv => {
+    const items = paginatedRows.map(inv => {
       const qty       = inv.quantity || 0;
       const unitCost  = Number(inv.product.unit_price || 0);
       const costPrice = Number(inv.product.cost_price  || unitCost);
@@ -168,21 +174,12 @@ class ReportController {
       };
     });
 
-    // Aggregate totals across all matching records (not just current page)
-    const allRows = await Inventory.findAll({
-      where: invWhere,
-      include: [
-        { model: Product, as: 'product', where: productWhere, attributes: ['unit_price', 'cost_price', 'category', 'sku'] },
-      ],
-      attributes: ['quantity', 'reserved_qty'],
-    });
-
+    // Aggregate totals across all matching records
     const totalUnits  = allRows.reduce((s, r) => s + (r.quantity || 0), 0);
     const totalValue  = allRows.reduce((s, r) => s + (r.quantity || 0) * Number(r.product.unit_price || 0), 0);
     const totalCost   = allRows.reduce((s, r) => s + (r.quantity || 0) * Number(r.product.cost_price || r.product.unit_price || 0), 0);
     const uniqueSkus  = new Set(allRows.map(r => r.product.sku)).size;
 
-    // Category breakdown
     const catMap = {};
     allRows.forEach(r => {
       const cat = r.product.category || 'Uncategorized';
@@ -510,7 +507,7 @@ class ReportController {
     const where = {};
     if (whScope) where.warehouse_id = whScope;
     if (status)  where.status = status;
-    if (search)  where.customer_name = { [Op.iLike]: `%${search}%` };
+    if (search)  where.customer_name = { [Op.like]: `%${search}%` };
 
     if (from && to) where.order_date = { [Op.between]: [new Date(from), new Date(to + 'T23:59:59')] };
     else if (from)  where.order_date = { [Op.gte]: new Date(from) };
@@ -905,6 +902,45 @@ class ReportController {
         FulfillmentRate: s.TotalOrders > 0 ? ((s.CompletedOrders / s.TotalOrders) * 100).toFixed(1) + '%' : '0.0%',
       }));
       filename = `supplier-performance-${new Date().toISOString().split('T')[0]}.csv`;
+      break;
+    }
+
+    case 'stock-movement': {
+      const smWhere = {};
+      if (dateRange) smWhere.timestamp = dateRange;
+      
+      const { action } = req.query;
+      if (action) {
+        smWhere.action = action;
+      } else {
+        smWhere.action = {
+          [Op.in]: ['create', 'update', 'BARCODE_SCAN', 'RECEIVE_PURCHASE_ORDER', 'REQUEST_FULFILLED'],
+        };
+      }
+
+      if (req.user.role !== 'admin') {
+        smWhere.user_id = req.user.id;
+      }
+
+      const logs = await AuditLog.findAll({
+        where: smWhere,
+        include: [{ model: User, as: 'user', attributes: ['first_name', 'last_name', 'full_name', 'role'] }],
+        order: [['timestamp', 'DESC']],
+        limit: 10000,
+      });
+      reportData = logs.map(l => {
+        const changes = l.changes || {};
+        return {
+          Timestamp:      l.timestamp,
+          User:           l.user?.full_name || 'System',
+          Action:         l.action,
+          Entity:         l.table_name,
+          QuantityChange: changes.quantity_change ?? changes.quantity ?? '',
+          Reference:      changes.reference_id || changes.po_number || changes.request_number || '',
+          IPAddress:      l.ip_address || '',
+        };
+      });
+      filename = `stock-movement-${new Date().toISOString().split('T')[0]}.csv`;
       break;
     }
 

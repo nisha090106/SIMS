@@ -38,6 +38,10 @@ export default (sequelize) => {
         type: DataTypes.ENUM('admin', 'manager', 'staff', 'user'),
         defaultValue: 'staff',
       },
+      warehouse_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       status: {
         type: DataTypes.ENUM('active', 'inactive'),
         defaultValue: 'active',

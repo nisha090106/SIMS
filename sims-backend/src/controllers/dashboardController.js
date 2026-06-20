@@ -21,7 +21,13 @@ import logger from '../config/logger.js';
 ──────────────────────────────────────────────────────────────────── */
 async function getManagedWarehouseIds(userId, role) {
   if (role === 'admin') return null; // null = no filter = all
-  // Both manager and staff: warehouses where manager_id = their user id
+
+  if (role === 'staff') {
+    const user = await User.findByPk(userId, { attributes: ['warehouse_id'] });
+    return user?.warehouse_id ? [user.warehouse_id] : [-1];
+  }
+
+  // Manager: warehouses where manager_id = their user id
   const warehouses = await Warehouse.findAll({
     where: { manager_id: userId },
     attributes: ['warehouse_id'],

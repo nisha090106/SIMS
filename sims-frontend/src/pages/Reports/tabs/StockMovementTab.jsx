@@ -52,7 +52,7 @@ export default function StockMovementTab() {
     try {
       const params = { ...filters };
       Object.keys(params).forEach(k => { if (!params[k]) delete params[k]; });
-      const res = await reportAPI.exportReport('audit-log', { ...params, format: 'csv' });
+      const res = await reportAPI.exportReport('stock-movement', { ...params, format: 'csv' });
       downloadBlob(res.data, `stock-movement-${new Date().toISOString().split('T')[0]}.csv`);
     } catch (e) { console.error('Export error', e); }
   };
