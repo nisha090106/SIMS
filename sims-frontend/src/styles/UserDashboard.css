@@ -8,7 +8,7 @@
 
 /* 1. Welcome Banner */
 .welcome-banner {
-  background: linear-gradient(135deg, #4f46e5 0%, #3b0764 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e293b 100%);
   border-radius: var(--radius-lg);
   padding: 2.5rem;
   color: #ffffff;
@@ -17,7 +17,7 @@
   align-items: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 10px 25px -5px rgba(30, 64, 175, 0.15);
 }
 
 .welcome-banner::before {
@@ -47,14 +47,14 @@
 
 .welcome-subtitle {
   font-size: 1.05rem;
-  color: #e2e8f0;
+  color: #000000;
   margin: 0 0 1.75rem 0;
   line-height: 1.6;
 }
 
 .new-request-cta {
   background-color: #ffffff;
-  color: var(--primary-light);
+  color: #000000;
   border: none;
   font-weight: 700;
   font-size: 0.95rem;
@@ -113,18 +113,18 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: #92400e;
+  color: #000000;
   font-size: 0.925rem;
   line-height: 1.5;
 }
 
 .ann-icon {
   font-size: 20px !important;
-  color: #d97706;
+  color: #000000;
 }
 
 .ann-text a {
-  color: var(--primary-light);
+  color: #000000;
   text-decoration: none;
   font-weight: 600;
 }
@@ -136,7 +136,7 @@
 .ann-close-btn {
   background: none;
   border: none;
-  color: #b45309;
+  color: #000000;
   cursor: pointer;
   padding: 0.25rem;
   display: flex;
@@ -206,7 +206,7 @@
 
 .stat-label {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #000000;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -216,26 +216,26 @@
 /* Stat color variants */
 .stat-card.pending .stat-icon-wrapper {
   background-color: #fffbeb;
-  color: #d97706;
+  color: #000000;
 }
 .stat-card.pending .stat-count {
-  color: #b45309;
+  color: #000000;
 }
 
 .stat-card.approved .stat-icon-wrapper {
   background-color: #f0fdf4;
-  color: #16a34a;
+  color: #000000;
 }
 .stat-card.approved .stat-count {
-  color: #15803d;
+  color: #000000;
 }
 
 .stat-card.fulfilled .stat-icon-wrapper {
   background-color: #eff6ff;
-  color: #2563eb;
+  color: #000000;
 }
 .stat-card.fulfilled .stat-count {
-  color: #1d4ed8;
+  color: #000000;
 }
 
 /* Dashboard Panel Component */
@@ -268,7 +268,7 @@
 .panel-header h2 {
   font-size: 1.05rem;
   font-weight: 750;
-  color: var(--text-main);
+  color: #000000;
   margin: 0;
   letter-spacing: -0.015em;
 }
@@ -276,7 +276,7 @@
 .panel-header-link {
   background: none;
   border: none;
-  color: var(--primary-light);
+  color: #000000;
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
@@ -284,14 +284,14 @@
 }
 
 .panel-header-link:hover {
-  color: var(--primary-hover);
+  color: #000000;
   text-decoration: underline;
 }
 
 .results-count-badge {
   font-size: 0.8rem;
   background-color: #f1f5f9;
-  color: #64748b;
+  color: #000000;
   padding: 0.2rem 0.6rem;
   border-radius: 6px;
   font-weight: 600;
@@ -308,7 +308,7 @@
 /* Category Quick Browse cards list */
 .side-panel-intro {
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: #000000;
   margin: 0 0 1rem 0;
 }
 
@@ -337,7 +337,7 @@
 
 .cat-icon-container {
   background-color: #f1f5f9;
-  color: #475569;
+  color: #000000;
   width: 38px;
   height: 38px;
   border-radius: 8px;
@@ -358,12 +358,12 @@
 .cat-name {
   font-size: 0.9rem;
   font-weight: 700;
-  color: var(--text-main);
+  color: #000000;
 }
 
 .cat-count {
   font-size: 0.775rem;
-  color: var(--text-muted);
+  color: #000000;
   font-weight: 500;
 }
 
@@ -387,7 +387,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-muted);
+  color: #000000;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -395,7 +395,7 @@
   padding: 1rem 1.25rem;
   font-size: 0.875rem;
   border-bottom: 1px solid var(--border-color);
-  color: var(--text-main);
+  color: #000000;
   vertical-align: middle;
 }
 
@@ -420,12 +420,12 @@
 
 .product-cell-name {
   font-weight: 700;
-  color: var(--text-main);
+  color: #000000;
 }
 
 .product-cell-desc {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: #000000;
   max-width: 250px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -434,7 +434,7 @@
 
 .category-inline-tag {
   background-color: #f1f5f9;
-  color: #475569;
+  color: #000000;
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -467,7 +467,7 @@
 
 .table-action-btn.outline {
   background-color: transparent;
-  color: var(--primary-light);
+  color: #000000;
   border: 1px solid var(--primary-light);
 }
 
@@ -477,7 +477,7 @@
 
 .table-action-btn.cancel-btn {
   background-color: #fef2f2;
-  color: #ef4444;
+  color: #000000;
   border: 1px solid #fee2e2;
 }
 
@@ -510,27 +510,27 @@
 
 .status-badge.pending {
   background-color: #fffbeb;
-  color: #b45309;
+  color: #000000;
 }
 
 .status-badge.approved {
   background-color: #f0fdf4;
-  color: #15803d;
+  color: #000000;
 }
 
 .status-badge.fulfilled {
   background-color: #eff6ff;
-  color: #1d4ed8;
+  color: #000000;
 }
 
 .status-badge.rejected {
   background-color: #fef2f2;
-  color: #b91c1c;
+  color: #000000;
 }
 
 .status-badge.cancelled {
   background-color: #f1f5f9;
-  color: #64748b;
+  color: #000000;
 }
 
 /* Availability Status Badges */
@@ -541,17 +541,17 @@
 
 .status-badge.availability.in_stock {
   background-color: #dcfce7;
-  color: #166534;
+  color: #000000;
 }
 
 .status-badge.availability.low_stock {
   background-color: #fef9c3;
-  color: #854d0e;
+  color: #000000;
 }
 
 .status-badge.availability.out_of_stock {
   background-color: #fee2e2;
-  color: #991b1b;
+  color: #000000;
 }
 
 /* Empty States */
@@ -565,7 +565,7 @@
 }
 
 .empty-text {
-  color: var(--text-muted);
+  color: #000000;
   font-size: 0.95rem;
   font-weight: 600;
   margin: 0 0 1.25rem 0;
@@ -612,7 +612,7 @@
   top: 50%;
   left: 1rem;
   transform: translateY(-50%);
-  color: var(--text-muted);
+  color: #000000;
   font-size: 20px !important;
 }
 
@@ -639,7 +639,7 @@
   font-size: 0.9rem;
   outline: none;
   background-color: #ffffff;
-  color: var(--text-main);
+  color: #000000;
   font-weight: 600;
   cursor: pointer;
 }
@@ -654,7 +654,7 @@
   justify-content: center;
   gap: 0.35rem;
   background-color: var(--primary-light-bg);
-  color: var(--primary-light);
+  color: #000000;
   border: none;
   padding: 0.4rem 0.75rem;
   border-radius: 6px;
@@ -671,7 +671,7 @@
 
 .add-to-cart-btn:disabled {
   background-color: #f1f5f9;
-  color: #cbd5e1;
+  color: #000000;
   cursor: not-allowed;
 }
 
@@ -706,14 +706,14 @@
 }
 
 .cart-header-icon {
-  color: var(--primary-light);
+  color: #000000;
   font-size: 20px !important;
 }
 
 .cart-item-count-indicator {
   font-size: 0.75rem;
   background-color: var(--primary-light-bg);
-  color: var(--primary-light);
+  color: #000000;
   padding: 0.15rem 0.45rem;
   border-radius: 4px;
   font-weight: 700;
@@ -732,18 +732,18 @@
   justify-content: center;
   padding: 3rem 1rem;
   text-align: center;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .empty-cart-icon {
   font-size: 44px !important;
-  color: #cbd5e1;
+  color: #000000;
   margin-bottom: 0.75rem;
 }
 
 .empty-cart-state p {
   font-weight: 700;
-  color: var(--text-main);
+  color: #000000;
   margin: 0 0 0.25rem 0;
   font-size: 0.9rem;
 }
@@ -780,7 +780,7 @@
 .cart-item-name {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--text-main);
+  color: #000000;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -788,7 +788,7 @@
 
 .cart-item-sku {
   font-size: 0.7rem;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .cart-item-actions {
@@ -808,7 +808,7 @@
 .qty-adj-btn {
   background: none;
   border: none;
-  color: #475569;
+  color: #000000;
   width: 22px;
   height: 22px;
   display: flex;
@@ -831,13 +831,13 @@
   font-weight: 700;
   width: 24px;
   text-align: center;
-  color: var(--text-main);
+  color: #000000;
 }
 
 .cart-delete-item-btn {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: #000000;
   cursor: pointer;
   padding: 0.25rem;
   display: flex;
@@ -846,7 +846,7 @@
 }
 
 .cart-delete-item-btn:hover {
-  color: #ef4444;
+  color: #000000;
   background-color: #fee2e2;
 }
 
@@ -873,7 +873,7 @@
 .form-group-item label {
   font-size: 0.775rem;
   font-weight: 700;
-  color: #475569;
+  color: #000000;
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -881,7 +881,7 @@
 
 .form-label-icon {
   font-size: 14px !important;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .form-group-item input,
@@ -979,13 +979,13 @@
   font-family: monospace;
   font-size: 1.2rem;
   font-weight: 800;
-  color: var(--primary-light);
+  color: #000000;
 }
 
 .modal-close-btn {
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: #000000;
   cursor: pointer;
   padding: 0.25rem;
   display: flex;
@@ -995,7 +995,7 @@
 
 .modal-close-btn:hover {
   background-color: #f1f5f9;
-  color: var(--text-main);
+  color: #000000;
 }
 
 .modal-body-section {
@@ -1029,7 +1029,7 @@
 .info-lbl {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -1037,7 +1037,7 @@
 .info-val {
   font-size: 0.9rem;
   font-weight: 650;
-  color: var(--text-main);
+  color: #000000;
 }
 
 .info-val.purpose-block {
@@ -1076,18 +1076,18 @@
   font-size: 0.95rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
-  color: #1e293b;
+  color: #000000;
 }
 
 .review-meta-row {
   font-size: 0.8rem;
-  color: #475569;
+  color: #000000;
   margin-bottom: 0.5rem;
 }
 
 .review-notes-container {
   font-size: 0.825rem;
-  color: #334155;
+  color: #000000;
   background-color: rgba(255, 255, 255, 0.7);
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
@@ -1109,7 +1109,7 @@
 .modal-items-section .section-title {
   font-size: 0.95rem;
   font-weight: 750;
-  color: var(--text-main);
+  color: #000000;
   margin: 0;
 }
 
@@ -1124,7 +1124,7 @@
   font-size: 0.725rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: #000000;
   border-bottom: 1px solid var(--border-color);
   text-align: left;
 }
@@ -1133,7 +1133,7 @@
   padding: 0.75rem 1rem;
   font-size: 0.8rem;
   border-bottom: 1px solid var(--border-color);
-  color: var(--text-main);
+  color: #000000;
 }
 
 .modal-styled-table tr:last-child td {
@@ -1146,7 +1146,7 @@
 }
 
 .text-success {
-  color: #16a34a !important;
+  color: #000000 !important;
 }
 
 /* Modal footer */
@@ -1171,7 +1171,7 @@
 
 .modal-action-btn.close-btn {
   background-color: var(--border-color);
-  color: #334155;
+  color: #000000;
 }
 
 .modal-action-btn.close-btn:hover {
@@ -1208,10 +1208,10 @@
   margin: 0 !important;
 }
 .color-muted {
-  color: var(--text-muted);
+  color: #000000;
 }
 .color-indigo {
-  color: var(--primary-light);
+  color: #000000;
 }
 
 /* Loading animations */
@@ -1220,7 +1220,7 @@
   justify-content: center;
   align-items: center;
   padding: 2rem;
-  color: var(--text-muted);
+  color: #000000;
   font-weight: 600;
 }
 

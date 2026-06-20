@@ -41,9 +41,15 @@ const Register = () => {
     try {
       console.log('📝 Registering user:', values.email, 'with role:', values.role);
 
+      // Split full_name into first_name and last_name for backend compatibility
+      const nameParts = (values.full_name || '').trim().split(/\s+/);
+      const first_name = nameParts[0] || '';
+      const last_name = nameParts.slice(1).join(' ') || '';
+
       // Step 1: Call POST /api/auth/register
       const registerRes = await authAPI.register({
-        full_name: values.full_name,
+        first_name,
+        last_name,
         email: values.email,
         password: values.password,
         role: values.role,

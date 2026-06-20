@@ -113,7 +113,7 @@ const ReportViewer = ({
       {/* Main Content Area */}
       <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
         {/* Header with Title and Export */}
-        <Box sx={{ p: 3, bgcolor: '#f5f5f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box sx={{ p: 3, bgcolor: '#000000', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h5" sx={{ fontWeight: 'bold' }}>{title}</Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button
@@ -171,7 +171,7 @@ const ReportViewer = ({
               <TableContainer component={Paper}>
                 <Table>
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: '#000000' }}>
                       {columns.map(col => (
                         <TableCell key={col.field} align={col.align || 'left'}>
                           {col.label}

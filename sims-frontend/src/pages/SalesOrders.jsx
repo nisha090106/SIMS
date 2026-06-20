@@ -51,15 +51,15 @@ function parseItems(raw) {
 // ── Status config ────────────────────────────────────────────────────────────
 
 const STATUS = {
-  draft:      { label: 'Draft',      color: '#1E40AF', bg: '#DBEAFE' },
-  pending:    { label: 'Pending',    color: '#92400E', bg: '#FEF3C7' },
-  dispatched: { label: 'Dispatched', color: '#92400E', bg: '#FEF3C7' },
-  delivered:  { label: 'Delivered',  color: '#065F46', bg: '#D1FAE5' },
-  cancelled:  { label: 'Cancelled',  color: '#991B1B', bg: '#FEE2E2' },
+  draft:      { label: 'Draft',      color: '#000000', bg: '#DBEAFE' },
+  pending:    { label: 'Pending',    color: '#000000', bg: '#FEF3C7' },
+  dispatched: { label: 'Dispatched', color: '#000000', bg: '#FEF3C7' },
+  delivered:  { label: 'Delivered',  color: '#000000', bg: '#D1FAE5' },
+  cancelled:  { label: 'Cancelled',  color: '#000000', bg: '#FEE2E2' },
 };
 
 function StatusChip({ status }) {
-  const cfg = STATUS[status] || { label: status, color: '#475569', bg: '#F1F5F9' };
+  const cfg = STATUS[status] || { label: status, color: '#000000', bg: '#F1F5F9' };
   return (
     <Chip
       label={cfg.label}
@@ -215,7 +215,7 @@ function CreateOrderModal({ open, onClose, onSuccess, warehouses, userRole, user
       PaperProps={{ sx: { borderRadius: 3, border: '1px solid #E2E8F0' } }}>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <CartIcon sx={{ color: '#3B82F6', fontSize: 22 }} />
+          <CartIcon sx={{ color: '#000000', fontSize: 22 }} />
           <Typography fontWeight={700} fontSize={16}>New Sales Order</Typography>
         </Box>
         <IconButton onClick={handleClose} size="small"><CloseIcon /></IconButton>
@@ -271,7 +271,7 @@ function CreateOrderModal({ open, onClose, onSuccess, warehouses, userRole, user
               onInputChange={(_, v) => setProdSearch(v)}
               renderInput={(params) => (
                 <TextField {...params} label="Search & add product" size="small" fullWidth
-                  InputProps={{ ...params.InputProps, startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 16, color: '#94A3B8' }} /></InputAdornment> }} />
+                  InputProps={{ ...params.InputProps, startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 16, color: '#000000' }} /></InputAdornment> }} />
               )}
               renderOption={(props, option) => (
                 <Box component="li" {...props} sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
@@ -297,9 +297,9 @@ function CreateOrderModal({ open, onClose, onSuccess, warehouses, userRole, user
               <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#F8FAFC' }}>
+                    <TableRow sx={{ bgcolor: '#000000' }}>
                       {['Product', 'Stock', 'Qty', 'Unit Price', 'Total', ''].map((h) => (
-                        <TableCell key={h} sx={{ fontWeight: 700, fontSize: 11, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', py: 1 }}>{h}</TableCell>
+                        <TableCell key={h} sx={{ fontWeight: 700, fontSize: 11, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.05em', py: 1 }}>{h}</TableCell>
                       ))}
                     </TableRow>
                   </TableHead>
@@ -340,7 +340,7 @@ function CreateOrderModal({ open, onClose, onSuccess, warehouses, userRole, user
                             {fmt(item.total_price)}
                           </TableCell>
                           <TableCell>
-                            <IconButton size="small" onClick={() => removeItem(idx)} sx={{ color: '#EF4444' }}>
+                            <IconButton size="small" onClick={() => removeItem(idx)} sx={{ color: '#000000' }}>
                               <CloseIcon fontSize="small" />
                             </IconButton>
                           </TableCell>
@@ -373,7 +373,7 @@ function CreateOrderModal({ open, onClose, onSuccess, warehouses, userRole, user
         {step === 2 && (
           <Stack spacing={2}>
             <Paper variant="outlined" sx={{ borderRadius: 2, p: 2 }}>
-              <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, color: '#64748B', textTransform: 'uppercase', fontSize: 11, letterSpacing: '0.05em' }}>Order Details</Typography>
+              <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, color: '#000000', textTransform: 'uppercase', fontSize: 11, letterSpacing: '0.05em' }}>Order Details</Typography>
               <Stack spacing={1}>
                 {[
                   ['Customer', customerName],
@@ -390,8 +390,8 @@ function CreateOrderModal({ open, onClose, onSuccess, warehouses, userRole, user
             </Paper>
 
             <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
-              <Box sx={{ bgcolor: '#F8FAFC', px: 2, py: 1, borderBottom: '1px solid #E2E8F0' }}>
-                <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#64748B', textTransform: 'uppercase', fontSize: 11, letterSpacing: '0.05em' }}>
+              <Box sx={{ bgcolor: '#000000', px: 2, py: 1, borderBottom: '1px solid #E2E8F0' }}>
+                <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#000000', textTransform: 'uppercase', fontSize: 11, letterSpacing: '0.05em' }}>
                   Items ({items.length})
                 </Typography>
               </Box>
@@ -404,7 +404,7 @@ function CreateOrderModal({ open, onClose, onSuccess, warehouses, userRole, user
                   <Typography variant="body2" fontWeight={700}>{fmt(item.total_price)}</Typography>
                 </Box>
               ))}
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, py: 1.5, borderTop: '2px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2, py: 1.5, borderTop: '2px solid #E2E8F0', bgcolor: '#000000' }}>
                 <Typography fontWeight={800} fontSize={15}>Total: {fmt(total)}</Typography>
               </Box>
             </Paper>
@@ -452,7 +452,7 @@ function FulfillDialog({ order, open, onClose, onConfirm, loading }) {
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
       PaperProps={{ sx: { borderRadius: 3, border: '1px solid #E2E8F0' } }}>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <ShipIcon sx={{ color: '#10B981' }} />
+        <ShipIcon sx={{ color: '#000000' }} />
         <Typography fontWeight={700}>Fulfill Order</Typography>
       </DialogTitle>
       <DialogContent>
@@ -466,9 +466,9 @@ function FulfillDialog({ order, open, onClose, onConfirm, loading }) {
         <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ bgcolor: '#F8FAFC' }}>
+              <TableRow sx={{ bgcolor: '#000000' }}>
                 {['Product', 'Qty to Deduct', 'Unit Price', 'Total'].map((h) => (
-                  <TableCell key={h} sx={{ fontWeight: 700, fontSize: 11, color: '#64748B', textTransform: 'uppercase', py: 0.75 }}>{h}</TableCell>
+                  <TableCell key={h} sx={{ fontWeight: 700, fontSize: 11, color: '#000000', textTransform: 'uppercase', py: 0.75 }}>{h}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
@@ -480,7 +480,7 @@ function FulfillDialog({ order, open, onClose, onConfirm, loading }) {
                     <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace' }}>{item.sku}</Typography>
                   </TableCell>
                   <TableCell>
-                    <Chip label={`−${item.quantity}`} size="small" sx={{ bgcolor: '#FEE2E2', color: '#991B1B', fontWeight: 700, fontSize: 12 }} />
+                    <Chip label={`−${item.quantity}`} size="small" sx={{ bgcolor: '#000000', color: '#000000', fontWeight: 700, fontSize: 12 }} />
                   </TableCell>
                   <TableCell><Typography variant="body2">{fmt(item.unit_price)}</Typography></TableCell>
                   <TableCell><Typography variant="body2" fontWeight={700}>{fmt(item.total_price ?? item.quantity * item.unit_price)}</Typography></TableCell>
@@ -515,7 +515,7 @@ function CancelDialog({ order, open, onClose, onConfirm, loading }) {
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth
       PaperProps={{ sx: { borderRadius: 3, border: '1px solid #E2E8F0' } }}>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <WarnIcon sx={{ color: '#EF4444' }} />
+        <WarnIcon sx={{ color: '#000000' }} />
         <Typography fontWeight={700}>Cancel Order</Typography>
       </DialogTitle>
       <DialogContent>
@@ -563,7 +563,7 @@ function OrderDrawer({ order, open, onClose, onFulfill, onCancel, onDeliver, use
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, py: 2, borderBottom: '1px solid #E2E8F0', bgcolor: '#FFFFFF', position: 'sticky', top: 0, zIndex: 1 }}>
         <Box>
-          <Typography fontWeight={700} fontSize={15} sx={{ fontFamily: 'monospace', color: '#3B82F6' }}>{order.order_number}</Typography>
+          <Typography fontWeight={700} fontSize={15} sx={{ fontFamily: 'monospace', color: '#000000' }}>{order.order_number}</Typography>
           <Typography variant="caption" color="text.secondary">{order.customer_name}</Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -576,7 +576,7 @@ function OrderDrawer({ order, open, onClose, onFulfill, onCancel, onDeliver, use
         {/* Status timeline */}
         {order.status !== 'cancelled' && (
           <Box sx={{ px: 3, py: 2, borderBottom: '1px solid #F1F5F9' }}>
-            <Typography variant="caption" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748B', display: 'block', mb: 1.5 }}>
+            <Typography variant="caption" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', color: '#000000', display: 'block', mb: 1.5 }}>
               Status Timeline
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0 }}>
@@ -607,7 +607,7 @@ function OrderDrawer({ order, open, onClose, onFulfill, onCancel, onDeliver, use
 
         {/* Order info */}
         <Box sx={{ px: 3, py: 2, borderBottom: '1px solid #F1F5F9' }}>
-          <Typography variant="caption" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748B', display: 'block', mb: 1.5 }}>
+          <Typography variant="caption" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', color: '#000000', display: 'block', mb: 1.5 }}>
             Order Information
           </Typography>
           <Stack spacing={1}>
@@ -630,7 +630,7 @@ function OrderDrawer({ order, open, onClose, onFulfill, onCancel, onDeliver, use
 
         {/* Line items */}
         <Box sx={{ px: 3, py: 2, borderBottom: '1px solid #F1F5F9' }}>
-          <Typography variant="caption" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748B', display: 'block', mb: 1.5 }}>
+          <Typography variant="caption" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', color: '#000000', display: 'block', mb: 1.5 }}>
             Items ({items.length})
           </Typography>
           <Stack spacing={0}>
@@ -817,7 +817,7 @@ export default function SalesOrders() {
   };
 
   // Table cells style
-  const tc = { fontSize: 13, color: '#1E293B', borderBottom: '1px solid #F1F5F9', py: 1.25 };
+  const tc = { fontSize: 13, color: '#000000', borderBottom: '1px solid #F1F5F9', py: 1.25 };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
@@ -825,7 +825,7 @@ export default function SalesOrders() {
       {/* ── Page header ── */}
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5 }}>
         <Box>
-          <Typography variant="h5" fontWeight={800} sx={{ color: '#1E293B', letterSpacing: '-0.3px' }}>
+          <Typography variant="h5" fontWeight={800} sx={{ color: '#000000', letterSpacing: '-0.3px' }}>
             Sales Orders
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
@@ -840,7 +840,7 @@ export default function SalesOrders() {
           {canCreate && (
             <Button variant="contained" size="small" startIcon={<AddIcon />}
               onClick={() => setCreateOpen(true)}
-              sx={{ borderRadius: 2, fontSize: 13, textTransform: 'none', bgcolor: '#3B82F6', '&:hover': { bgcolor: '#2563EB' } }}>
+              sx={{ borderRadius: 2, fontSize: 13, textTransform: 'none', bgcolor: '#000000', '&:hover': { bgcolor: '#000000' } }}>
               Create Order
             </Button>
           )}
@@ -865,7 +865,7 @@ export default function SalesOrders() {
                 fontSize: 13,
                 fontFamily: "'Inter', sans-serif",
                 transition: 'all 0.15s',
-                '&:hover': { color: '#1E293B' },
+                '&:hover': { color: '#000000' },
                 whiteSpace: 'nowrap',
               }}
             >
@@ -887,8 +887,8 @@ export default function SalesOrders() {
         <TextField
           placeholder="Search order # or customer…" size="small" value={search}
           onChange={(e) => setSearch(e.target.value)}
-          InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 16, color: '#94A3B8' }} /></InputAdornment> }}
-          sx={{ flex: '1 1 220px', '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#F8FAFC' } }} />
+          InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 16, color: '#000000' }} /></InputAdornment> }}
+          sx={{ flex: '1 1 220px', '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#000000' } }} />
 
         {isAdmin && (
           <TextField select size="small" label="Warehouse" value={whFilter}
@@ -911,7 +911,7 @@ export default function SalesOrders() {
 
         {hasFilters && (
           <Button variant="outlined" size="small" startIcon={<ResetIcon />} onClick={resetFilters}
-            sx={{ borderRadius: 2, fontSize: 12, textTransform: 'none', color: '#64748B', borderColor: '#E2E8F0' }}>
+            sx={{ borderRadius: 2, fontSize: 12, textTransform: 'none', color: '#000000', borderColor: '#E2E8F0' }}>
             Reset
           </Button>
         )}
@@ -925,14 +925,14 @@ export default function SalesOrders() {
             <TableHead>
               <TableRow>
                 {['Order #', 'Customer', 'Warehouse', 'Items', 'Total', 'Delivery', 'Status', 'Created By', 'Actions'].map((h) => (
-                  <TableCell key={h} sx={{ bgcolor: '#F8FAFC', fontWeight: 700, fontSize: 11, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', py: 1.25, borderBottom: '1px solid #E2E8F0', whiteSpace: 'nowrap' }}>{h}</TableCell>
+                  <TableCell key={h} sx={{ bgcolor: '#000000', fontWeight: 700, fontSize: 11, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.05em', py: 1.25, borderBottom: '1px solid #E2E8F0', whiteSpace: 'nowrap' }}>{h}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
               {!loading && orders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} sx={{ textAlign: 'center', py: 6, color: '#94A3B8', borderBottom: 'none' }}>
+                  <TableCell colSpan={9} sx={{ textAlign: 'center', py: 6, color: '#000000', borderBottom: 'none' }}>
                     <CartIcon sx={{ fontSize: 40, opacity: 0.2, display: 'block', mx: 'auto', mb: 1 }} />
                     <Typography variant="body2">No sales orders found</Typography>
                     {hasFilters && (
@@ -951,10 +951,10 @@ export default function SalesOrders() {
 
                   return (
                     <TableRow key={order.order_id}
-                      sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#F8FAFC' }, '&:last-child td': { borderBottom: 'none' } }}
+                      sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#000000' }, '&:last-child td': { borderBottom: 'none' } }}
                       onClick={() => setView(order)}>
                       <TableCell sx={tc}>
-                        <Typography sx={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#3B82F6' }}>
+                        <Typography sx={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#000000' }}>
                           {order.order_number}
                         </Typography>
                         <Typography variant="caption" color="text.disabled" sx={{ fontSize: 10 }}>
@@ -964,22 +964,22 @@ export default function SalesOrders() {
                       <TableCell sx={{ ...tc, fontWeight: 600, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {order.customer_name}
                       </TableCell>
-                      <TableCell sx={{ ...tc, color: '#64748B', fontSize: 12 }}>
+                      <TableCell sx={{ ...tc, color: '#000000', fontSize: 12 }}>
                         {order.warehouse?.name || '—'}
                       </TableCell>
                       <TableCell sx={tc}>
-                        <Chip label={items.length} size="small" sx={{ bgcolor: '#F1F5F9', color: '#475569', fontWeight: 700, fontSize: 11, height: 20, '& .MuiChip-label': { px: 0.75 } }} />
+                        <Chip label={items.length} size="small" sx={{ bgcolor: '#000000', color: '#000000', fontWeight: 700, fontSize: 11, height: 20, '& .MuiChip-label': { px: 0.75 } }} />
                       </TableCell>
                       <TableCell sx={{ ...tc, fontFamily: 'monospace', fontWeight: 700, fontSize: 13 }}>
                         {fmt(order.total_amount)}
                       </TableCell>
-                      <TableCell sx={{ ...tc, color: '#64748B', fontSize: 12 }}>
+                      <TableCell sx={{ ...tc, color: '#000000', fontSize: 12 }}>
                         {fmtDate(order.delivery_date)}
                       </TableCell>
                       <TableCell sx={tc}>
                         <StatusChip status={order.status} />
                       </TableCell>
-                      <TableCell sx={{ ...tc, color: '#64748B', fontSize: 12 }}>
+                      <TableCell sx={{ ...tc, color: '#000000', fontSize: 12 }}>
                         {order.created_by_user
                           ? `${order.created_by_user.first_name} ${order.created_by_user.last_name}`
                           : '—'}
@@ -987,13 +987,13 @@ export default function SalesOrders() {
                       <TableCell sx={tc} onClick={(e) => e.stopPropagation()}>
                         <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
                           <Tooltip title="View details">
-                            <IconButton size="small" onClick={() => setView(order)} sx={{ color: '#64748B', '&:hover': { bgcolor: '#EFF6FF', color: '#3B82F6' } }}>
+                            <IconButton size="small" onClick={() => setView(order)} sx={{ color: '#000000', '&:hover': { bgcolor: '#000000', color: '#000000' } }}>
                               <ViewIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
                           {canFulfill && (
                             <Tooltip title="Fulfill & Dispatch">
-                              <IconButton size="small" onClick={() => setFulfill(order)} sx={{ color: '#64748B', '&:hover': { bgcolor: '#D1FAE5', color: '#065F46' } }}>
+                              <IconButton size="small" onClick={() => setFulfill(order)} sx={{ color: '#000000', '&:hover': { bgcolor: '#000000', color: '#000000' } }}>
                                 <ShipIcon fontSize="small" />
                               </IconButton>
                             </Tooltip>
@@ -1003,14 +1003,14 @@ export default function SalesOrders() {
                               <IconButton size="small"
                                 disabled={actionLoading === `deliver-${order.order_id}`}
                                 onClick={() => handleDeliverConfirm(order)}
-                                sx={{ color: '#64748B', '&:hover': { bgcolor: '#D1FAE5', color: '#065F46' } }}>
+                                sx={{ color: '#000000', '&:hover': { bgcolor: '#000000', color: '#000000' } }}>
                                 {actionLoading === `deliver-${order.order_id}` ? <CircularProgress size={14} /> : <DoneIcon fontSize="small" />}
                               </IconButton>
                             </Tooltip>
                           )}
                           {canCancel && (
                             <Tooltip title="Cancel Order">
-                              <IconButton size="small" onClick={() => setCancel(order)} sx={{ color: '#64748B', '&:hover': { bgcolor: '#FEE2E2', color: '#991B1B' } }}>
+                              <IconButton size="small" onClick={() => setCancel(order)} sx={{ color: '#000000', '&:hover': { bgcolor: '#000000', color: '#000000' } }}>
                                 <CancelIcon fontSize="small" />
                               </IconButton>
                             </Tooltip>

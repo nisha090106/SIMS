@@ -29,7 +29,7 @@
 .page-title {
   margin: 0;
   font-size: 18px;
-  color: #1e293b;
+  color: #000000;
   font-weight: 700;
   letter-spacing: -0.3px;
   font-family: 'Inter', sans-serif;
@@ -56,12 +56,12 @@
 }
 
 .topbar-search:focus-within {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+  border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.08);
 }
 
 .search-icon {
-  color: #94a3b8;
+  color: #000000;
   font-size: 17px !important;
   flex-shrink: 0;
 }
@@ -71,18 +71,18 @@
   background: none;
   width: 100%;
   font-size: 13px;
-  color: #1e293b;
+  color: #000000;
   font-family: 'Inter', sans-serif;
   outline: none;
 }
 
-.topbar-search input::placeholder { color: #94a3b8; }
+.topbar-search input::placeholder { color: #000000; }
 
 /* Icon buttons */
 .icon-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: #000000;
   cursor: pointer;
   padding: 0;
   width: 36px;
@@ -98,7 +98,7 @@
 
 .icon-button:hover {
   background: #f1f5f9;
-  color: #1e293b;
+  color: #000000;
 }
 
 .bell-badge {
@@ -141,7 +141,7 @@
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -162,19 +162,19 @@
 .user-name {
   font-size: 13px;
   font-weight: 600;
-  color: #1e293b;
+  color: #000000;
   white-space: nowrap;
 }
 
 .user-role {
   font-size: 11px;
-  color: #64748b;
+  color: #000000;
   text-transform: capitalize;
 }
 
 .dropdown-chevron {
   font-size: 8px;
-  color: #94a3b8;
+  color: #000000;
   margin-left: 2px;
   transition: transform 200ms ease;
 }
@@ -210,7 +210,7 @@
   border: none;
   background: none;
   padding: 9px 12px;
-  color: #1e293b;
+  color: #000000;
   font-size: 13px;
   font-weight: 500;
   font-family: 'Inter', sans-serif;
@@ -223,15 +223,15 @@
 
 .dropdown-item:hover {
   background: #f1f5f9;
-  color: #1e293b;
+  color: #000000;
 }
 
 .dropdown-item-icon {
   font-size: 16px !important;
-  color: #64748b;
+  color: #000000;
 }
 
-.dropdown-item:hover .dropdown-item-icon { color: #1e293b; }
+.dropdown-item:hover .dropdown-item-icon { color: #000000; }
 
 .dropdown-divider {
   height: 1px;
@@ -239,8 +239,8 @@
   margin: 4px 0;
 }
 
-.dropdown-item.logout { color: #ef4444; }
-.dropdown-item.logout .dropdown-item-icon { color: #ef4444; }
+.dropdown-item.logout { color: #000000; }
+.dropdown-item.logout .dropdown-item-icon { color: #000000; }
 .dropdown-item.logout:hover { background: #fef2f2; }
 
 /* Mobile */

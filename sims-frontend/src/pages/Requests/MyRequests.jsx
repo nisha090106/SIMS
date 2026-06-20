@@ -164,7 +164,7 @@ const MyRequests = () => {
               <TableContainer component={Paper}>
                 <Table>
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: '#000000' }}>
                       <TableCell></TableCell>
                       <TableCell>Request #</TableCell>
                       <TableCell>Items</TableCell>
@@ -236,13 +236,13 @@ const MyRequests = () => {
                           <TableRow>
                             <TableCell colSpan={7} sx={{ py: 0 }}>
                               <Collapse in={expandedId === request.id} timeout="auto" unmountOnExit>
-                                <Box sx={{ p: 2, bgcolor: '#f9f9f9' }}>
+                                <Box sx={{ p: 2, bgcolor: '#000000' }}>
                                   {/* Items Table */}
                                   <Typography variant="subtitle2" sx={{ mb: 1 }}>Items:</Typography>
                                   <TableContainer component={Paper} sx={{ mb: 3 }}>
                                     <Table size="small">
                                       <TableHead>
-                                        <TableRow sx={{ bgcolor: '#f0f0f0' }}>
+                                        <TableRow sx={{ bgcolor: '#000000' }}>
                                           <TableCell>SKU</TableCell>
                                           <TableCell>Product</TableCell>
                                           <TableCell align="right">Requested</TableCell>

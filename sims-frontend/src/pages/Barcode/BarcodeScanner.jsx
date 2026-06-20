@@ -308,7 +308,7 @@ const BarcodeScanner = () => {
 
           {/* Product Info Card */}
           {productInfo && (
-            <Card sx={{ mb: 2, bgcolor: '#f5f5f5' }}>
+            <Card sx={{ mb: 2, bgcolor: '#000000' }}>
               <CardContent>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
@@ -447,11 +447,11 @@ const BarcodeScanner = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#f8fafc' }}>
-                      <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>SKU</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>Product Name</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>Action</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>Qty</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>Time</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: '#000000', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>SKU</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: '#000000', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>Product Name</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: '#000000', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>Action</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '0.7rem', fontWeight: 700, color: '#000000', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>Qty</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: '#000000', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>Time</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -472,7 +472,7 @@ const BarcodeScanner = () => {
                           </span>
                         </td>
                         <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 600 }}>{s.qty}</td>
-                        <td style={{ padding: '8px 12px', fontSize: '0.78rem', color: '#64748b' }}>
+                        <td style={{ padding: '8px 12px', fontSize: '0.78rem', color: '#000000' }}>
                           {new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                         </td>
                       </tr>

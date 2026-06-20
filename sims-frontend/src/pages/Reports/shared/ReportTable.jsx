@@ -79,7 +79,7 @@ export default function ReportTable({
               ))
             ) : displayRows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} style={{ textAlign: 'center', padding: 48, color: '#94a3b8', fontSize: 14 }}>
+                <td colSpan={columns.length} style={{ textAlign: 'center', padding: 48, color: '#000000', fontSize: 14 }}>
                   No data found for the selected filters.
                 </td>
               </tr>

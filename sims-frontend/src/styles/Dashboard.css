@@ -26,14 +26,14 @@
 .dashboard-main-title {
   font-size: 26px;
   font-weight: 800;
-  color: #0f172a; /* Slate 900 */
+  color: #000000; /* Slate 900 */
   margin: 0 0 6px 0;
   letter-spacing: -0.5px;
 }
 
 .dashboard-subtitle {
   font-size: 14px;
-  color: #64748b; /* Slate 500 */
+  color: #000000; /* Slate 500 */
   margin: 0;
 }
 
@@ -43,7 +43,7 @@
   gap: 8px;
   background: white;
   border: 1px solid #cbd5e1;
-  color: #0f172a;
+  color: #000000;
   font-size: 13px;
   font-weight: 600;
   padding: 10px 16px;
@@ -113,29 +113,29 @@
 }
 
 .metric-icon-wrapper.blue {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  background: rgba(30, 64, 175, 0.1);
+  color: #000000;
 }
 
 .metric-icon-wrapper.green {
   background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  color: #000000;
 }
 
 .metric-icon-wrapper.orange {
   background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
+  color: #000000;
 }
 
 .metric-icon-wrapper.purple {
   background: rgba(139, 92, 246, 0.1);
-  color: #8b5cf6;
+  color: #000000;
 }
 
 .metric-title {
   font-size: 13px;
   font-weight: 600;
-  color: #64748b;
+  color: #000000;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -151,7 +151,7 @@
 .metric-value {
   font-size: 28px;
   font-weight: 800;
-  color: #0f172a;
+  color: #000000;
 }
 
 .metric-badge {
@@ -166,12 +166,12 @@
 
 .metric-badge.positive {
   background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  color: #000000;
 }
 
 .metric-badge.negative {
   background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  color: #000000;
 }
 
 .badge-arrow {
@@ -180,7 +180,7 @@
 
 /* Border Accents on Cards */
 .metric-card.border-blue {
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #1e40af;
 }
 .metric-card.border-green {
   border-left: 4px solid #10b981;
@@ -213,7 +213,7 @@
 .chart-title {
   font-size: 16px;
   font-weight: 700;
-  color: #0f172a;
+  color: #000000;
   margin: 0 0 20px 0;
   letter-spacing: -0.2px;
 }
@@ -257,13 +257,13 @@
 .view-all-link {
   font-size: 12px;
   font-weight: 600;
-  color: #3b82f6;
+  color: #000000;
   text-decoration: none;
   transition: color 0.15s ease;
 }
 
 .view-all-link:hover {
-  color: #1d4ed8;
+  color: #000000;
 }
 
 .table-responsive {
@@ -283,7 +283,7 @@
   padding: 10px 16px;
   font-size: 11px;
   font-weight: 700;
-  color: #64748B;
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-bottom: 1px solid #E2E8F0;
@@ -293,7 +293,7 @@
 .items-table td {
   padding: 12px 16px;
   font-size: 13px;
-  color: #1E293B;
+  color: #000000;
   border-bottom: 1px solid #F1F5F9;
   font-family: 'Inter', sans-serif;
 }
@@ -309,7 +309,7 @@
 .sku-cell {
   font-family: 'Courier New', Courier, monospace;
   font-weight: 700;
-  color: #0f172a;
+  color: #000000;
 }
 
 .name-cell {
@@ -322,7 +322,7 @@
   border-radius: 6px;
   font-size: 11px;
   font-weight: 500;
-  color: #475569;
+  color: #000000;
 }
 
 .stock-cell {
@@ -330,10 +330,10 @@
 }
 
 .stock-cell.danger {
-  color: #ef4444;
+  color: #000000;
 }
 .stock-cell.warning {
-  color: #f59e0b;
+  color: #000000;
 }
 
 .status-badge {
@@ -347,18 +347,18 @@
 
 .status-badge.low {
   background: rgba(245, 158, 11, 0.1);
-  color: #d97706;
+  color: #000000;
 }
 
 .status-badge.critical {
   background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
+  color: #000000;
 }
 
 .action-btn {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #3b82f6;
+  background: rgba(30, 64, 175, 0.05);
+  border: 1px solid rgba(30, 64, 175, 0.15);
+  color: #000000;
   font-size: 11px;
   font-weight: 700;
   padding: 6px 12px;
@@ -368,14 +368,14 @@
 }
 
 .action-btn:hover {
-  background: #3b82f6;
+  background: #1e40af;
   color: white;
-  border-color: #3b82f6;
+  border-color: #1e40af;
 }
 
 .no-data {
   text-align: center;
-  color: #64748b;
+  color: #000000;
   font-style: italic;
   padding: 40px !important;
 }
@@ -434,22 +434,22 @@
 }
 
 .activity-icon.create {
-  color: #10b981;
+  color: #000000;
 }
 .activity-icon.update {
-  color: #f59e0b;
+  color: #000000;
 }
 .activity-icon.delete {
-  color: #ef4444;
+  color: #000000;
 }
 .activity-icon.login {
-  color: #3b82f6;
+  color: #000000;
 }
 .activity-icon.logout {
-  color: #64748b;
+  color: #000000;
 }
 .activity-icon.default {
-  color: #64748b;
+  color: #000000;
 }
 
 .activity-details {
@@ -461,7 +461,7 @@
 .activity-text {
   font-size: 13px;
   font-weight: 600;
-  color: #1e293b;
+  color: #000000;
   line-height: 1.4;
 }
 
@@ -471,16 +471,16 @@
   gap: 6px;
   margin-top: 4px;
   font-size: 11px;
-  color: #64748b;
+  color: #000000;
 }
 
 .activity-dot {
-  color: #cbd5e1;
+  color: #000000;
 }
 
 .no-activity-data {
   text-align: center;
-  color: #64748b;
+  color: #000000;
   font-style: italic;
   padding: 30px 10px;
 }

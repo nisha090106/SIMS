@@ -309,13 +309,13 @@ export async function getDashboardCharts(req, res, next) {
       // 4. Request status breakdown (all requests for admin, else own)
       role === 'admin'
         ? sequelize.query(
-            `SELECT status, COUNT(*) AS cnt FROM user_requests GROUP BY status`,
-            { type: sequelize.QueryTypes.SELECT },
-          )
+          'SELECT status, COUNT(*) AS cnt FROM user_requests GROUP BY status',
+          { type: sequelize.QueryTypes.SELECT },
+        )
         : sequelize.query(
-            `SELECT status, COUNT(*) AS cnt FROM user_requests WHERE requested_by = :userId GROUP BY status`,
-            { replacements: { userId }, type: sequelize.QueryTypes.SELECT },
-          ),
+          'SELECT status, COUNT(*) AS cnt FROM user_requests WHERE requested_by = :userId GROUP BY status',
+          { replacements: { userId }, type: sequelize.QueryTypes.SELECT },
+        ),
     ]);
 
     // Fill in missing days for PO trend (so chart always shows 7 bars)

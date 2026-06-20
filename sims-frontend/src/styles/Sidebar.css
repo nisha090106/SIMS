@@ -10,7 +10,7 @@
   width: var(--sidebar-width);
   height: 100vh;
   background: #ffffff;
-  color: #1e293b;
+  color: #000000;
   position: fixed;
   left: 0;
   top: 0;
@@ -52,11 +52,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
   border-radius: 8px;
   color: white;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.28);
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.15);
 }
 
 .logo-icon { font-size: 20px !important; }
@@ -65,7 +65,7 @@
   font-size: 17px;
   font-weight: 800;
   letter-spacing: 1.5px;
-  color: #1e293b;
+  color: #000000;
   text-transform: uppercase;
   font-family: 'Inter', sans-serif;
 }
@@ -96,7 +96,7 @@
   height: 40px;
   padding: 0 12px;
   border-radius: 8px;
-  color: #64748b;
+  color: #000000;
   text-decoration: none;
   transition: background 200ms ease, color 200ms ease;
   font-size: 14px;
@@ -109,14 +109,14 @@
 
 .nav-item:hover {
   background: #f8fafc;
-  color: #1e293b;
+  color: #000000;
 }
 
 .nav-item.active {
   background: #eff6ff;
-  color: #3b82f6;
+  color: #000000;
   font-weight: 600;
-  border-left-color: #3b82f6;
+  border-left-color: #1e40af;
 }
 
 .nav-icon {
@@ -131,7 +131,7 @@
 }
 
 .nav-icon svg { font-size: 18px !important; }
-.nav-item.active .nav-icon svg { color: #3b82f6; }
+.nav-item.active .nav-icon svg { color: #000000; }
 
 .nav-label { transition: opacity 200ms ease; }
 
@@ -151,7 +151,7 @@
   padding: 0 10px;
   background: none;
   border: none;
-  color: #94a3b8;
+  color: #000000;
   border-radius: 8px;
   cursor: pointer;
   transition: background 200ms ease, color 200ms ease;
@@ -165,7 +165,7 @@
 
 .sidebar-toggle:hover {
   background: #f8fafc;
-  color: #1e293b;
+  color: #000000;
 }
 
 .sidebar-toggle svg { font-size: 18px !important; flex-shrink: 0; }

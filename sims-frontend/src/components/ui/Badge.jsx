@@ -18,27 +18,27 @@ import React from 'react';
 const VARIANT_STYLES = {
   success: {
     backgroundColor: '#D1FAE5',
-    color:           '#065F46',
+    color:           '#000000',
   },
   warning: {
     backgroundColor: '#FEF3C7',
-    color:           '#92400E',
+    color:           '#000000',
   },
   danger: {
     backgroundColor: '#FEE2E2',
-    color:           '#991B1B',
+    color:           '#000000',
   },
   info: {
     backgroundColor: '#DBEAFE',
-    color:           '#1E40AF',
+    color:           '#000000',
   },
   primary: {
     backgroundColor: '#DBEAFE',
-    color:           '#1E40AF',
+    color:           '#000000',
   },
   neutral: {
     backgroundColor: '#F1F5F9',
-    color:           '#475569',
+    color:           '#000000',
   },
 };
 

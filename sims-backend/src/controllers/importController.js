@@ -110,6 +110,8 @@ async function handleImport(req, res, importType) {
           }
         } else if (importType === 'warehouse') {
           summary = await importService.importWarehouses(rows, jobId, uid(req));
+        } else if (importType === 'supplier') {
+          summary = await importService.importSuppliers(rows, jobId, uid(req));
         }
 
         const allFailed = summary.failed > 0 && (summary.created + summary.updated === 0);
@@ -165,10 +167,11 @@ async function handleImport(req, res, importType) {
 export const importProducts   = (req, res) => handleImport(req, res, 'product');
 export const importInventory  = (req, res) => handleImport(req, res, 'stock');
 export const importWarehouses = (req, res) => handleImport(req, res, 'warehouse');
+export const importSuppliers  = (req, res) => handleImport(req, res, 'supplier');
 
 // Legacy unified endpoint — kept for backward compat
 export const uploadAndImport = async (req, res) => {
-  const typeMap = { product: 'product', stock: 'stock', warehouse: 'warehouse' };
+  const typeMap = { product: 'product', stock: 'stock', warehouse: 'warehouse', supplier: 'supplier' };
   const t = typeMap[req.body?.import_type];
   if (!t) return res.status(400).json({ success: false, error: 'Invalid import_type.' });
   return handleImport(req, res, t);
@@ -284,6 +287,19 @@ export const downloadTemplate = (req, res) => {
         'Name,Code,Address,City,Country,ManagerEmail,Capacity',
         'North Warehouse,WH-MUM,100 Logistics Blvd Suite 10,Mumbai,India,manager@sims.com,50000',
         'Central Depot,WH-DEL,550 Interstate Ave,Delhi,India,depot@sims.com,120000',
+      ].join('\n'),
+    },
+    suppliers: {
+      file: 'suppliers_import_template.csv',
+      content: [
+        // Columns: name, contact_person, email, phone, address, payment_terms, lead_time, rating
+        // payment_terms allowed values: Net 30 | Net 60 | Net 15 | Immediate
+        // lead_time: integer 3–30 (days)
+        // rating: float 1–5 (leave blank if unrated)
+        'name,contact_person,email,phone,address,payment_terms,lead_time,rating',
+        'Acme Supplies Pvt Ltd,Raj Sharma,raj@acme.in,9876543210,"12 Industrial Area, Pune",Net 30,7,4.5',
+        'Global Traders Co,Priya Patel,priya@globaltraders.com,9123456789,"45 Commerce St, Mumbai",Net 60,14,3.8',
+        'Swift Logistics,Anil Kumar,anil@swiftlog.in,9988776655,"8 Warehouse Lane, Delhi",Immediate,3,',
       ].join('\n'),
     },
   };

@@ -189,7 +189,7 @@ const BarcodeGenerator = () => {
                 <Paper sx={{ mb: 2, maxHeight: '300px', overflow: 'auto' }}>
                   <Table size="small">
                     <TableHead>
-                      <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                      <TableRow sx={{ bgcolor: '#000000' }}>
                         <TableCell>SKU</TableCell>
                         <TableCell>Name</TableCell>
                         <TableCell>Action</TableCell>
@@ -218,7 +218,7 @@ const BarcodeGenerator = () => {
 
               {selectedProduct && (
                 <>
-                  <Card sx={{ mb: 2, bgcolor: '#f9f9f9' }}>
+                  <Card sx={{ mb: 2, bgcolor: '#000000' }}>
                     <CardContent>
                       <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>

@@ -19,7 +19,7 @@
 .warehouses-header h1 {
   margin: 0;
   font-size: 2rem;
-  color: #1e293b;
+  color: #000000;
   font-weight: 700;
 }
 
@@ -67,7 +67,7 @@
   padding: 3rem;
   background: white;
   border-radius: 12px;
-  color: #64748b;
+  color: #000000;
   font-size: 1.1rem;
 }
 
@@ -101,14 +101,14 @@
 .card-header h3 {
   margin: 0;
   font-size: 1.25rem;
-  color: #1e293b;
+  color: #000000;
   font-weight: 700;
   flex: 1;
 }
 
 .location-badge {
   background: #e0f2fe;
-  color: #0369a1;
+  color: #000000;
   padding: 0.35rem 0.75rem;
   border-radius: 20px;
   font-size: 0.85rem;
@@ -131,14 +131,14 @@
 
 .capacity-label {
   font-size: 0.95rem;
-  color: #64748b;
+  color: #000000;
   font-weight: 500;
 }
 
 .capacity-percent {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: #000000;
 }
 
 .capacity-bar-container {
@@ -175,7 +175,7 @@
 
 .stat-label {
   font-size: 0.8rem;
-  color: #64748b;
+  color: #000000;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -183,7 +183,7 @@
 
 .stat-value {
   font-size: 0.95rem;
-  color: #1e293b;
+  color: #000000;
   font-weight: 700;
 }
 
@@ -231,7 +231,7 @@
 }
 
 .icon-btn.delete {
-  color: #ef4444;
+  color: #000000;
 }
 
 /* Modal Styles */
@@ -296,7 +296,7 @@
 .modal-header h2,
 .modal-header h3 {
   margin: 0;
-  color: #1e293b;
+  color: #000000;
   font-size: 1.5rem;
   font-weight: 700;
 }
@@ -306,7 +306,7 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #64748b;
+  color: #000000;
   padding: 0.25rem;
   display: flex;
   align-items: center;
@@ -315,7 +315,7 @@
 }
 
 .close-btn:hover {
-  color: #1e293b;
+  color: #000000;
 }
 
 /* Modal Body */
@@ -335,7 +335,7 @@
 
 .detail-section h4 {
   margin: 0;
-  color: #1e293b;
+  color: #000000;
   font-size: 1.1rem;
   font-weight: 700;
   border-bottom: 2px solid #3b82f6;
@@ -368,7 +368,7 @@
 
 .info-item .label {
   font-size: 0.85rem;
-  color: #64748b;
+  color: #000000;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -376,7 +376,7 @@
 
 .info-item .value {
   font-size: 0.95rem;
-  color: #1e293b;
+  color: #000000;
   font-weight: 700;
 }
 
@@ -391,7 +391,7 @@
   padding: 0.75rem;
   text-align: left;
   font-weight: 600;
-  color: #475569;
+  color: #000000;
   font-size: 0.9rem;
   border-bottom: 2px solid #e2e8f0;
 }
@@ -399,7 +399,7 @@
 .products-table td {
   padding: 0.75rem;
   border-bottom: 1px solid #e2e8f0;
-  color: #1e293b;
+  color: #000000;
   font-size: 0.9rem;
 }
 
@@ -427,7 +427,7 @@
 }
 
 .form-group label {
-  color: #1e293b;
+  color: #000000;
   font-weight: 600;
   font-size: 0.95rem;
 }
@@ -460,7 +460,7 @@
 }
 
 .error-text {
-  color: #ef4444;
+  color: #000000;
   font-size: 0.85rem;
   font-weight: 500;
 }
@@ -477,7 +477,7 @@
 
 .btn-secondary {
   background: #e2e8f0;
-  color: #1e293b;
+  color: #000000;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 6px;
@@ -518,7 +518,7 @@
 .warning-message {
   background: #fef3c7;
   border: 1px solid #fcd34d;
-  color: #92400e;
+  color: #000000;
   padding: 1rem;
   border-radius: 8px;
   font-weight: 500;
@@ -531,7 +531,7 @@
   justify-content: center;
   min-height: 400px;
   font-size: 1.1rem;
-  color: #64748b;
+  color: #000000;
 }
 
 /* Responsive Design */

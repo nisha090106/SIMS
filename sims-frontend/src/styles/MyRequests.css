@@ -25,14 +25,14 @@
 .header-text-block h1 {
   font-size: 1.75rem;
   font-weight: 850;
-  color: var(--text-main);
+  color: #000000;
   margin: 0 0 0.35rem 0;
   letter-spacing: -0.02em;
 }
 
 .header-text-block p {
   font-size: 0.925rem;
-  color: var(--text-muted);
+  color: #000000;
   margin: 0;
 }
 
@@ -89,7 +89,7 @@
   padding: 0.6rem 1.25rem;
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #000000;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -99,7 +99,7 @@
 
 .status-tab-btn:hover {
   background-color: #f1f5f9;
-  color: var(--text-main);
+  color: #000000;
 }
 
 .status-tab-btn.active {
@@ -182,32 +182,32 @@
 
 .list-loading-box p {
   font-size: 0.95rem;
-  color: var(--text-muted);
+  color: #000000;
   font-weight: 600;
 }
 
 .list-error-box .err-icon {
   font-size: 48px !important;
-  color: #ef4444;
+  color: #000000;
   margin-bottom: 0.75rem;
 }
 
 .list-error-box p {
   font-size: 0.95rem;
-  color: #64748b;
+  color: #000000;
   font-weight: 600;
 }
 
 .list-empty-box h3 {
   font-size: 1.2rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: #000000;
   margin: 0 0 0.5rem 0;
 }
 
 .list-empty-box p {
   font-size: 0.925rem;
-  color: var(--text-muted);
+  color: #000000;
   margin: 0 0 1.5rem 0;
   max-width: 340px;
 }
@@ -300,14 +300,14 @@
 .request-number-txt {
   font-size: 1.05rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: #000000;
   letter-spacing: -0.01em;
   font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
 
 .request-date-txt {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #000000;
   font-weight: 600;
 }
 
@@ -333,44 +333,44 @@
 
 .status-badge-indicator.pending {
   background-color: #fef3c7;
-  color: #92400e;
+  color: #000000;
   border: 1px solid #fcd34d;
 }
 
 .status-badge-indicator.approved {
   background-color: #dbeafe;
-  color: #1e40af;
+  color: #000000;
   border: 1px solid #93c5fd;
 }
 
 .status-badge-indicator.fulfilled {
   background-color: #d1fae5;
-  color: #065f46;
+  color: #000000;
   border: 1px solid #6ee7b7;
 }
 
 .status-badge-indicator.rejected {
   background-color: #fee2e2;
-  color: #991b1b;
+  color: #000000;
   border: 1px solid #fca5a5;
 }
 
 .status-badge-indicator.cancelled {
   background-color: #f1f5f9;
-  color: #475569;
+  color: #000000;
   border: 1px solid #cbd5e1;
 }
 
 .summary-items-list {
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: #000000;
   font-weight: 600;
 }
 
 /* Card Purpose */
 .card-purpose-summary {
   font-size: 0.875rem;
-  color: #475569;
+  color: #000000;
   margin: 0 0 0.75rem 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -392,13 +392,13 @@
 
 .badge-tag.fulfilled-info {
   background-color: #ecfdf5;
-  color: #065f46;
+  color: #000000;
   border: 1px solid #a7f3d0;
 }
 
 .badge-tag.rejected-info {
   background-color: #fef2f2;
-  color: #991b1b;
+  color: #000000;
   border: 1px solid #fecaca;
 }
 
@@ -426,7 +426,7 @@
 }
 
 .card-action-btn.toggle-details {
-  color: var(--primary-light);
+  color: #000000;
   border-color: var(--primary-light-bg);
   background-color: rgba(79, 70, 229, 0.04);
 }
@@ -441,7 +441,7 @@
 }
 
 .card-action-btn.cancel-request {
-  color: #dc2626;
+  color: #000000;
   border-color: #fecaca;
   background-color: rgba(239, 68, 68, 0.04);
 }
@@ -503,7 +503,7 @@
 .info-cell .lbl {
   font-size: 0.725rem;
   font-weight: 750;
-  color: var(--text-muted);
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -511,7 +511,7 @@
 .info-cell .val {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text-main);
+  color: #000000;
   line-height: 1.5;
 }
 
@@ -536,12 +536,12 @@
 .details-review-notes strong {
   font-size: 0.825rem;
   font-weight: 750;
-  color: var(--text-main);
+  color: #000000;
 }
 
 .details-review-notes p {
   font-size: 0.85rem;
-  color: #475569;
+  color: #000000;
   margin: 0.35rem 0 0 0;
   font-weight: 600;
 }
@@ -551,7 +551,7 @@
   padding-top: 0.75rem;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
   font-size: 0.85rem;
-  color: #334155;
+  color: #000000;
   line-height: 1.5;
   font-style: italic;
 }
@@ -611,7 +611,7 @@
   font-size: 0.8rem;
   font-weight: 800;
   background-color: #e2e8f0;
-  color: #94a3b8;
+  color: #000000;
   border: 3px solid #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
   transition: all var(--transition-normal);
@@ -632,21 +632,21 @@
 .step-label {
   font-size: 0.775rem;
   font-weight: 750;
-  color: #94a3b8;
+  color: #000000;
   text-align: center;
 }
 
 .timeline-step.active .step-label {
-  color: var(--text-main);
+  color: #000000;
 }
 
 .timeline-step.rejected .step-label {
-  color: #dc2626;
+  color: #000000;
 }
 
 .step-date {
   font-size: 0.7rem;
-  color: var(--text-muted);
+  color: #000000;
   text-align: center;
   min-height: 1em;
 }
@@ -664,7 +664,7 @@
 .details-items-table-box h4 {
   font-size: 0.85rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin: 0;
@@ -689,7 +689,7 @@
   padding: 0.75rem 1rem;
   font-size: 0.7rem;
   font-weight: 750;
-  color: var(--text-muted);
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-bottom: 1px solid var(--border-color);
@@ -700,7 +700,7 @@
   padding: 0.8rem 1rem;
   font-size: 0.85rem;
   border-bottom: 1px solid #f1f5f9;
-  color: var(--text-main);
+  color: #000000;
   vertical-align: middle;
 }
 
@@ -715,16 +715,16 @@
 .details-cart-table .font-mono {
   font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .details-cart-table .text-success {
-  color: #059669;
+  color: #000000;
   font-weight: 700;
 }
 
 .details-cart-table .color-muted {
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .details-cart-table .font-sm {
@@ -744,7 +744,7 @@
 .load-more-btn {
   background-color: #ffffff;
   border: 2px solid var(--border-color);
-  color: var(--primary-light);
+  color: #000000;
   padding: 0.7rem 2.5rem;
   border-radius: 9999px;
   font-size: 0.875rem;
@@ -764,7 +764,7 @@
   text-align: center;
   padding: 1.5rem;
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: #000000;
   font-weight: 600;
 }
 

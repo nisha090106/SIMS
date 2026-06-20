@@ -184,7 +184,7 @@ const SupplierList = () => {
     <Box sx={{ p: 3 }}>
       {/* Title & Add Button */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1a1a1a' }}>
+        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#000000' }}>
           Suppliers
         </Typography>
         {isManagerOrAdmin && (
@@ -248,7 +248,7 @@ const SupplierList = () => {
 
       {/* Error Message */}
       {error && (
-        <Paper sx={{ p: 2, mb: 2, bgcolor: '#fff3f3', border: '1px solid #ffcdd2', borderRadius: 2 }}>
+        <Paper sx={{ p: 2, mb: 2, bgcolor: '#000000', border: '1px solid #ffcdd2', borderRadius: 2 }}>
           <Typography color="error" variant="body2">{error}</Typography>
         </Paper>
       )}
@@ -269,7 +269,7 @@ const SupplierList = () => {
         >
           <Table sx={{ minWidth: 700 }}>
             <TableHead>
-              <TableRow sx={{ bgcolor: '#f8f9fa' }}>
+              <TableRow sx={{ bgcolor: '#000000' }}>
                 <TableCell sx={{ fontWeight: 'bold', width: 48 }} />  {/* expand toggle */}
                 <TableCell sx={{ fontWeight: 'bold' }}>Company Name</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Contact Person</TableCell>
@@ -381,13 +381,13 @@ const SupplierList = () => {
                               gap: 4,
                               flexWrap: 'wrap',
                               alignItems: 'center',
-                              bgcolor: '#fafbfc',
+                              bgcolor: '#000000',
                               borderRadius: 1,
                               my: 1,
                             }}
                           >
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Phone size={15} style={{ color: '#666' }} />
+                              <Phone size={15} style={{ color: '#000000' }} />
                               <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
                                 Phone:
                               </Typography>
@@ -395,7 +395,7 @@ const SupplierList = () => {
                             </Box>
 
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Clock size={15} style={{ color: '#666' }} />
+                              <Clock size={15} style={{ color: '#000000' }} />
                               <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
                                 Lead Time:
                               </Typography>
@@ -405,7 +405,7 @@ const SupplierList = () => {
                             </Box>
 
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Star size={15} style={{ color: '#faaf00' }} />
+                              <Star size={15} style={{ color: '#000000' }} />
                               <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
                                 Rating:
                               </Typography>

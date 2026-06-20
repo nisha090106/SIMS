@@ -217,7 +217,7 @@ class NotificationService {
     return NotificationService.notifyByRole(['admin', 'manager'], {
       type:    'request_created',
       message: `New request ${request.request_number} submitted (${request.priority} priority)`,
-      link:    `/requests`,
+      link:    '/requests',
       metadata: { request_id: request.id, request_number: request.request_number, priority: request.priority },
     });
   }
@@ -227,7 +227,7 @@ class NotificationService {
       userId:  request.requester_id,
       type:    'request_approved',
       message: `Your request ${request.request_number} has been approved`,
-      link:    `/user/my-requests`,
+      link:    '/user/my-requests',
       metadata: { request_id: request.id, request_number: request.request_number, approved_by: approverId },
     });
   }
@@ -237,7 +237,7 @@ class NotificationService {
       userId:  request.requester_id,
       type:    'request_rejected',
       message: `Your request ${request.request_number} was rejected${reason ? `: ${reason}` : ''}`,
-      link:    `/user/my-requests`,
+      link:    '/user/my-requests',
       metadata: { request_id: request.id, request_number: request.request_number, rejection_reason: reason },
     });
   }
@@ -247,7 +247,7 @@ class NotificationService {
       userId:  request.requester_id,
       type:    'request_fulfilled',
       message: `Your request ${request.request_number} has been fulfilled`,
-      link:    `/user/my-requests`,
+      link:    '/user/my-requests',
       metadata: { request_id: request.id, request_number: request.request_number, fulfilled_by: fulfillerId },
     });
   }
@@ -256,7 +256,7 @@ class NotificationService {
     return NotificationService.notifyByRole(['admin', 'manager'], {
       type:    'request_cancelled',
       message: `Request ${request.request_number} was cancelled`,
-      link:    `/requests`,
+      link:    '/requests',
       metadata: { request_id: request.id, request_number: request.request_number },
     });
   }

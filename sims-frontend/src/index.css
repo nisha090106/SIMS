@@ -15,13 +15,13 @@ body,
 
 /* ── Core design tokens (spec-compliant) ────────────────────── */
 :root {
-  --color-primary:        #3B82F6;
-  --color-primary-dark:   #2563EB;
+  --color-primary:        #1E40AF;
+  --color-primary-dark:   #1D4ED8;
   --color-bg:             #F8FAFC;
   --color-surface:        #FFFFFF;
   --color-border:         #E2E8F0;
   --color-text-primary:   #1E293B;
-  --color-text-secondary: #64748B;
+  --color-text-secondary: #475569;
 }
 
 body {
@@ -101,7 +101,13 @@ code, pre, .font-mono {
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover, [class*="card"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02);
 }
 
 /* ── Global table header style ──────────────────────────────── */

@@ -40,7 +40,7 @@
 
 .toast-content span {
   flex: 1;
-  color: #333;
+  color: #000000;
   font-size: 14px;
   line-height: 1.4;
 }
@@ -48,7 +48,7 @@
 .toast-close {
   background: none;
   border: none;
-  color: #999;
+  color: #000000;
   cursor: pointer;
   font-size: 18px;
   padding: 0;
@@ -57,7 +57,7 @@
 }
 
 .toast-close:hover {
-  color: #333;
+  color: #000000;
 }
 
 /* Toast type styles */
@@ -67,7 +67,7 @@
 
 .toast-success::before {
   content: '✓';
-  color: #27ae60;
+  color: #000000;
   font-weight: bold;
   margin-right: 12px;
 }
@@ -78,7 +78,7 @@
 
 .toast-error::before {
   content: '✕';
-  color: #e74c3c;
+  color: #000000;
   font-weight: bold;
   margin-right: 12px;
 }
@@ -89,7 +89,7 @@
 
 .toast-warning::before {
   content: '⚠';
-  color: #f39c12;
+  color: #000000;
   font-weight: bold;
   margin-right: 12px;
 }
@@ -100,7 +100,7 @@
 
 .toast-info::before {
   content: 'ℹ';
-  color: #3498db;
+  color: #000000;
   font-weight: bold;
   margin-right: 12px;
 }

@@ -547,7 +547,7 @@ export class BarcodeController {
       if (!barcode || !quantity || !warehouse_id) {
         return res.status(400).json({ 
           success: false, 
-          error: 'Barcode, quantity, and warehouse_id are required' 
+          error: 'Barcode, quantity, and warehouse_id are required', 
         });
       }
 
@@ -592,7 +592,7 @@ export class BarcodeController {
 
         await inventory.update(
           { quantity: after_qty, batch_no, expiry_date },
-          { transaction: t }
+          { transaction: t },
         );
 
         await BarcodeScanLog.create({
@@ -645,7 +645,7 @@ export class BarcodeController {
       if (!barcode || !quantity || !warehouse_id) {
         return res.status(400).json({ 
           success: false, 
-          error: 'Barcode, quantity, and warehouse_id are required' 
+          error: 'Barcode, quantity, and warehouse_id are required', 
         });
       }
 
@@ -749,7 +749,7 @@ export class BarcodeController {
       if (!barcode || counted_quantity === undefined || !warehouse_id) {
         return res.status(400).json({ 
           success: false, 
-          error: 'Barcode, counted_quantity, and warehouse_id are required' 
+          error: 'Barcode, counted_quantity, and warehouse_id are required', 
         });
       }
 

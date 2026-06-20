@@ -340,7 +340,7 @@ export async function transferStock(req, res, next) {
   const t = await sequelize.transaction();
   try {
     const { product_id, fromWarehouseId, toWarehouseId, quantity, notes,
-            from_warehouse_id, to_warehouse_id } = req.body;
+      from_warehouse_id, to_warehouse_id } = req.body;
 
     const fromWH = fromWarehouseId || from_warehouse_id;
     const toWH   = toWarehouseId   || to_warehouse_id;

@@ -1,12 +1,12 @@
 import React from 'react';
 
 const ACCENT = {
-  blue:   { bar: '#3b82f6', icon: 'rgba(59,130,246,0.12)',  color: '#3b82f6' },
-  green:  { bar: '#10b981', icon: 'rgba(16,185,129,0.12)',  color: '#10b981' },
-  orange: { bar: '#f59e0b', icon: 'rgba(245,158,11,0.12)',  color: '#f59e0b' },
-  purple: { bar: '#8b5cf6', icon: 'rgba(139,92,246,0.12)',  color: '#8b5cf6' },
-  rose:   { bar: '#f43f5e', icon: 'rgba(244,63,94,0.12)',   color: '#f43f5e' },
-  cyan:   { bar: '#06b6d4', icon: 'rgba(6,182,212,0.12)',   color: '#06b6d4' },
+  blue:   { bar: '#3b82f6', icon: 'rgba(59,130,246,0.12)',  color: '#000000' },
+  green:  { bar: '#10b981', icon: 'rgba(16,185,129,0.12)',  color: '#000000' },
+  orange: { bar: '#f59e0b', icon: 'rgba(245,158,11,0.12)',  color: '#000000' },
+  purple: { bar: '#8b5cf6', icon: 'rgba(139,92,246,0.12)',  color: '#000000' },
+  rose:   { bar: '#f43f5e', icon: 'rgba(244,63,94,0.12)',   color: '#000000' },
+  cyan:   { bar: '#06b6d4', icon: 'rgba(6,182,212,0.12)',   color: '#000000' },
 };
 
 /**

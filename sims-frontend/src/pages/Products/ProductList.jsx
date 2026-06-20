@@ -317,7 +317,7 @@ export default function ProductList() {
               {/* Barcode */}
               <td style={tdStyle}>
                 {p.barcode ? (
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: '#047857', background: '#d1fae5', padding: '4px 8px', borderRadius: 6, fontWeight: 600 }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: '#000000', background: '#d1fae5', padding: '4px 8px', borderRadius: 6, fontWeight: 600 }}>
                     {p.barcode}
                   </span>
                 ) : (

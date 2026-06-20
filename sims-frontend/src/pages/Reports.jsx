@@ -59,7 +59,7 @@ function OverviewStrip() {
           padding: '14px 18px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
         }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: '#64748b',
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: '#000000',
             textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             {item.label}
           </p>
@@ -81,8 +81,8 @@ function OverviewStrip() {
 function TabSkeleton() {
   return (
     <div style={{ padding: '40px 0', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12 }}>
-      <RefreshCw size={18} style={{ animation: 'spin 0.8s linear infinite', color: '#3b82f6' }} />
-      <span style={{ color: '#64748b', fontSize: 14 }}>Loading report…</span>
+      <RefreshCw size={18} style={{ animation: 'spin 0.8s linear infinite', color: '#000000' }} />
+      <span style={{ color: '#000000', fontSize: 14 }}>Loading report…</span>
     </div>
   );
 }
@@ -100,7 +100,7 @@ export default function Reports() {
       <div className="reports-header">
         <div className="reports-header-left">
           <h1>
-            <BarChart3 size={26} style={{ display: 'inline', marginRight: 10, verticalAlign: 'middle', color: '#3b82f6' }} />
+            <BarChart3 size={26} style={{ display: 'inline', marginRight: 10, verticalAlign: 'middle', color: '#000000' }} />
             Reports &amp; Analytics
           </h1>
           <p>Inventory valuations, stock movements, supplier analytics, and sales aggregations</p>

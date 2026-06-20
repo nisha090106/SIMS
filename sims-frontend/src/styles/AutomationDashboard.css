@@ -21,14 +21,14 @@
 .header-info h1 {
   font-size: 1.75rem;
   font-weight: 850;
-  color: var(--text-main);
+  color: #000000;
   margin: 0 0 0.35rem 0;
   letter-spacing: -0.02em;
 }
 
 .header-info p {
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: #000000;
   margin: 0;
 }
 
@@ -46,7 +46,7 @@
 
 .warning-card-graphic {
   background-color: #fee2e2;
-  color: #dc2626;
+  color: #000000;
   width: 44px;
   height: 44px;
   border-radius: var(--radius-md);
@@ -68,13 +68,13 @@
   margin: 0 0 0.2rem 0;
   font-size: 1rem;
   font-weight: 800;
-  color: #991b1b;
+  color: #000000;
 }
 
 .warning-card-content p {
   margin: 0;
   font-size: 0.85rem;
-  color: #7f1d1d;
+  color: #000000;
 }
 
 .resolve-warning-btn {
@@ -136,13 +136,13 @@
 .cron-title-box h3 {
   font-size: 1rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: #000000;
   margin: 0 0 0.15rem 0;
 }
 
 .cron-schedule-info {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: #000000;
   font-weight: 600;
 }
 
@@ -156,12 +156,12 @@
 
 .cron-status-badge.success {
   background-color: #d1fae5;
-  color: #065f46;
+  color: #000000;
 }
 
 .cron-status-badge.failed {
   background-color: #fee2e2;
-  color: #991b1b;
+  color: #000000;
 }
 
 .cron-meta-stats {
@@ -177,13 +177,13 @@
 .cron-meta-stats .lbl {
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #000000;
   text-transform: uppercase;
 }
 
 .cron-meta-stats .val {
   font-size: 0.825rem;
-  color: var(--text-main);
+  color: #000000;
   font-weight: 650;
 }
 
@@ -201,7 +201,7 @@
   gap: 0.35rem;
   background-color: #f1f5f9;
   border: 1px solid var(--border-color);
-  color: #475569;
+  color: #000000;
   padding: 0.5rem;
   border-radius: var(--radius-sm);
   font-size: 0.8rem;
@@ -213,7 +213,7 @@
 .cron-run-now-btn:hover:not(:disabled) {
   background-color: var(--primary-light-bg);
   border-color: var(--primary-light);
-  color: var(--primary-light);
+  color: #000000;
 }
 
 .cron-run-now-btn:disabled {
@@ -271,13 +271,13 @@
 .card-text-section h3 {
   font-size: 1.1rem;
   font-weight: 800;
-  color: #1f2937;
+  color: #000000;
   margin: 0 0 0.35rem 0;
 }
 
 .card-text-section p {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #000000;
   margin: 0;
   line-height: 1.4;
 }
@@ -355,7 +355,7 @@
 .section-title {
   font-size: 1.15rem;
   font-weight: 850;
-  color: var(--text-main);
+  color: #000000;
   margin: 0;
   letter-spacing: -0.01em;
 }
@@ -410,7 +410,7 @@
   padding: 0.85rem 1rem;
   font-size: 0.725rem;
   font-weight: 750;
-  color: var(--text-muted);
+  color: #000000;
   text-transform: uppercase;
   border-bottom: 1px solid var(--border-color);
 }
@@ -426,13 +426,13 @@
 }
 
 .rules-grid-table .text-primary {
-  color: var(--primary-light);
+  color: #000000;
 }
 
 .rules-grid-table .rule-action-btn {
   background: none;
   border: 1px solid var(--border-color);
-  color: var(--text-muted);
+  color: #000000;
   padding: 0.35rem;
   border-radius: 4px;
   cursor: pointer;
@@ -442,7 +442,7 @@
 
 .rules-grid-table .rule-action-btn:hover {
   background-color: #f1f5f9;
-  color: var(--text-main);
+  color: #000000;
   border-color: #cbd5e1;
 }
 
@@ -513,7 +513,7 @@ input:checked + .slider:before {
   align-items: center;
   justify-content: center;
   padding: 3rem;
-  color: var(--text-muted);
+  color: #000000;
   text-align: center;
 }
 
@@ -543,7 +543,7 @@ input:checked + .slider:before {
 .widget-form-group label {
   font-size: 0.775rem;
   font-weight: 750;
-  color: #475569;
+  color: #000000;
 }
 
 .input-with-icon {
@@ -571,7 +571,7 @@ input:checked + .slider:before {
   top: 50%;
   left: 0.65rem;
   transform: translateY(-50%);
-  color: var(--text-muted);
+  color: #000000;
   font-size: 18px !important;
 }
 
@@ -589,7 +589,7 @@ input:checked + .slider:before {
   font-size: 0.85rem;
   outline: none;
   background-color: #ffffff;
-  color: var(--text-main);
+  color: #000000;
   font-weight: 600;
 }
 
@@ -617,7 +617,7 @@ input:checked + .slider:before {
   padding: 0.45rem;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #64748b;
+  color: #000000;
   border-radius: 4px;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -667,13 +667,13 @@ input:checked + .slider:before {
 .scan-result-card.found {
   background-color: #ecfdf5;
   border-color: #a7f3d0;
-  color: #065f46;
+  color: #000000;
 }
 
 .scan-result-card.not-found {
   background-color: #fffbeb;
   border-color: #fcd34d;
-  color: #92400e;
+  color: #000000;
 }
 
 .scan-result-card .card-header {
@@ -721,7 +721,7 @@ input:checked + .slider:before {
   font-size: 0.8rem;
   font-weight: 800;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: #000000;
   margin: 0;
   border-left: 2px solid var(--primary-light);
   padding-left: 0.45rem;
@@ -729,7 +729,7 @@ input:checked + .slider:before {
 
 .recent-scans-widget-box .empty-txt {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #000000;
   font-style: italic;
   margin: 0;
 }
@@ -746,7 +746,7 @@ input:checked + .slider:before {
   padding: 0.6rem 0.75rem;
   font-size: 0.7rem;
   font-weight: 750;
-  color: var(--text-muted);
+  color: #000000;
   text-transform: uppercase;
   border-bottom: 1px solid var(--border-color);
 }
@@ -764,7 +764,7 @@ input:checked + .slider:before {
   border-radius: 3px;
   font-family: monospace;
   font-size: 0.75rem;
-  color: #334155;
+  color: #000000;
 }
 
 .recent-scans-table tr:last-child td {
@@ -782,7 +782,7 @@ input:checked + .slider:before {
 
 .recent-scans-table .scan-time {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: #000000;
   white-space: nowrap;
 }
 
@@ -811,7 +811,7 @@ input:checked + .slider:before {
 }
 
 .logs-section-header svg {
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .logs-filters-toolbar {
@@ -835,7 +835,7 @@ input:checked + .slider:before {
 .logs-filters-toolbar .filter-group label {
   font-size: 0.725rem;
   font-weight: 750;
-  color: var(--text-muted);
+  color: #000000;
   text-transform: uppercase;
 }
 
@@ -869,13 +869,13 @@ input:checked + .slider:before {
 
 .filter-group-date .calendar-icon {
   font-size: 16px !important;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .clear-logs-filters-btn {
   background-color: #ffffff;
   border: 1px solid var(--border-color);
-  color: #475569;
+  color: #000000;
   padding: 0.45rem 0.85rem;
   border-radius: var(--radius-sm);
   font-size: 0.775rem;
@@ -891,7 +891,7 @@ input:checked + .slider:before {
 .logs-total-count {
   margin-left: auto;
   font-size: 0.825rem;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .logs-table-wrapper {
@@ -907,7 +907,7 @@ input:checked + .slider:before {
   align-items: center;
   justify-content: center;
   padding: 3rem;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .logs-table {
@@ -921,7 +921,7 @@ input:checked + .slider:before {
   padding: 0.85rem 1rem;
   font-size: 0.725rem;
   font-weight: 750;
-  color: var(--text-muted);
+  color: #000000;
   text-transform: uppercase;
   border-bottom: 1px solid var(--border-color);
 }
@@ -954,23 +954,23 @@ input:checked + .slider:before {
 
 .badge-log-status.success {
   background-color: #d1fae5;
-  color: #065f46;
+  color: #000000;
 }
 
 .badge-log-status.failed {
   background-color: #fee2e2;
-  color: #991b1b;
+  color: #000000;
 }
 
 .badge-log-status.partial {
   background-color: #fef3c7;
-  color: #92400e;
+  color: #000000;
 }
 
 .log-details-toggle {
   background: none;
   border: 1px solid var(--border-color);
-  color: var(--text-muted);
+  color: #000000;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.725rem;
@@ -980,7 +980,7 @@ input:checked + .slider:before {
 
 .log-details-toggle:hover {
   background-color: #f1f5f9;
-  color: var(--text-main);
+  color: #000000;
 }
 
 /* Expanded Code block row */
@@ -1000,7 +1000,7 @@ input:checked + .slider:before {
 .log-expanded-box h4 {
   font-size: 0.8rem;
   font-weight: 800;
-  color: var(--text-muted);
+  color: #000000;
   text-transform: uppercase;
   margin: 0;
 }
@@ -1009,7 +1009,7 @@ input:checked + .slider:before {
   margin: 0;
   padding: 0.875rem;
   background-color: #0f172a; /* Slate 900 */
-  color: #f8fafc;
+  color: #000000;
   border-radius: var(--radius-md);
   font-family: monospace;
   font-size: 0.775rem;
@@ -1030,7 +1030,7 @@ input:checked + .slider:before {
 .page-btn {
   background-color: #ffffff;
   border: 1px solid var(--border-color);
-  color: #475569;
+  color: #000000;
   padding: 0.35rem 0.75rem;
   border-radius: 4px;
   font-size: 0.775rem;
@@ -1050,7 +1050,7 @@ input:checked + .slider:before {
 
 .page-label {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 /* ═══════════════════════════════════════
@@ -1095,14 +1095,14 @@ input:checked + .slider:before {
   margin: 0;
   font-size: 1.15rem;
   font-weight: 850;
-  color: var(--text-main);
+  color: #000000;
   letter-spacing: -0.015em;
 }
 
 .drawer-close-btn {
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: #000000;
   cursor: pointer;
   padding: 0.35rem;
   border-radius: 50%;
@@ -1113,7 +1113,7 @@ input:checked + .slider:before {
 
 .drawer-close-btn:hover {
   background-color: #e2e8f0;
-  color: var(--text-main);
+  color: #000000;
 }
 
 .drawer-body-scroller {
@@ -1127,7 +1127,7 @@ input:checked + .slider:before {
 
 .drawer-helper-desc {
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: #000000;
   line-height: 1.5;
   margin: 0;
 }
@@ -1159,7 +1159,7 @@ input:checked + .slider:before {
 .barcode-badge {
   font-size: 0.85rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: #000000;
 }
 
 .barcode-badge code {
@@ -1174,7 +1174,7 @@ input:checked + .slider:before {
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
   font-size: 0.775rem;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .conflict-meta-box .details span {
@@ -1190,7 +1190,7 @@ input:checked + .slider:before {
 
 .link-product-init-btn {
   background-color: var(--primary-light-bg);
-  color: var(--primary-light);
+  color: #000000;
   border: 1px solid var(--primary-light);
   padding: 0.45rem 1rem;
   border-radius: var(--radius-sm);
@@ -1246,7 +1246,7 @@ input:checked + .slider:before {
 .link-btn-cancel {
   background: none;
   border: 1px solid var(--border-color);
-  color: #64748b;
+  color: #000000;
   padding: 0.4rem 0.875rem;
   border-radius: var(--radius-sm);
   font-size: 0.775rem;
@@ -1265,7 +1265,7 @@ input:checked + .slider:before {
   align-items: center;
   justify-content: center;
   padding: 4rem 1.5rem;
-  color: var(--text-muted);
+  color: #000000;
   text-align: center;
 }
 
@@ -1290,7 +1290,7 @@ input:checked + .slider:before {
 
 /* Yup Form validation error message spacing */
 .form-err-msg {
-  color: #dc2626;
+  color: #000000;
   font-size: 0.75rem;
   margin-top: 0.2rem;
   text-align: left;
@@ -1306,5 +1306,5 @@ input:checked + .slider:before {
 .inline-toggle span {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-main);
+  color: #000000;
 }

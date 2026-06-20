@@ -264,7 +264,7 @@ function ProfileSection() {
             { label: 'User ID',        value: <code style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>#{profile?.id}</code> },
           ].map((item, i) => (
             <div key={i} style={{ padding: '14px 20px', borderBottom: '1px solid var(--color-border)', borderRight: i % 2 === 0 ? '1px solid var(--color-border)' : 'none' }}>
-              <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</p>
+              <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</p>
               <div style={{ marginTop: 4, fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-text-primary)', fontFamily: 'var(--font-sans)' }}>{item.value}</div>
             </div>
           ))}
@@ -809,7 +809,7 @@ function AuditLogSection() {
                   <td colSpan={6} style={{ padding: '12px 16px', background: '#f8fafc', borderBottom: '1px solid var(--color-border)' }}>
                     <pre style={{
                       margin: 0, fontSize: 12, fontFamily: 'var(--font-mono)',
-                      color: '#334155', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
+                      color: '#000000', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
                       background: '#f1f5f9', padding: '10px 14px', borderRadius: 6,
                     }}>
                       {typeof log.changes === 'string'

@@ -290,16 +290,16 @@ function NotificationItem({ n, isLast, onClick, onDelete }) {
         </p>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6 }}>
-          <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: 'var(--font-sans)' }}>
+          <span style={{ fontSize: 11, color: '#000000', fontFamily: 'var(--font-sans)' }}>
             {fmtDate(n.created_at)}
           </span>
-          <span style={{ fontSize: 11, color: '#94a3b8' }}>·</span>
-          <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: 'var(--font-sans)' }}>
+          <span style={{ fontSize: 11, color: '#000000' }}>·</span>
+          <span style={{ fontSize: 11, color: '#000000', fontFamily: 'var(--font-sans)' }}>
             {relativeTime(n.created_at)}
           </span>
           {n.link && (
             <>
-              <span style={{ fontSize: 11, color: '#94a3b8' }}>·</span>
+              <span style={{ fontSize: 11, color: '#000000' }}>·</span>
               <span style={{ fontSize: 11, color: 'var(--color-primary)', fontFamily: 'var(--font-sans)', fontWeight: 600 }}>
                 View →
               </span>
@@ -314,7 +314,7 @@ function NotificationItem({ n, isLast, onClick, onDelete }) {
           onClick={onDelete}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
-            color: '#94a3b8', fontSize: 16, lineHeight: 1,
+            color: '#000000', fontSize: 16, lineHeight: 1,
             padding: '4px 6px', borderRadius: 6, alignSelf: 'flex-start',
             flexShrink: 0,
           }}

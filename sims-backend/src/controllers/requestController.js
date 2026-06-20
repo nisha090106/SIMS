@@ -90,7 +90,7 @@ export class RequestController {
             requested_qty: item.requested_qty,
             notes: item.notes || null,
           })),
-          { transaction: t }
+          { transaction: t },
         );
 
         // Log to audit
@@ -498,13 +498,13 @@ export class RequestController {
           // Deduct inventory
           await inventory.update(
             { quantity: inventory.quantity - fulfillQty },
-            { transaction: t }
+            { transaction: t },
           );
 
           // Update fulfilled quantity
           await item.update(
             { fulfilled_qty: fulfillQty },
-            { transaction: t }
+            { transaction: t },
           );
         }
 

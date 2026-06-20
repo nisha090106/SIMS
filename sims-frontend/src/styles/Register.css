@@ -1,18 +1,10 @@
-/* Premium Split-Screen Register Style */
+/* Premium Split-Screen Register Style (Light Theme Redesign) */
 
 .register-page {
   min-height: 100vh;
   display: flex;
-  background-color: #0b0f19;
-  font-family:
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Helvetica,
-    Arial,
-    sans-serif;
+  background-color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
 }
 
@@ -29,14 +21,14 @@
 
 .register-brand-side {
   position: relative;
-  background: radial-gradient(circle at 0% 0%, #1e1b4b 0%, #0f0728 50%, #03000a 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #dbeafe 100%);
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: 8% 10%;
-  color: #ffffff;
+  color: #000000;
   overflow: hidden;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid #e2e8f0;
 }
 
 /* Ambient glowing orbs */
@@ -47,7 +39,7 @@
   left: -10%;
   width: 50%;
   height: 50%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(30, 64, 175, 0.05) 0%, transparent 70%);
   filter: blur(50px);
   pointer-events: none;
 }
@@ -59,7 +51,7 @@
   right: -10%;
   width: 60%;
   height: 60%;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.04) 0%, transparent 70%);
   filter: blur(60px);
   pointer-events: none;
 }
@@ -67,7 +59,7 @@
 .brand-overlay {
   position: absolute;
   inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 0V1.5M1.5 1.5H0M1.5 1.5H30M1.5 1.5V30' stroke='rgba(255,255,255,0.02)' stroke-width='1'/%3E%3C/svg%3E")
+  background: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 0V1.5M1.5 1.5H0M1.5 1.5H30M1.5 1.5V30' stroke='rgba(30,64,175,0.015)' stroke-width='1'/%3E%3C/svg%3E")
     repeat;
   pointer-events: none;
 }
@@ -75,7 +67,7 @@
 .brand-content {
   position: relative;
   z-index: 10;
-  animation: fadeSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .brand-logo-wrapper {
@@ -88,7 +80,7 @@
 .brand-logo-icon {
   width: 42px;
   height: 42px;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
   color: #ffffff;
   font-weight: 800;
   font-size: 20px;
@@ -96,16 +88,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 20px rgba(30, 64, 175, 0.15);
 }
 
 .brand-logo-text {
   font-size: 26px;
   font-weight: 800;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .brand-heading {
@@ -114,17 +107,19 @@
   line-height: 1.2;
   margin-bottom: 20px;
   letter-spacing: -1px;
+  color: #000000;
 }
 
 .text-highlight {
-  background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .brand-tagline {
   font-size: 16px;
-  color: #94a3b8;
+  color: #000000;
   line-height: 1.6;
   margin-bottom: 40px;
   max-width: 480px;
@@ -147,34 +142,34 @@
 .bf-icon-box {
   width: 38px;
   height: 38px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(30, 64, 175, 0.03);
+  border: 1px solid rgba(30, 64, 175, 0.08);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #818cf8;
+  color: #000000;
   flex-shrink: 0;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .brand-feature-item:hover .bf-icon-box {
-  background: rgba(99, 102, 241, 0.1);
-  border-color: rgba(99, 102, 241, 0.3);
-  color: #a855f7;
+  background: rgba(30, 64, 175, 0.08);
+  border-color: rgba(30, 64, 175, 0.2);
+  color: #000000;
   transform: scale(1.05);
 }
 
 .brand-feature-item h4 {
   font-size: 15px;
   font-weight: 600;
-  color: #f8fafc;
+  color: #000000;
   margin: 0 0 4px 0;
 }
 
 .brand-feature-item p {
   font-size: 13px;
-  color: #64748b;
+  color: #000000;
   margin: 0;
   line-height: 1.5;
 }
@@ -184,7 +179,7 @@
   display: flex;
   gap: 40px;
   padding-top: 30px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid #e2e8f0;
   max-width: 400px;
 }
 
@@ -197,12 +192,12 @@
 .b-stat-num {
   font-size: 22px;
   font-weight: 700;
-  color: #ffffff;
+  color: #000000;
 }
 
 .b-stat-lbl {
   font-size: 12px;
-  color: #475569;
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -212,7 +207,7 @@
    ========================================================================== */
 
 .register-form-side {
-  background-color: #0b0f19;
+  background-color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -223,7 +218,7 @@
 .form-container-wrapper {
   width: 100%;
   max-width: 440px;
-  animation: fadeSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  animation: fadeSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
 }
 
 .form-header {
@@ -233,13 +228,13 @@
 .form-header h2 {
   font-size: 28px;
   font-weight: 700;
-  color: #f8fafc;
+  color: #000000;
   margin: 0 0 10px 0;
   letter-spacing: -0.5px;
 }
 
 .form-header p {
-  color: #64748b;
+  color: #000000;
   font-size: 14px;
   line-height: 1.5;
   margin: 0;
@@ -261,7 +256,7 @@
 .custom-input-group label {
   font-size: 13px;
   font-weight: 600;
-  color: #94a3b8;
+  color: #000000;
   letter-spacing: 0.3px;
 }
 
@@ -274,51 +269,51 @@
 .input-icon {
   position: absolute;
   left: 14px;
-  color: #475569;
+  color: #000000;
   pointer-events: none;
-  transition: color 0.3s ease;
+  transition: color 0.25s ease;
   z-index: 10;
 }
 
 .field-control {
   width: 100%;
   padding: 13px 14px 13px 44px;
-  background-color: #111827;
-  border: 1px solid #1f2937;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 10px;
   font-size: 14px;
-  color: #f8fafc;
+  color: #000000;
   font-family: inherit;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .field-control::placeholder {
-  color: #475569;
+  color: #000000;
 }
 
 .field-control:focus {
   outline: none;
-  border-color: #6366f1;
-  background-color: #111827;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  border-color: #1e40af;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
 }
 
 .field-control:focus + .input-icon,
 .input-with-icon:focus-within .input-icon {
-  color: #6366f1;
+  color: #000000;
 }
 
 .field-control.has-error {
   border-color: #ef4444;
-  background-color: rgba(239, 68, 68, 0.02);
+  background-color: rgba(239, 68, 68, 0.01);
 }
 
 .field-control.has-error:focus {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
 .validation-error-msg {
-  color: #ef4444;
+  color: #000000;
   font-size: 12px;
   margin-top: 4px;
 }
@@ -335,26 +330,26 @@
 }
 
 .select-control:focus {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236366f1' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231e40af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
 }
 
 .select-control option {
-  background-color: #111827;
-  color: #f8fafc;
+  background-color: #ffffff;
+  color: #000000;
 }
 
 /* Gradient Submit Button */
 .register-gradient-submit-btn {
   padding: 14px 20px;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
   color: #ffffff;
   font-size: 15px;
   font-weight: 600;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 18px rgba(30, 64, 175, 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -362,9 +357,9 @@
 }
 
 .register-gradient-submit-btn:hover:not(:disabled) {
-  transform: translateY(-1.5px);
-  box-shadow: 0 6px 26px rgba(99, 102, 241, 0.35);
-  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(30, 64, 175, 0.3);
+  filter: brightness(1.05);
 }
 
 .register-gradient-submit-btn:active:not(:disabled) {
@@ -411,25 +406,25 @@
 .register-navigation-footer-links {
   text-align: center;
   margin-top: 10px;
-  border-top: 1px solid #1f2937;
+  border-top: 1px solid #e2e8f0;
   padding-top: 20px;
 }
 
 .register-navigation-footer-links p {
-  color: #64748b;
+  color: #000000;
   font-size: 13px;
   margin: 0;
 }
 
 .highlight-redirect-link {
-  color: #818cf8;
+  color: #000000;
   text-decoration: none;
   font-weight: 600;
   transition: all 0.2s ease;
 }
 
 .highlight-redirect-link:hover {
-  color: #a855f7;
+  color: #000000;
   text-decoration: underline;
 }
 
@@ -437,7 +432,6 @@
    RESPONSIVENESS AND COLLAPSIBLE ADAPTATIONS
    ========================================================================== */
 
-/* Screen heights restriction adaptation */
 @media (max-height: 800px) {
   .brand-logo-wrapper {
     margin-bottom: 25px;
@@ -457,14 +451,13 @@
   }
 }
 
-/* Grid collapsing rules - tablet and below */
 @media (max-width: 1024px) {
   .register-grid {
     grid-template-columns: 1fr;
   }
 
   .register-brand-side {
-    display: none; /* Hide brand panel on smaller screens for clean density */
+    display: none;
   }
 
   .register-form-side {
@@ -477,7 +470,6 @@
   }
 }
 
-/* Mobile screen constraints */
 @media (max-width: 480px) {
   .register-form-side {
     padding: 40px 16px;
@@ -492,7 +484,7 @@
 @keyframes fadeSlideIn {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;

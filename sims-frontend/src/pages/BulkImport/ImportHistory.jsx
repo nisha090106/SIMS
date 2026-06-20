@@ -270,7 +270,7 @@ export default function ImportHistory({ refreshTrigger }) {
                               <span style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-sans)' }}>
                                 Job #{job.id}
                               </span>
-                              <Pill label="Total"   value={job.total_rows}     color="#64748B" />
+                              <Pill label="Total"   value={job.total_rows}     color="#000000" />
                               <Pill label="Success" value={job.processed_rows} color="var(--color-success)" />
                               <Pill label="Failed"  value={job.failed_rows}    color={job.failed_rows > 0 ? 'var(--color-danger)' : '#64748B'} />
                               {job.started_at && (

@@ -9,12 +9,12 @@ const theme = createTheme({
     },
     primary: {
       light:        '#EFF6FF',
-      main:         '#3B82F6',
-      dark:         '#2563EB',
+      main:         '#1E40AF',
+      dark:         '#1D4ED8',
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main:         '#64748B',
+      main:         '#475569',
       contrastText: '#FFFFFF',
     },
     success: {
@@ -30,19 +30,19 @@ const theme = createTheme({
       light: '#FEE2E2',
     },
     info: {
-      main:  '#3B82F6',
-      light: '#DBEAFE',
+      main:  '#1E40AF',
+      light: '#EFF6FF',
     },
     text: {
       primary:   '#1E293B',
-      secondary: '#64748B',
+      secondary: '#475569',
       disabled:  '#94A3B8',
     },
     divider: '#E2E8F0',
   },
 
   typography: {
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    fontFamily: '\'Inter\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
     fontWeightLight:   300,
     fontWeightRegular: 400,
     fontWeightMedium:  500,
@@ -83,11 +83,11 @@ const theme = createTheme({
           textTransform: 'none',
           fontSize: '0.875rem',
           padding: '7px 16px',
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: '\'Inter\', sans-serif',
         },
         containedPrimary: {
-          background: '#3B82F6',
-          '&:hover': { background: '#2563EB' },
+          background: '#1E40AF',
+          '&:hover': { background: '#1D4ED8' },
         },
       },
     },
@@ -98,10 +98,10 @@ const theme = createTheme({
         root: {
           borderRadius: 8,
           fontSize: '0.875rem',
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: '\'Inter\', sans-serif',
           background: '#FFFFFF',
           '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#CBD5E1' },
-          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#3B82F6', borderWidth: 1 },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1E40AF', borderWidth: 1 },
         },
         notchedOutline: { borderColor: '#E2E8F0' },
         input: { padding: '9px 14px', height: 'auto' },
@@ -112,9 +112,9 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           fontSize: '0.875rem',
-          color: '#64748B',
-          fontFamily: "'Inter', sans-serif",
-          '&.Mui-focused': { color: '#3B82F6' },
+          color: '#475569',
+          fontFamily: '\'Inter\', sans-serif',
+          '&.Mui-focused': { color: '#1E40AF' },
         },
       },
     },
@@ -152,7 +152,7 @@ const theme = createTheme({
 
     MuiCardContent: {
       styleOverrides: {
-        root: { fontFamily: "'Inter', sans-serif" },
+        root: { fontFamily: '\'Inter\', sans-serif' },
       },
     },
 
@@ -164,7 +164,7 @@ const theme = createTheme({
           fontWeight: 600,
           fontSize: '0.75rem',
           height: 24,
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: '\'Inter\', sans-serif',
         },
       },
     },
@@ -181,7 +181,7 @@ const theme = createTheme({
           fontSize: '1rem', fontWeight: 700,
           padding: '16px 24px',
           borderBottom: '1px solid #E2E8F0',
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: '\'Inter\', sans-serif',
         },
       },
     },
@@ -207,7 +207,7 @@ const theme = createTheme({
             color: '#64748B',
             borderBottom: '1px solid #E2E8F0',
             padding: '10px 16px',
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: '\'Inter\', sans-serif',
           },
         },
       },
@@ -220,7 +220,7 @@ const theme = createTheme({
             padding: '11px 16px',
             borderBottom: '1px solid #F1F5F9',
             color: '#1E293B',
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: '\'Inter\', sans-serif',
           },
           '& .MuiTableRow-root': {
             '&:hover': { background: '#F8FAFC' },
@@ -241,7 +241,7 @@ const theme = createTheme({
           fontWeight: 500,
           borderRadius: 6,
           padding: '5px 9px',
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: '\'Inter\', sans-serif',
         },
         arrow: { color: '#1E293B' },
       },
@@ -269,8 +269,8 @@ const theme = createTheme({
     MuiSwitch: {
       styleOverrides: {
         switchBase: {
-          '&.Mui-checked': { color: '#3B82F6' },
-          '&.Mui-checked + .MuiSwitch-track': { backgroundColor: '#3B82F6' },
+          '&.Mui-checked': { color: '#1E40AF' },
+          '&.Mui-checked + .MuiSwitch-track': { backgroundColor: '#1E40AF' },
         },
       },
     },
@@ -280,7 +280,7 @@ const theme = createTheme({
       styleOverrides: {
         body: {
           backgroundColor: '#F8FAFC',
-          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          fontFamily: '\'Inter\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
           color: '#1E293B',
         },
       },

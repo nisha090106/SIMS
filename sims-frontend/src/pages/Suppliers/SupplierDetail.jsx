@@ -176,7 +176,7 @@ const SupplierDetail = () => {
       <Paper sx={{ p: 3, mb: 4, borderRadius: 2, boxShadow: 1 }}>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1.5, color: '#1a1a1a' }}>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1.5, color: '#000000' }}>
               {supplier.name}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
@@ -223,11 +223,11 @@ const SupplierDetail = () => {
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Mail size={16} style={{ color: '#666' }} />
+                  <Mail size={16} style={{ color: '#000000' }} />
                   <Typography variant="body2">{supplier.email || '-'}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Phone size={16} style={{ color: '#666' }} />
+                  <Phone size={16} style={{ color: '#000000' }} />
                   <Typography variant="body2">{supplier.phone || '-'}</Typography>
                 </Box>
               </Box>
@@ -243,11 +243,11 @@ const SupplierDetail = () => {
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <MapPin size={16} style={{ color: '#666' }} />
+                  <MapPin size={16} style={{ color: '#000000' }} />
                   <Typography variant="body2">{supplier.address || '-'}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Globe size={16} style={{ color: '#666' }} />
+                  <Globe size={16} style={{ color: '#000000' }} />
                   <Typography variant="body2">{supplier.country || '-'}</Typography>
                 </Box>
               </Box>
@@ -263,11 +263,11 @@ const SupplierDetail = () => {
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <CreditCard size={16} style={{ color: '#666' }} />
+                  <CreditCard size={16} style={{ color: '#000000' }} />
                   <Typography variant="body2">Payment: {formatPaymentTerms(supplier.payment_terms)}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Clock size={16} style={{ color: '#666' }} />
+                  <Clock size={16} style={{ color: '#000000' }} />
                   <Typography variant="body2">Lead Time: {supplier.lead_time ? `${supplier.lead_time} days` : '-'}</Typography>
                 </Box>
               </Box>
@@ -278,7 +278,7 @@ const SupplierDetail = () => {
 
       {/* Tabs Section */}
       <Paper sx={{ borderRadius: 2, boxShadow: 1, overflow: 'hidden' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: '#f8f9fa' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: '#000000' }}>
           <Tabs value={activeTab} onChange={(e, val) => setActiveTab(val)} aria-label="supplier tabs">
             <Tab label="Overview" sx={{ textTransform: 'none', fontWeight: 'bold' }} />
             <Tab label={`Purchase Orders (${purchaseOrders.length})`} sx={{ textTransform: 'none', fontWeight: 'bold' }} />
@@ -328,7 +328,7 @@ const SupplierDetail = () => {
                 <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 1.5, overflow: 'hidden' }}>
                   <Table size="small">
                     <TableHead>
-                      <TableRow sx={{ bgcolor: '#f8f9fa' }}>
+                      <TableRow sx={{ bgcolor: '#000000' }}>
                         <TableCell sx={{ fontWeight: 'bold' }}>PO Number</TableCell>
                         <TableCell sx={{ fontWeight: 'bold' }}>Order Date</TableCell>
                         <TableCell sx={{ fontWeight: 'bold' }}>Expected Delivery</TableCell>

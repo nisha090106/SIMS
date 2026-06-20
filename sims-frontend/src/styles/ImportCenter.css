@@ -21,14 +21,14 @@
 .header-info h1 {
   font-size: 1.75rem;
   font-weight: 850;
-  color: var(--text-main);
+  color: #000000;
   margin: 0 0 0.35rem 0;
   letter-spacing: -0.02em;
 }
 
 .header-info p {
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: #000000;
   margin: 0;
 }
 
@@ -50,7 +50,7 @@
   padding: 0.6rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #000000;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -59,12 +59,12 @@
 
 .import-tab-btn:hover {
   background-color: #f1f5f9;
-  color: var(--text-main);
+  color: #000000;
 }
 
 .import-tab-btn.active {
   background-color: var(--primary-light-bg);
-  color: var(--primary-light);
+  color: #000000;
   font-weight: 800;
   box-shadow: var(--shadow-sm);
 }
@@ -104,14 +104,14 @@
 .template-downloader-header h3 {
   font-size: 1.1rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: #000000;
   margin: 0;
 }
 
 .download-template-link {
   background: none;
   border: 1px solid var(--primary-light);
-  color: var(--primary-light);
+  color: #000000;
   padding: 0.45rem 1rem;
   border-radius: var(--radius-sm);
   font-size: 0.8rem;
@@ -139,7 +139,7 @@
 .stock-additional-form label {
   font-size: 0.8rem;
   font-weight: 750;
-  color: #0369a1;
+  color: #000000;
 }
 
 .stock-additional-form select {
@@ -149,7 +149,7 @@
   font-size: 0.85rem;
   outline: none;
   background-color: #ffffff;
-  color: var(--text-main);
+  color: #000000;
   font-weight: 600;
 }
 
@@ -181,34 +181,34 @@
 
 .upload-icon-graphic {
   font-size: 48px !important;
-  color: var(--text-muted);
+  color: #000000;
   transition: color var(--transition-fast);
 }
 
 .drag-drop-zone:hover .upload-icon-graphic {
-  color: var(--primary-light);
+  color: #000000;
 }
 
 .drag-drop-zone.has-file .upload-icon-graphic {
-  color: #10b981;
+  color: #000000;
 }
 
 .prompt-text p {
   margin: 0 0 0.25rem 0;
   font-size: 0.95rem;
   font-weight: 650;
-  color: #334155;
+  color: #000000;
 }
 
 .prompt-text span {
-  color: var(--primary-light);
+  color: #000000;
   text-decoration: underline;
   font-weight: 700;
 }
 
 .prompt-text .subtext {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 /* File Selected Meta */
@@ -225,7 +225,7 @@
 
 .file-info-selected .file-icon {
   font-size: 28px !important;
-  color: #059669;
+  color: #000000;
 }
 
 .file-info-selected .meta {
@@ -237,7 +237,7 @@
 .file-info-selected .filename {
   font-size: 0.85rem;
   font-weight: 750;
-  color: var(--text-main);
+  color: #000000;
   max-width: 240px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -246,7 +246,7 @@
 
 .file-info-selected .size {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .upload-actions-bar {
@@ -258,7 +258,7 @@
 .cancel-upload-btn {
   background: none;
   border: 1px solid var(--border-color);
-  color: #475569;
+  color: #000000;
   padding: 0.55rem 1.25rem;
   border-radius: var(--radius-sm);
   font-size: 0.825rem;
@@ -302,7 +302,7 @@
 .template-preview-box h4 {
   font-size: 0.8rem;
   font-weight: 800;
-  color: var(--text-muted);
+  color: #000000;
   text-transform: uppercase;
   margin: 0;
 }
@@ -318,7 +318,7 @@
   padding: 0.45rem 0.75rem;
   font-size: 0.7rem;
   font-weight: 750;
-  color: var(--text-muted);
+  color: #000000;
   border: 1px solid var(--border-color);
 }
 
@@ -326,7 +326,7 @@
   padding: 0.45rem 0.75rem;
   font-size: 0.75rem;
   border: 1px solid var(--border-color);
-  color: var(--text-main);
+  color: #000000;
   font-family: monospace;
 }
 
@@ -345,7 +345,7 @@
 .import-progress-panel h3 {
   font-size: 1.1rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: #000000;
   margin: 0;
 }
 
@@ -368,7 +368,7 @@
 .progress-card-header .filename {
   font-weight: 750;
   font-size: 0.9rem;
-  color: var(--text-main);
+  color: #000000;
 }
 
 .status-badge-inline {
@@ -383,25 +383,25 @@
 
 .status-badge-inline.pending {
   background-color: #fef3c7;
-  color: #92400e;
+  color: #000000;
   border-color: #fcd34d;
 }
 
 .status-badge-inline.processing {
   background-color: #e0f2fe;
-  color: #0369a1;
+  color: #000000;
   border-color: #7dd3fc;
 }
 
 .status-badge-inline.completed {
   background-color: #d1fae5;
-  color: #065f46;
+  color: #000000;
   border-color: #6ee7b7;
 }
 
 .status-badge-inline.failed {
   background-color: #fee2e2;
-  color: #991b1b;
+  color: #000000;
   border-color: #fca5a5;
 }
 
@@ -429,7 +429,7 @@
 .progress-percentage-label {
   font-size: 0.85rem;
   font-weight: 750;
-  color: var(--text-main);
+  color: #000000;
   text-align: right;
 }
 
@@ -453,22 +453,22 @@
 .live-progress-metrics .lbl {
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #000000;
   text-transform: uppercase;
 }
 
 .live-progress-metrics .val {
   font-size: 1.15rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: #000000;
 }
 
 .live-progress-metrics .val.text-success {
-  color: #16a34a;
+  color: #000000;
 }
 
 .live-progress-metrics .val.text-danger {
-  color: #dc2626;
+  color: #000000;
 }
 
 .pending-loader-state {
@@ -477,7 +477,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .pending-loader-state .loader {
@@ -510,7 +510,7 @@
 .active-error-logs-box h4 {
   font-size: 0.8rem;
   font-weight: 800;
-  color: #dc2626;
+  color: #000000;
   text-transform: uppercase;
   margin: 0;
 }
@@ -518,7 +518,7 @@
 .download-errors-btn {
   background: none;
   border: 1px solid #fca5a5;
-  color: #dc2626;
+  color: #000000;
   padding: 0.25rem 0.65rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -560,12 +560,12 @@
 
 .error-item .row-num {
   font-weight: 850;
-  color: #dc2626;
+  color: #000000;
   white-space: nowrap;
 }
 
 .error-item .err-desc {
-  color: #7f1d1d;
+  color: #000000;
   text-align: left;
 }
 
@@ -576,12 +576,12 @@
   border: 1px solid #fca5a5;
   border-radius: var(--radius-md);
   padding: 0.875rem 1.25rem;
-  color: #b91c1c;
+  color: #000000;
   text-align: left;
 }
 
 .job-fatal-error-message svg {
-  color: #dc2626;
+  color: #000000;
   font-size: 20px !important;
 }
 
@@ -616,13 +616,13 @@
 }
 
 .history-header svg {
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .history-header h3 {
   font-size: 1.15rem;
   font-weight: 850;
-  color: var(--text-main);
+  color: #000000;
   margin: 0;
   letter-spacing: -0.01em;
 }
@@ -634,7 +634,7 @@
   align-items: center;
   justify-content: center;
   padding: 4rem;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .history-loading .spinner {
@@ -664,7 +664,7 @@
   padding: 0.85rem 1rem;
   font-size: 0.725rem;
   font-weight: 750;
-  color: var(--text-muted);
+  color: #000000;
   text-transform: uppercase;
   border-bottom: 1px solid var(--border-color);
 }
@@ -699,22 +699,22 @@
 
 .badge-status-history.completed {
   background-color: #d1fae5;
-  color: #065f46;
+  color: #000000;
 }
 
 .badge-status-history.failed {
   background-color: #fee2e2;
-  color: #991b1b;
+  color: #000000;
 }
 
 .badge-status-history.processing {
   background-color: #e0f2fe;
-  color: #0369a1;
+  color: #000000;
 }
 
 .badge-status-history.pending {
   background-color: #fef3c7;
-  color: #92400e;
+  color: #000000;
 }
 
 .history-actions {
@@ -725,7 +725,7 @@
 .view-logs-toggle {
   background: none;
   border: 1px solid var(--border-color);
-  color: var(--text-muted);
+  color: #000000;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -738,7 +738,7 @@
 
 .view-logs-toggle:hover {
   background-color: #f1f5f9;
-  color: var(--text-main);
+  color: #000000;
   border-color: #cbd5e1;
 }
 
@@ -749,7 +749,7 @@
 .download-error-report {
   background-color: #fef2f2;
   border: 1px solid #fca5a5;
-  color: #dc2626;
+  color: #000000;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -778,7 +778,7 @@
 .history-expanded-logs-container h4 {
   font-size: 0.85rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: #000000;
   margin: 0;
 }
 
@@ -792,11 +792,11 @@
   display: flex;
   gap: 1.5rem;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #000000;
 }
 
 .expanded-errors-grid .meta-stats strong {
-  color: var(--text-main);
+  color: #000000;
 }
 
 .errors-list-box {
@@ -830,7 +830,7 @@
 }
 
 .error-log-item-row .reason {
-  color: #334155;
+  color: #000000;
   text-align: left;
 }
 
@@ -838,7 +838,7 @@
   margin: 0;
   padding: 0.75rem;
   background-color: #1e293b;
-  color: #e2e8f0;
+  color: #000000;
   font-family: monospace;
   font-size: 0.75rem;
   border-radius: var(--radius-sm);

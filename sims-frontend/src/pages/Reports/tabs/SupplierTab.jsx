@@ -104,7 +104,7 @@ export default function SupplierTab() {
       render: v => {
         const n = Number(v);
         return n > 0 ? (
-          <span style={{ color: '#f59e0b', fontWeight: 700 }}>★ {n.toFixed(1)}</span>
+          <span style={{ color: '#000000', fontWeight: 700 }}>★ {n.toFixed(1)}</span>
         ) : '—';
       },
     },
@@ -220,7 +220,7 @@ export default function SupplierTab() {
         <div className="reports-table-card" style={{ marginTop: 16 }}>
           <div className="reports-table-header">
             <h3>Active Suppliers with No Orders</h3>
-            <span className="table-badge" style={{ background: '#fef3c7', color: '#d97706' }}>
+            <span className="table-badge" style={{ background: '#fef3c7', color: '#000000' }}>
               {data.suppliersWithoutOrders.length}
             </span>
           </div>

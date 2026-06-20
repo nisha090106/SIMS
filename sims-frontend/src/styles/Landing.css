@@ -68,7 +68,7 @@
 }
 
 .nav-link {
-  color: #374151;
+  color: #000000;
   font-weight: 500;
   transition: color 0.3s ease;
   cursor: pointer;
@@ -78,7 +78,7 @@
 }
 
 .nav-link:hover {
-  color: #667eea;
+  color: #000000;
 }
 
 .hero-section {
@@ -243,13 +243,13 @@
 .feature-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: #000000;
   margin-bottom: 12px;
   text-align: center;
 }
 
 .feature-description {
-  color: #6b7280;
+  color: #000000;
   font-size: 0.95rem;
   line-height: 1.6;
   text-align: center;
@@ -341,7 +341,7 @@
 .step-number {
   font-size: 3rem;
   font-weight: 700;
-  color: #667eea;
+  color: #000000;
   opacity: 0.2;
   margin-bottom: 16px;
   text-align: center;
@@ -350,13 +350,13 @@
 .step-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: #000000;
   margin-bottom: 12px;
   text-align: center;
 }
 
 .step-description {
-  color: #6b7280;
+  color: #000000;
   font-size: 0.95rem;
   line-height: 1.6;
   text-align: center;
@@ -425,7 +425,7 @@
 .pricing-name {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #111827;
+  color: #000000;
   margin-bottom: 12px;
   text-align: center;
 }
@@ -433,7 +433,7 @@
 .pricing-price {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #667eea;
+  color: #000000;
   margin-bottom: 24px;
   text-align: center;
 }
@@ -448,7 +448,7 @@
 }
 
 .pricing-feature {
-  color: #6b7280;
+  color: #000000;
   font-size: 0.95rem;
   margin-bottom: 12px;
   line-height: 1.6;
@@ -493,7 +493,7 @@
 /* Footer */
 .footer {
   background: #111827;
-  color: #9ca3af;
+  color: #000000;
   padding: 48px 0 24px 0;
 }
 
@@ -507,7 +507,7 @@
 }
 
 .footer a:hover {
-  color: #667eea;
+  color: #000000;
 }
 
 /* Responsive Adjustments */

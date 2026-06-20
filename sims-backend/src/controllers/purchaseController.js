@@ -365,6 +365,6 @@ export async function autoCreatePO({ supplier_id, warehouse_id, product_id, prod
     created_by,
     auto_drafted: true,
     items:        JSON.stringify(lineItems),
-    notes:        notes || `Auto-drafted: low stock detected`,
+    notes:        notes || 'Auto-drafted: low stock detected',
   });
 }

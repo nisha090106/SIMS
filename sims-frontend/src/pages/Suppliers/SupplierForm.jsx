@@ -303,13 +303,13 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
             <Box
               sx={{
                 p: 2,
-                bgcolor: '#f8f9fa',
+                bgcolor: '#000000',
                 borderRadius: 2,
                 border: '1px solid #e0e0e0',
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <Star size={16} style={{ color: '#faaf00' }} />
+                <Star size={16} style={{ color: '#000000' }} />
                 <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
                   Supplier Rating
                 </Typography>
@@ -328,8 +328,8 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
                   disabled={!supplier} // disable for new suppliers
                   size="large"
                   sx={{
-                    '& .MuiRating-iconFilled': { color: '#faaf00' },
-                    '& .MuiRating-iconEmpty': { color: '#ddd' },
+                    '& .MuiRating-iconFilled': { color: '#000000' },
+                    '& .MuiRating-iconEmpty': { color: '#000000' },
                   }}
                 />
                 <Typography variant="body2" color="text.secondary">

@@ -42,7 +42,7 @@ export function FilterField({ label, children }) {
   return (
     <div className="filter-field" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       {label && (
-        <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+        <label style={{ fontSize: 11, fontWeight: 600, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
           {label}
         </label>
       )}

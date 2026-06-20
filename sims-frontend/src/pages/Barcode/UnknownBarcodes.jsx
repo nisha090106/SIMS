@@ -188,7 +188,7 @@ const UnknownBarcodes = () => {
               <TableContainer component={Paper}>
                 <Table>
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: '#000000' }}>
                       <TableCell>Barcode</TableCell>
                       <TableCell>Warehouse</TableCell>
                       <TableCell>Action</TableCell>
@@ -283,7 +283,7 @@ const UnknownBarcodes = () => {
           <Box sx={{ pt: 2 }}>
             {/* Barcode Info */}
             {selectedBarcode && (
-              <Paper sx={{ p: 2, mb: 2, bgcolor: '#f9f9f9' }}>
+              <Paper sx={{ p: 2, mb: 2, bgcolor: '#000000' }}>
                 <Typography variant="body2" color="textSecondary">
                   Action: <Chip label={selectedBarcode.action} size="small" color={getActionColor(selectedBarcode.action)} variant="outlined" />
                 </Typography>
@@ -311,7 +311,7 @@ const UnknownBarcodes = () => {
               <Paper sx={{ mb: 2, maxHeight: '300px', overflow: 'auto' }}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: '#000000' }}>
                       <TableCell>SKU</TableCell>
                       <TableCell>Name</TableCell>
                       <TableCell align="center">Select</TableCell>

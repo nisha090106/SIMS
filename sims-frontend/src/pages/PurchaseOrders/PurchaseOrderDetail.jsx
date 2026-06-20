@@ -52,10 +52,10 @@ function StatusStepper({ status }) {
   const isCancelled = status === 'cancelled';
 
   const stepLabels = {
-    draft: { label: 'Draft', color: '#64748B' },
-    pending: { label: 'Pending', color: '#0891B2' },
-    confirmed: { label: 'Confirmed', color: '#2563EB' },
-    delivered: { label: 'Delivered', color: '#16A34A' },
+    draft: { label: 'Draft', color: '#000000' },
+    pending: { label: 'Pending', color: '#000000' },
+    confirmed: { label: 'Confirmed', color: '#000000' },
+    delivered: { label: 'Delivered', color: '#000000' },
   };
 
   return (

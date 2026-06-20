@@ -265,7 +265,7 @@ function NotificationRow({ n, onClick, onDelete }) {
         }}>
           {n.message}
         </p>
-        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94a3b8', fontFamily: 'var(--font-sans)' }}>
+        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#000000', fontFamily: 'var(--font-sans)' }}>
           {relativeTime(n.created_at)}
         </p>
       </div>
@@ -276,7 +276,7 @@ function NotificationRow({ n, onClick, onDelete }) {
           onClick={onDelete}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
-            color: '#94a3b8', padding: '2px 4px', borderRadius: 4,
+            color: '#000000', padding: '2px 4px', borderRadius: 4,
             fontSize: 14, lineHeight: 1, flexShrink: 0, alignSelf: 'flex-start',
             marginTop: 2,
           }}

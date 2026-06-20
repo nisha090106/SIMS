@@ -26,14 +26,14 @@
 .reports-header-left h1 {
   font-size: 26px;
   font-weight: 800;
-  color: var(--color-text-primary);
+  color: #000000;
   margin: 0 0 4px 0;
   letter-spacing: -0.5px;
 }
 
 .reports-header-left p {
   font-size: var(--text-base);
-  color: var(--color-text-secondary);
+  color: #000000;
   margin: 0;
 }
 
@@ -56,7 +56,7 @@
   padding: 10px 18px;
   font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: #000000;
   background: transparent;
   border: none;
   border-radius: var(--radius-md);
@@ -66,12 +66,12 @@
 }
 
 .reports-tab:hover {
-  color: var(--color-text-primary);
+  color: #000000;
   background: rgba(0, 0, 0, 0.03);
 }
 
 .reports-tab.active {
-  color: var(--color-primary);
+  color: #000000;
   background: var(--color-surface);
   box-shadow: var(--shadow-card);
 }
@@ -130,12 +130,12 @@
 
 .filter-btn.outline {
   background: var(--color-surface);
-  color: var(--color-text-secondary);
+  color: #000000;
   border-color: var(--color-border);
 }
 .filter-btn.outline:hover {
   border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: #000000;
 }
 
 /* ── KPI Cards ───────────────────────────────────────────── */
@@ -186,17 +186,17 @@
   margin-bottom: 14px;
 }
 
-.kpi-icon-wrap.blue   { background: rgba(59,130,246,0.1);  color: #3b82f6; }
-.kpi-icon-wrap.green  { background: rgba(16,185,129,0.1);  color: #10b981; }
-.kpi-icon-wrap.orange { background: rgba(245,158,11,0.1);  color: #f59e0b; }
-.kpi-icon-wrap.purple { background: rgba(139,92,246,0.1);  color: #8b5cf6; }
-.kpi-icon-wrap.rose   { background: rgba(244,63,94,0.1);   color: #f43f5e; }
-.kpi-icon-wrap.cyan   { background: rgba(6,182,212,0.1);   color: #06b6d4; }
+.kpi-icon-wrap.blue   { background: rgba(59,130,246,0.1);  color: #000000; }
+.kpi-icon-wrap.green  { background: rgba(16,185,129,0.1);  color: #000000; }
+.kpi-icon-wrap.orange { background: rgba(245,158,11,0.1);  color: #000000; }
+.kpi-icon-wrap.purple { background: rgba(139,92,246,0.1);  color: #000000; }
+.kpi-icon-wrap.rose   { background: rgba(244,63,94,0.1);   color: #000000; }
+.kpi-icon-wrap.cyan   { background: rgba(6,182,212,0.1);   color: #000000; }
 
 .kpi-label {
   font-size: var(--text-xs);
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0 0 6px 0;
@@ -205,7 +205,7 @@
 .kpi-value {
   font-size: 24px;
   font-weight: 800;
-  color: var(--color-text-primary);
+  color: #000000;
   margin: 0;
 }
 
@@ -228,7 +228,7 @@
 .reports-chart-card h3 {
   font-size: var(--text-lg);
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: #000000;
   margin: 0 0 20px 0;
 }
 
@@ -253,7 +253,7 @@
 .reports-table-header h3 {
   font-size: var(--text-lg);
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: #000000;
   margin: 0;
 }
 
@@ -263,7 +263,7 @@
   padding: 4px 10px;
   border-radius: var(--radius-full);
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: #000000;
 }
 
 .reports-table-wrap {
@@ -280,7 +280,7 @@
   padding: 12px 20px;
   font-size: var(--text-xs);
   font-weight: 700;
-  color: var(--color-text-secondary);
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   text-align: left;
@@ -296,7 +296,7 @@
 .reports-data-table td {
   padding: 14px 20px;
   font-size: var(--text-sm);
-  color: var(--color-text-primary);
+  color: #000000;
   border-bottom: 1px solid #f1f5f9;
   white-space: nowrap;
 }
@@ -324,22 +324,22 @@
   text-transform: capitalize;
 }
 
-.status-pill.draft      { background: #DBEAFE; color: #1E40AF; }
-.status-pill.pending    { background: #FEF3C7; color: #92400E; }
-.status-pill.submitted  { background: #FEF3C7; color: #92400E; }
-.status-pill.approved   { background: #DBEAFE; color: #1E40AF; }
-.status-pill.dispatched { background: #FEF3C7; color: #92400E; }
-.status-pill.shipped    { background: #FEF3C7; color: #92400E; }
-.status-pill.delivered  { background: #D1FAE5; color: #065F46; }
-.status-pill.received   { background: #D1FAE5; color: #065F46; }
-.status-pill.fulfilled  { background: #D1FAE5; color: #065F46; }
-.status-pill.active     { background: #D1FAE5; color: #065F46; }
-.status-pill.in_stock   { background: #D1FAE5; color: #065F46; }
-.status-pill.cancelled  { background: #FEE2E2; color: #991B1B; }
-.status-pill.rejected   { background: #FEE2E2; color: #991B1B; }
-.status-pill.inactive   { background: #FEE2E2; color: #991B1B; }
-.status-pill.out_of_stock { background: #FEE2E2; color: #991B1B; }
-.status-pill.low_stock  { background: #FEF3C7; color: #92400E; }
+.status-pill.draft      { background: #DBEAFE; color: #000000; }
+.status-pill.pending    { background: #FEF3C7; color: #000000; }
+.status-pill.submitted  { background: #FEF3C7; color: #000000; }
+.status-pill.approved   { background: #DBEAFE; color: #000000; }
+.status-pill.dispatched { background: #FEF3C7; color: #000000; }
+.status-pill.shipped    { background: #FEF3C7; color: #000000; }
+.status-pill.delivered  { background: #D1FAE5; color: #000000; }
+.status-pill.received   { background: #D1FAE5; color: #000000; }
+.status-pill.fulfilled  { background: #D1FAE5; color: #000000; }
+.status-pill.active     { background: #D1FAE5; color: #000000; }
+.status-pill.in_stock   { background: #D1FAE5; color: #000000; }
+.status-pill.cancelled  { background: #FEE2E2; color: #000000; }
+.status-pill.rejected   { background: #FEE2E2; color: #000000; }
+.status-pill.inactive   { background: #FEE2E2; color: #000000; }
+.status-pill.out_of_stock { background: #FEE2E2; color: #000000; }
+.status-pill.low_stock  { background: #FEF3C7; color: #000000; }
 
 /* ── Pagination ──────────────────────────────────────────── */
 .reports-pagination {
@@ -353,7 +353,7 @@
 
 .reports-pagination .page-info {
   font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  color: #000000;
 }
 
 .reports-pagination .page-buttons {
@@ -370,7 +370,7 @@
   padding: 0 10px;
   font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: #000000;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -381,7 +381,7 @@
 .reports-pagination .page-btn:hover:not(:disabled) {
   background: var(--color-primary-soft);
   border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: #000000;
 }
 
 .reports-pagination .page-btn:disabled {
@@ -413,12 +413,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-muted);
+  color: #000000;
   margin-bottom: 16px;
 }
 
 .reports-empty p {
-  color: var(--color-text-secondary);
+  color: #000000;
   font-size: var(--text-base);
   margin: 0;
 }
@@ -451,7 +451,7 @@
   padding: 8px 12px;
   font-size: 13px;
   font-family: var(--font-sans);
-  color: var(--color-text-primary);
+  color: #000000;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -478,13 +478,13 @@
 .reports-kpi-card .kpi-sub {
   margin: 6px 0 0;
   font-size: 12px;
-  color: var(--color-text-muted);
+  color: #000000;
 }
 
 /* ── Chart card subtitle ─────────────────────────────────── */
 .reports-chart-card .chart-subtitle {
   font-size: 12px;
-  color: var(--color-text-muted);
+  color: #000000;
   margin: -14px 0 16px;
 }
 

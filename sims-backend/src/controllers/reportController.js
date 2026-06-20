@@ -51,7 +51,7 @@ class ReportController {
     const invWhere = whScope ? { warehouse_id: whScope } : {};
 
     const [totalProducts, stockValueRows, lowStockRows, pendingOrdersCount,
-           warehouseStock, categoryDist, recentLogs] = await Promise.all([
+      warehouseStock, categoryDist, recentLogs] = await Promise.all([
       Product.count(),
       sequelize.query(
         `SELECT COALESCE(SUM(i.quantity * p.unit_price), 0) AS total_value
@@ -73,7 +73,7 @@ class ReportController {
         { type: sequelize.QueryTypes.SELECT },
       ),
       sequelize.query(
-        `SELECT category, COUNT(*) AS cnt FROM products GROUP BY category`,
+        'SELECT category, COUNT(*) AS cnt FROM products GROUP BY category',
         { type: sequelize.QueryTypes.SELECT },
       ),
       AuditLog.findAll({
@@ -812,125 +812,125 @@ class ReportController {
     let filename   = '';
 
     switch (type) {
-      case 'inventory': {
-        const rows = await Inventory.findAll({
-          include: [
-            { model: Product,   as: 'product',   attributes: ['sku', 'name', 'category', 'unit_price', 'cost_price', 'reorder_level'] },
-            { model: Warehouse, as: 'warehouse', attributes: ['name'] },
-          ],
-        });
-        reportData = rows.map(r => ({
-          SKU:          r.product.sku,
-          Product:      r.product.name,
-          Category:     r.product.category,
-          Quantity:     r.quantity,
-          ReservedQty:  r.reserved_qty,
-          UnitPrice:    r.product.unit_price,
-          CostPrice:    r.product.cost_price,
-          TotalValue:   (r.quantity || 0) * Number(r.product.unit_price || 0),
-          TotalCost:    (r.quantity || 0) * Number(r.product.cost_price || r.product.unit_price || 0),
-          ReorderLevel: r.product.reorder_level,
-          Warehouse:    r.warehouse.name,
-          BatchNo:      r.batch_no   || '',
-          ExpiryDate:   r.expiry_date || '',
-          Location:     r.location   || '',
-        }));
-        filename = `inventory-report-${new Date().toISOString().split('T')[0]}.csv`;
-        break;
-      }
+    case 'inventory': {
+      const rows = await Inventory.findAll({
+        include: [
+          { model: Product,   as: 'product',   attributes: ['sku', 'name', 'category', 'unit_price', 'cost_price', 'reorder_level'] },
+          { model: Warehouse, as: 'warehouse', attributes: ['name'] },
+        ],
+      });
+      reportData = rows.map(r => ({
+        SKU:          r.product.sku,
+        Product:      r.product.name,
+        Category:     r.product.category,
+        Quantity:     r.quantity,
+        ReservedQty:  r.reserved_qty,
+        UnitPrice:    r.product.unit_price,
+        CostPrice:    r.product.cost_price,
+        TotalValue:   (r.quantity || 0) * Number(r.product.unit_price || 0),
+        TotalCost:    (r.quantity || 0) * Number(r.product.cost_price || r.product.unit_price || 0),
+        ReorderLevel: r.product.reorder_level,
+        Warehouse:    r.warehouse.name,
+        BatchNo:      r.batch_no   || '',
+        ExpiryDate:   r.expiry_date || '',
+        Location:     r.location   || '',
+      }));
+      filename = `inventory-report-${new Date().toISOString().split('T')[0]}.csv`;
+      break;
+    }
 
-      case 'sales': {
-        const sWhere = {};
-        if (dateRange) sWhere.order_date = dateRange;
-        if (status)    sWhere.status = status;
-        if (warehouseId) sWhere.warehouse_id = parseInt(warehouseId);
-        const orders = await SalesOrder.findAll({
-          where: sWhere,
-          include: [{ model: Warehouse, as: 'warehouse', attributes: ['name'] }],
-          order: [['order_date', 'DESC']],
-        });
-        reportData = orders.map(o => ({
-          OrderNumber:  o.order_number,
-          CustomerName: o.customer_name,
-          OrderDate:    o.order_date,
-          DeliveryDate: o.delivery_date || '',
-          Status:       o.status,
-          TotalAmount:  o.total_amount,
-          Warehouse:    o.warehouse?.name || '',
-        }));
-        filename = `sales-report-${new Date().toISOString().split('T')[0]}.csv`;
-        break;
-      }
+    case 'sales': {
+      const sWhere = {};
+      if (dateRange) sWhere.order_date = dateRange;
+      if (status)    sWhere.status = status;
+      if (warehouseId) sWhere.warehouse_id = parseInt(warehouseId);
+      const orders = await SalesOrder.findAll({
+        where: sWhere,
+        include: [{ model: Warehouse, as: 'warehouse', attributes: ['name'] }],
+        order: [['order_date', 'DESC']],
+      });
+      reportData = orders.map(o => ({
+        OrderNumber:  o.order_number,
+        CustomerName: o.customer_name,
+        OrderDate:    o.order_date,
+        DeliveryDate: o.delivery_date || '',
+        Status:       o.status,
+        TotalAmount:  o.total_amount,
+        Warehouse:    o.warehouse?.name || '',
+      }));
+      filename = `sales-report-${new Date().toISOString().split('T')[0]}.csv`;
+      break;
+    }
 
-      case 'purchase-orders': {
-        const poWhere = {};
-        if (dateRange) poWhere.order_date = dateRange;
-        if (status)    poWhere.status = status;
-        if (supplierId) poWhere.supplier_id = parseInt(supplierId);
-        const pos = await PurchaseOrder.findAll({
-          where: poWhere,
-          include: [{ model: Supplier, as: 'supplier', attributes: ['name'] }],
-          order: [['order_date', 'DESC']],
-        });
-        reportData = pos.map(po => ({
-          PONumber:    po.po_number,
-          Supplier:    po.supplier?.name || '',
-          Status:      po.status,
-          TotalAmount: po.total_amount,
-          OrderDate:   po.order_date,
-          ExpectedDelivery: po.expected_delivery || '',
-          AutoDrafted: po.auto_drafted ? 'Yes' : 'No',
-        }));
-        filename = `purchase-orders-${new Date().toISOString().split('T')[0]}.csv`;
-        break;
-      }
+    case 'purchase-orders': {
+      const poWhere = {};
+      if (dateRange) poWhere.order_date = dateRange;
+      if (status)    poWhere.status = status;
+      if (supplierId) poWhere.supplier_id = parseInt(supplierId);
+      const pos = await PurchaseOrder.findAll({
+        where: poWhere,
+        include: [{ model: Supplier, as: 'supplier', attributes: ['name'] }],
+        order: [['order_date', 'DESC']],
+      });
+      reportData = pos.map(po => ({
+        PONumber:    po.po_number,
+        Supplier:    po.supplier?.name || '',
+        Status:      po.status,
+        TotalAmount: po.total_amount,
+        OrderDate:   po.order_date,
+        ExpectedDelivery: po.expected_delivery || '',
+        AutoDrafted: po.auto_drafted ? 'Yes' : 'No',
+      }));
+      filename = `purchase-orders-${new Date().toISOString().split('T')[0]}.csv`;
+      break;
+    }
 
-      case 'supplier-performance': {
-        const spWhere = {};
-        if (dateRange) spWhere.order_date = dateRange;
-        const pos2 = await PurchaseOrder.findAll({
-          where: spWhere,
-          include: [{ model: Supplier, as: 'supplier', attributes: ['name', 'lead_time', 'rating'] }],
-        });
-        const stats = {};
-        pos2.forEach(po => {
-          const sid = po.supplier_id;
-          if (!stats[sid]) stats[sid] = { Supplier: po.supplier?.name || '', LeadTimeDays: po.supplier?.lead_time || '', Rating: po.supplier?.rating || '', TotalOrders: 0, TotalSpent: 0, CompletedOrders: 0 };
-          stats[sid].TotalOrders  += 1;
-          stats[sid].TotalSpent   += Number(po.total_amount || 0);
-          if (['received', 'completed'].includes(po.status)) stats[sid].CompletedOrders += 1;
-        });
-        reportData = Object.values(stats).map(s => ({
-          ...s,
-          FulfillmentRate: s.TotalOrders > 0 ? ((s.CompletedOrders / s.TotalOrders) * 100).toFixed(1) + '%' : '0.0%',
-        }));
-        filename = `supplier-performance-${new Date().toISOString().split('T')[0]}.csv`;
-        break;
-      }
+    case 'supplier-performance': {
+      const spWhere = {};
+      if (dateRange) spWhere.order_date = dateRange;
+      const pos2 = await PurchaseOrder.findAll({
+        where: spWhere,
+        include: [{ model: Supplier, as: 'supplier', attributes: ['name', 'lead_time', 'rating'] }],
+      });
+      const stats = {};
+      pos2.forEach(po => {
+        const sid = po.supplier_id;
+        if (!stats[sid]) stats[sid] = { Supplier: po.supplier?.name || '', LeadTimeDays: po.supplier?.lead_time || '', Rating: po.supplier?.rating || '', TotalOrders: 0, TotalSpent: 0, CompletedOrders: 0 };
+        stats[sid].TotalOrders  += 1;
+        stats[sid].TotalSpent   += Number(po.total_amount || 0);
+        if (['received', 'completed'].includes(po.status)) stats[sid].CompletedOrders += 1;
+      });
+      reportData = Object.values(stats).map(s => ({
+        ...s,
+        FulfillmentRate: s.TotalOrders > 0 ? ((s.CompletedOrders / s.TotalOrders) * 100).toFixed(1) + '%' : '0.0%',
+      }));
+      filename = `supplier-performance-${new Date().toISOString().split('T')[0]}.csv`;
+      break;
+    }
 
-      case 'audit-log': {
-        const alWhere = {};
-        if (dateRange) alWhere.timestamp = dateRange;
-        const logs = await AuditLog.findAll({
-          where: alWhere,
-          include: [{ model: User, as: 'user', attributes: ['first_name', 'last_name', 'full_name', 'role'] }],
-          order: [['timestamp', 'DESC']],
-          limit: 10000,
-        });
-        reportData = logs.map(l => ({
-          Timestamp: l.timestamp,
-          User:      l.user?.full_name || '',
-          Role:      l.user?.role      || '',
-          Action:    l.action,
-          Entity:    l.table_name,
-          IPAddress: l.ip_address || '',
-        }));
-        filename = `audit-log-${new Date().toISOString().split('T')[0]}.csv`;
-        break;
-      }
+    case 'audit-log': {
+      const alWhere = {};
+      if (dateRange) alWhere.timestamp = dateRange;
+      const logs = await AuditLog.findAll({
+        where: alWhere,
+        include: [{ model: User, as: 'user', attributes: ['first_name', 'last_name', 'full_name', 'role'] }],
+        order: [['timestamp', 'DESC']],
+        limit: 10000,
+      });
+      reportData = logs.map(l => ({
+        Timestamp: l.timestamp,
+        User:      l.user?.full_name || '',
+        Role:      l.user?.role      || '',
+        Action:    l.action,
+        Entity:    l.table_name,
+        IPAddress: l.ip_address || '',
+      }));
+      filename = `audit-log-${new Date().toISOString().split('T')[0]}.csv`;
+      break;
+    }
 
-      default:
-        return res.status(400).json({ success: false, error: `Invalid report type: ${type}` });
+    default:
+      return res.status(400).json({ success: false, error: `Invalid report type: ${type}` });
     }
 
     if (format === 'csv') {

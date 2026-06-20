@@ -525,3 +525,173 @@ export const importWarehouses = async (rows, jobId, triggeredBy) => {
 
   return { created, updated, failed, errors };
 };
+
+/**
+ * Bulk imports suppliers from rows.
+ * Upsert on `name` (unique key).
+ *
+ * Validations:
+ *   payment_terms  — must be one of: Net 30 | Net 60 | Net 15 | Immediate
+ *   lead_time      — integer, 3–30 (days)
+ *   rating         — float, 1–5  (or absent / 0 = unrated, stored as-is)
+ */
+export const importSuppliers = async (rows, jobId, triggeredBy) => {
+  const VALID_PAYMENT_TERMS = ['Net 30', 'Net 60', 'Net 15', 'Immediate'];
+
+  let created = 0;
+  let updated = 0;
+  let failed  = 0;
+  const errors = [];
+
+  for (let i = 0; i < rows.length; i++) {
+    const rawRow = rows[i];
+    const row    = normalizeKeys(rawRow);
+    const rowNum = i + 1;
+
+    try {
+      // ── Field extraction ──────────────────────────────────────
+      const nameVal          = row.name          || row.supplier_name || row.suppliername || '';
+      const contactPersonVal = row.contact_person || row.contactperson || row.contact     || '';
+      const emailVal         = row.email          || '';
+      const phoneVal         = row.phone          || row.phone_number || row.phonenumber  || '';
+      const addressVal       = row.address        || '';
+      const statusVal        = row.status         || 'active';
+
+      // payment_terms: try several header variants
+      const paymentTermsRaw  = row.payment_terms  || row.paymentterms || row.payment      || '';
+      // lead_time: try several header variants
+      const leadTimeRaw      = row.lead_time      || row.leadtime     || row.lead_time_days || '';
+      // rating: try several header variants
+      const ratingRaw        = row.rating         || row.supplier_rating || '';
+
+      // ── Required field ────────────────────────────────────────
+      if (!nameVal) throw new Error('Supplier name is required.');
+
+      // ── payment_terms validation ──────────────────────────────
+      let paymentTermsVal = null;
+      if (paymentTermsRaw) {
+        // Case-insensitive match against allowed values
+        const matched = VALID_PAYMENT_TERMS.find(
+          (t) => t.toLowerCase() === paymentTermsRaw.toLowerCase(),
+        );
+        if (!matched) {
+          throw new Error(
+            `Invalid payment_terms "${paymentTermsRaw}". ` +
+            `Allowed: ${VALID_PAYMENT_TERMS.join(', ')}.`,
+          );
+        }
+        paymentTermsVal = matched;
+      }
+
+      // ── lead_time validation ──────────────────────────────────
+      let leadTimeVal = null;
+      if (leadTimeRaw !== '' && leadTimeRaw !== undefined) {
+        const lt = parseInt(leadTimeRaw, 10);
+        if (isNaN(lt) || !Number.isInteger(lt)) {
+          throw new Error(`lead_time must be an integer, got "${leadTimeRaw}".`);
+        }
+        if (lt < 3 || lt > 30) {
+          throw new Error(`lead_time must be between 3 and 30 days, got ${lt}.`);
+        }
+        leadTimeVal = lt;
+      }
+
+      // ── rating validation ─────────────────────────────────────
+      let ratingVal = 0;                       // 0 = unrated (Supplier model default)
+      if (ratingRaw !== '' && ratingRaw !== undefined) {
+        const rt = parseFloat(ratingRaw);
+        if (isNaN(rt)) {
+          throw new Error(`rating must be a number, got "${ratingRaw}".`);
+        }
+        if (rt < 1 || rt > 5) {
+          throw new Error(`rating must be between 1 and 5, got ${rt}.`);
+        }
+        ratingVal = parseFloat(rt.toFixed(2));
+      }
+
+      // ── status validation ─────────────────────────────────────
+      const VALID_STATUSES = ['active', 'inactive', 'blacklisted'];
+      const finalStatus = VALID_STATUSES.includes(statusVal.toLowerCase())
+        ? statusVal.toLowerCase()
+        : 'active';
+
+      // ── email format check (only if provided) ─────────────────
+      if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+        throw new Error(`Invalid email address "${emailVal}".`);
+      }
+
+      // ── Upsert within a transaction ───────────────────────────
+      const t = await sequelize.transaction();
+      try {
+        let supplier  = await Supplier.findOne({ where: { name: nameVal }, transaction: t });
+        let isUpdated = false;
+
+        if (supplier) {
+          await supplier.update({
+            contact_person: contactPersonVal || supplier.contact_person || null,
+            email:          emailVal         || supplier.email          || null,
+            phone:          phoneVal         || supplier.phone          || null,
+            address:        addressVal       || supplier.address        || null,
+            status:         finalStatus,
+            // Only overwrite if the new value is non-null
+            ...(paymentTermsVal !== null && { payment_terms: paymentTermsVal }),
+            ...(leadTimeVal     !== null && { lead_time:     leadTimeVal }),
+            ...(ratingRaw !== '' && { rating: ratingVal }),
+          }, { transaction: t });
+          isUpdated = true;
+        } else {
+          supplier = await Supplier.create({
+            name:           nameVal,
+            contact_person: contactPersonVal || null,
+            email:          emailVal         || null,
+            phone:          phoneVal         || null,
+            address:        addressVal       || null,
+            payment_terms:  paymentTermsVal  || null,
+            lead_time:      leadTimeVal      || null,
+            rating:         ratingVal,
+            status:         finalStatus,
+          }, { transaction: t });
+        }
+
+        // Audit log
+        await AuditLog.create({
+          user_id:    triggeredBy,
+          action:     isUpdated ? 'update' : 'create',
+          table_name: 'suppliers',
+          changes: {
+            action:      'SUPPLIER_IMPORT',
+            supplier_id: supplier.supplier_id,
+            name:        nameVal,
+            is_updated:  isUpdated,
+          },
+          ip_address: '127.0.0.1',
+        }, { transaction: t });
+
+        await t.commit();
+
+        if (isUpdated) { updated++; } else { created++; }
+
+        // Incremental progress update
+        await ImportJob.update(
+          { processed_rows: created + updated },
+          { where: { id: jobId } },
+        );
+
+      } catch (dbErr) {
+        await t.rollback();
+        throw dbErr;
+      }
+
+    } catch (err) {
+      failed++;
+      errors.push({ row: rowNum, error: err.message, rawData: rawRow });
+
+      await ImportJob.update(
+        { failed_rows: failed, error_log: JSON.stringify(errors) },
+        { where: { id: jobId } },
+      );
+    }
+  }
+
+  return { created, updated, failed, errors };
+};

@@ -215,10 +215,10 @@ const chartTooltipStyle = {
     border: 'none',
     borderRadius: 8,
     fontSize: 12,
-    color: '#F8FAFC',
+    color: '#000000',
   },
-  itemStyle:  { color: '#F8FAFC' },
-  labelStyle: { color: '#94A3B8', fontWeight: 700 },
+  itemStyle:  { color: '#000000' },
+  labelStyle: { color: '#000000', fontWeight: 700 },
 };
 
 /* ── Activity skeleton ───────────────────────────────────────── */
@@ -394,7 +394,7 @@ export default function Dashboard() {
                 animation: 'livePulse 2s ease-in-out infinite',
                 display: 'inline-block',
               }} />
-              <span style={{ fontSize: 11, color: '#10B981', fontWeight: 600, fontFamily: 'var(--font-sans)' }}>
+              <span style={{ fontSize: 11, color: '#000000', fontWeight: 600, fontFamily: 'var(--font-sans)' }}>
                 Live
               </span>
             </span>

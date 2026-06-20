@@ -6,7 +6,14 @@ export class AuthController {
   // Register
   static async register(req, res, next) {
     try {
-      const { email, password, first_name, last_name, role, department } = req.body;
+      let { email, password, first_name, last_name, role, department, full_name } = req.body;
+
+      // Fallback if full_name is provided instead of first_name
+      if (!first_name && full_name) {
+        const nameParts = full_name.trim().split(/\s+/);
+        first_name = nameParts[0] || '';
+        last_name = nameParts.slice(1).join(' ') || '';
+      }
 
       // Validate input
       if (!email || !password || !first_name) {

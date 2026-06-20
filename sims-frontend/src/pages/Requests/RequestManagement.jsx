@@ -239,7 +239,7 @@ const RequestManagement = () => {
               <TableContainer component={Paper}>
                 <Table>
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: '#000000' }}>
                       <TableCell>Request #</TableCell>
                       <TableCell>Requester</TableCell>
                       <TableCell>Priority</TableCell>
@@ -375,7 +375,7 @@ const RequestManagement = () => {
               <TableContainer component={Paper}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableRow sx={{ bgcolor: '#000000' }}>
                       <TableCell>SKU</TableCell>
                       <TableCell>Product</TableCell>
                       <TableCell align="right">Requested</TableCell>

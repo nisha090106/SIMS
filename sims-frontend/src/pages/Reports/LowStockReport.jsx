@@ -103,7 +103,7 @@ const LowStockReport = () => {
       label: 'Variance',
       align: 'right',
       render: (v) => (
-        <span style={{ color: '#d32f2f', fontWeight: 'bold' }}>
+        <span style={{ color: '#000000', fontWeight: 'bold' }}>
           {v}
         </span>
       ),
