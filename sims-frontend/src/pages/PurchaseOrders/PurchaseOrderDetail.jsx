@@ -42,20 +42,22 @@ function reducer(s, a) {
 
 /* ── Status Timeline ─────────────────────────────────────────── */
 function StatusStepper({ status }) {
-  const steps = ['draft', 'pending', 'confirmed', 'delivered'];
+  const steps = ['draft', 'submitted', 'approved', 'shipped', 'received'];
   
   let activeIdx = 0;
   if (status === 'submitted') activeIdx = 1;
-  else if (status === 'approved' || status === 'shipped') activeIdx = 2;
-  else if (status === 'received') activeIdx = 3;
+  else if (status === 'approved') activeIdx = 2;
+  else if (status === 'shipped') activeIdx = 3;
+  else if (status === 'received') activeIdx = 4;
 
   const isCancelled = status === 'cancelled';
 
   const stepLabels = {
     draft: { label: 'Draft', color: '#000000' },
-    pending: { label: 'Pending', color: '#000000' },
-    confirmed: { label: 'Confirmed', color: '#000000' },
-    delivered: { label: 'Delivered', color: '#000000' },
+    submitted: { label: 'Submitted', color: '#000000' },
+    approved: { label: 'Approved', color: '#000000' },
+    shipped: { label: 'Shipped', color: '#000000' },
+    received: { label: 'Received', color: '#000000' },
   };
 
   return (
@@ -164,10 +166,18 @@ export default function PurchaseOrderDetail() {
 
   async function doApprove() {
     setActionLoading('approve');
-    try {
-      if (po.status === 'draft') {
+
+    if (po.status === 'draft') {
+      try {
         await purchaseOrderAPI.submit(id);
+      } catch (err) {
+        showToast(err.response?.data?.error || 'Submit failed before approval', 'error');
+        setActionLoading('');
+        return;
       }
+    }
+
+    try {
       await purchaseOrderAPI.approve(id);
       showToast('PO approved successfully', 'success');
       fetchPO();
@@ -375,6 +385,13 @@ export default function PurchaseOrderDetail() {
             {status === 'draft' && (isAdmin || isMgr) && (
               <Button variant="secondary" size="sm" leftIcon={<EditIcon style={{ fontSize: 16 }} />} onClick={() => navigate(`/purchase-orders/${id}/edit`)}>
                 Edit
+              </Button>
+            )}
+
+            {/* approved only: Mark as Shipped (Admin or Manager) */}
+            {status === 'approved' && (isAdmin || isMgr) && (
+              <Button variant="primary" size="sm" leftIcon={<ShipIcon style={{ fontSize: 16 }} />} loading={actionLoading === 'ship'} onClick={() => doAction('ship')}>
+                Mark as Shipped
               </Button>
             )}
 

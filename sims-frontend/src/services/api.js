@@ -139,7 +139,7 @@ export const purchaseOrderAPI = {
   approve:   (id)       => api.patch(`/purchase-orders/${id}/approve`),
   ship:      (id)       => api.post(`/purchase-orders/${id}/ship`),
   receive:   (id, data) => api.post(`/purchase-orders/${id}/receive`, data),
-  cancel:    (id)       => api.patch(`/purchase-orders/${id}/cancel`),
+  cancel:    (id, data) => api.patch(`/purchase-orders/${id}/cancel`, data || {}),
 };
 
 export const salesOrderAPI = {

@@ -73,7 +73,6 @@ Warehouse.hasMany(Inventory, { foreignKey: 'warehouse_id', as: 'inventory' });
 
 // Product associations
 Product.hasMany(Inventory, { foreignKey: 'product_id', as: 'inventory' });
-Product.belongsToMany(PurchaseOrder, { through: 'purchase_order_items', as: 'purchase_orders' });
 
 // Inventory associations
 Inventory.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
@@ -88,7 +87,6 @@ PurchaseOrder.belongsTo(User,     { foreignKey: 'created_by',  as: 'created_by_u
 PurchaseOrder.belongsTo(User,     { foreignKey: 'approved_by', as: 'approved_by_user' });
 PurchaseOrder.belongsTo(User,     { foreignKey: 'received_by', as: 'received_by_user' });
 PurchaseOrder.belongsTo(Warehouse,{ foreignKey: 'warehouse_id',as: 'warehouse' });
-PurchaseOrder.belongsToMany(Product, { through: 'purchase_order_items', as: 'products' });
 
 // SalesOrder associations
 SalesOrder.belongsTo(User, { foreignKey: 'created_by', as: 'created_by_user' });

@@ -231,7 +231,7 @@ export const updatePurchaseOrder = async (req, res, next) => {
 };
 
 /* ── Status transition helpers ────────────────────────────── */
-async function transition(req, res, next, fromStatuses, toStatus, extraFields = {}) {
+async function transition(req, res, next, fromStatuses, toStatus, extraFields = {}, extraAudit = {}) {
   try {
     const po = await PurchaseOrder.findByPk(req.params.id);
     if (!po) return res.status(404).json({ success: false, error: 'Purchase order not found' });
@@ -242,7 +242,7 @@ async function transition(req, res, next, fromStatuses, toStatus, extraFields = 
     po.status = toStatus;
     Object.assign(po, extraFields);
     await po.save();
-    await audit(req, `${toStatus.toUpperCase()}_PURCHASE_ORDER`, { status: { from: old, to: toStatus } });
+    await audit(req, `${toStatus.toUpperCase()}_PURCHASE_ORDER`, { status: { from: old, to: toStatus }, ...extraAudit });
 
     const full = await PurchaseOrder.findByPk(po.po_id, { include: PO_INCLUDE });
 
@@ -343,8 +343,10 @@ export const receivePurchaseOrder = async (req, res, next) => {
 /* ═══════════════════════════════════════════════════════════════
    POST /:id/cancel  (Admin only — any status except received)
 ═══════════════════════════════════════════════════════════════ */
-export const cancelPurchaseOrder = (req, res, next) =>
-  transition(req, res, next, ['draft', 'submitted', 'approved', 'shipped'], 'cancelled');
+export const cancelPurchaseOrder = (req, res, next) => {
+  const { reason } = req.body || {};
+  return transition(req, res, next, ['draft', 'submitted', 'approved', 'shipped'], 'cancelled', {}, { reason });
+};
 
 /* ═══════════════════════════════════════════════════════════════
    Exported helper for cron job auto-generation

@@ -11,6 +11,7 @@ import {
   FilterList as FilterIcon,
   Inventory2Outlined as EmptyIcon,
   WarningAmberOutlined as WarnIcon,
+  ContentCopyOutlined as CopyIcon,
 } from '@mui/icons-material';
 import { productAPI, categoryAPI } from '../../services/api';
 import { useToast } from '../../hooks/useToast';
@@ -316,13 +317,7 @@ export default function ProductList() {
 
               {/* Barcode */}
               <td style={tdStyle}>
-                {p.barcode ? (
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: '#000000', background: '#d1fae5', padding: '4px 8px', borderRadius: 6, fontWeight: 600 }}>
-                    {p.barcode}
-                  </span>
-                ) : (
-                  <Badge variant="warning" size="sm">No barcode</Badge>
-                )}
+                <BarcodeWithCopy barcode={p.barcode} />
               </td>
 
               {/* Category */}
@@ -468,6 +463,44 @@ export default function ProductList() {
 }
 
 /* ── Small helpers ─────────────────────────────────────────────── */
+function BarcodeWithCopy({ barcode }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (e) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(barcode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (!barcode) return <Badge variant="warning" size="sm">No barcode</Badge>;
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: '#000000', background: '#d1fae5', padding: '4px 8px', borderRadius: 6, fontWeight: 600 }}>
+        {barcode}
+      </span>
+      <button
+        onClick={handleCopy}
+        title={copied ? 'Copied!' : 'Copy to clipboard'}
+        style={{
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          padding: 2,
+          color: copied ? 'var(--color-success)' : 'var(--color-text-muted)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'color 0.2s'
+        }}
+      >
+        <CopyIcon style={{ fontSize: 14 }} />
+      </button>
+    </div>
+  );
+}
+
 function ActionBtn({ children, onClick, danger = false, title }) {
   return (
     <button
