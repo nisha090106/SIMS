@@ -40,6 +40,7 @@ import Notifications from './pages/Notifications';
 import RequestsManagement from './pages/RequestsManagement';
 import ImportCenter from './pages/BulkImport'; // new folder module
 import AutomationDashboard from './pages/AutomationDashboard';
+import BarcodePage from './pages/BarcodePage';
 
 // Requester pages
 import UserDashboard from './pages/user/UserDashboard';
@@ -98,7 +99,8 @@ const AppContent = () => {
         <Route path='/reports' element={<Reports />} />
         <Route path='/notifications' element={<Notifications />} />
         <Route path='/settings' element={<Settings />} />
-        <Route path='/barcode' element={<AutomationDashboard />} />
+        {/* /barcode — accessible to admin, manager, staff */}
+        <Route path='/barcode' element={<BarcodePage />} />
 
         {/* Admin + Manager only */}
         <Route

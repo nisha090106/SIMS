@@ -3,18 +3,13 @@ import { useSelector } from 'react-redux';
 import {
   Autorenew as AutoIcon,
   PlayArrow as RunIcon,
-  Warning as WarningIcon,
-  QrCode as BarcodeIcon,
   Close as CloseIcon,
   Add as AddIcon,
   Edit as EditIcon,
-  CheckCircle as SuccessIcon,
-  Error as FailedIcon,
-  Search as SearchIcon,
   CalendarToday as CalendarIcon,
   History as LogsIcon,
 } from '@mui/icons-material';
-import { automationAPI, barcodeAPI, warehouseAPI, productAPI, supplierAPI } from '../services/api';
+import { automationAPI, warehouseAPI, productAPI, supplierAPI } from '../services/api';
 import { useToast } from '../hooks/useToast';
 import '../styles/AutomationDashboard.css';
 
@@ -84,30 +79,6 @@ const AutomationDashboard = () => {
   const [logFilterDateFrom, setLogFilterDateFrom] = useState('');
   const [logFilterDateTo, setLogFilterDateTo] = useState('');
 
-  // 4. Barcode Scan Center State
-  const [unrecognisedCount, setUnrecognisedCount] = useState(0);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [unrecognisedScans, setUnrecognisedScans] = useState([]);
-  const [loadingScans, setLoadingScans] = useState(false);
-  const [scanPage, setScanPage] = useState(1);
-  const [scanTotalPages, setScanTotalPages] = useState(1);
-  const [linkingScanId, setLinkingScanId] = useState(null);
-  const [linkingProductId, setLinkingProductId] = useState('');
-
-  // 5. Barcode Scanner Widget State
-  const [barcodeInput, setBarcodeInput] = useState('');
-  const [scannerWarehouseId, setScannerWarehouseId] = useState('');
-  const [scanType, setScanType] = useState('stock_in'); // 'stock_in' | 'stock_out'
-  const [scanQty, setScanQty] = useState(1);
-  const [scannerNotes, setScannerNotes] = useState('');
-  const [scanning, setScanning] = useState(false);
-  const [scanResult, setScanResult] = useState(null);
-  const [recentScans, setRecentScans] = useState([]);
-  const barcodeInputRef = useRef(null);
-
-  // 6. Barcode Generation State
-  const [generatingBarcodes, setGeneratingBarcodes] = useState(false);
-
   // Fetch Cron statuses from recent logs
   const fetchCronJobStatuses = useCallback(async () => {
     try {
@@ -171,40 +142,10 @@ const AutomationDashboard = () => {
     }
   }, [logsPage, logFilterJob, logFilterDateFrom, logFilterDateTo]);
 
-  // Fetch Unrecognised Scans Count
-  const fetchUnrecognisedCount = useCallback(async () => {
-    try {
-      const res = await barcodeAPI.getUnrecognised({ limit: 1 });
-      if (res.data && res.data.success) {
-        setUnrecognisedCount(res.data.data?.total || 0);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }, []);
-
-  // Fetch Unrecognised Scans list for drawer
-  const fetchUnrecognisedScans = useCallback(async () => {
-    setLoadingScans(true);
-    try {
-      const res = await barcodeAPI.getUnrecognised({ page: scanPage, limit: 10 });
-      if (res.data && res.data.success) {
-        setUnrecognisedScans(res.data.data?.logs || []);
-        setScanTotalPages(res.data.data?.totalPages || 1);
-      }
-    } catch (err) {
-      console.error(err);
-      showToast('Failed to load unrecognised scans list.', 'error');
-    } finally {
-      setLoadingScans(false);
-    }
-  }, [scanPage, showToast]);
-
   // Initial data loading
   useEffect(() => {
     fetchCronJobStatuses();
     fetchReorderRules();
-    fetchUnrecognisedCount();
 
     // Fetch resources lists
     const fetchResources = async () => {
@@ -217,9 +158,6 @@ const AutomationDashboard = () => {
         if (wRes.data?.success) {
           const warehousesData = Array.isArray(wRes.data.data) ? wRes.data.data : wRes.data.data?.warehouses || [];
           setWarehouses(warehousesData);
-          if (warehousesData?.length > 0) {
-            setScannerWarehouseId(warehousesData[0].warehouse_id);
-          }
         }
         if (pRes.data?.success) {
           const productsData = Array.isArray(pRes.data.data) ? pRes.data.data : pRes.data.data?.products || [];
@@ -240,13 +178,6 @@ const AutomationDashboard = () => {
   useEffect(() => {
     fetchLogs();
   }, [logsPage, logFilterJob, logFilterDateFrom, logFilterDateTo, fetchLogs]);
-
-  // Fetch unrecognised scans when drawer opens or page changes
-  useEffect(() => {
-    if (drawerOpen) {
-      fetchUnrecognisedScans();
-    }
-  }, [drawerOpen, scanPage, fetchUnrecognisedScans]);
 
   // Handle Manual Trigger
   const handleTriggerJob = async (name) => {
@@ -278,29 +209,6 @@ const AutomationDashboard = () => {
   };
 
   // Handle Barcode Generation
-  const handleGenerateBarcodes = async () => {
-    if (!isAdmin) {
-      showToast('Only administrators can generate barcodes.', 'error');
-      return;
-    }
-
-    setGeneratingBarcodes(true);
-    try {
-      const res = await automationAPI.generateBarcodes();
-      if (res.data && res.data.success) {
-        const updated = res.data.updated || 0;
-        showToast(`Updated ${updated} products with barcodes`, 'success');
-        fetchCronJobStatuses();
-        fetchLogs();
-      }
-    } catch (err) {
-      console.error(err);
-      showToast(err.response?.data?.error || 'Failed to generate barcodes.', 'error');
-    } finally {
-      setGeneratingBarcodes(false);
-    }
-  };
-
   // Toggle Rule Status
   const handleToggleRule = async (ruleId) => {
     try {
@@ -410,122 +318,6 @@ const AutomationDashboard = () => {
   };
 
   // Link scan to product handler
-  const handleLinkScan = async () => {
-    if (!linkingScanId || !linkingProductId) {
-      showToast('Please select a product to link.', 'error');
-      return;
-    }
-
-    try {
-      const res = await barcodeAPI.linkScan(linkingScanId, parseInt(linkingProductId));
-      if (res.data && res.data.success) {
-        showToast('Barcode linked and inventory levels processed successfully!', 'success');
-        setLinkingScanId(null);
-        setLinkingProductId('');
-        fetchUnrecognisedScans();
-        fetchUnrecognisedCount();
-        // Clear scanResult in case it matched this unrecognised barcode
-        setScanResult(null);
-      }
-    } catch (err) {
-      console.error(err);
-      showToast(err.response?.data?.error || 'Failed to link barcode to product.', 'error');
-    }
-  };
-
-  // Barcode Scanning Form Submission
-  const handleBarcodeScanSubmit = async (e) => {
-    e.preventDefault();
-    if (!barcodeInput.trim()) {
-      showToast('Please enter or scan a barcode.', 'error');
-      return;
-    }
-    if (!scannerWarehouseId) {
-      showToast('Please select a target warehouse.', 'error');
-      return;
-    }
-
-    setScanning(true);
-    setScanResult(null);
-    try {
-      const payload = {
-        barcode: barcodeInput.trim(),
-        warehouse_id: parseInt(scannerWarehouseId),
-        scan_type: scanType,
-        quantity: parseInt(scanQty),
-        notes: scannerNotes || undefined,
-      };
-
-      const res = await barcodeAPI.scan(payload);
-      if (res.data && res.data.success) {
-        const data = res.data;
-        setScanResult(data);
-
-        // Log to recent scans local state list (keep last 10)
-        const logItem = {
-          id: Date.now(),
-          timestamp: new Date(),
-          barcode: payload.barcode,
-          found: data.found,
-          productName: data.found ? data.product.name : 'Unrecognised Item (Logged)',
-          sku: data.found ? data.product.sku : 'N/A',
-          scanType: scanType,
-          quantity: scanQty,
-          beforeQty: data.before_qty,
-          afterQty: data.after_qty,
-          success: true,
-        };
-        setRecentScans((prev) => [logItem, ...prev.slice(0, 9)]);
-
-        // Notify counts or log tables
-        fetchUnrecognisedCount();
-        fetchLogs();
-
-        // Clear scanning code input
-        setBarcodeInput('');
-        setScannerNotes('');
-        setScanQty(1);
-
-        // Show detailed success toast
-        if (data.found) {
-          const qtyDelta = scanType === 'stock_in' ? `+${scanQty}` : `-${scanQty}`;
-          showToast(
-            `${data.product.name} — ${qtyDelta} updated. New stock: ${data.after_qty}`,
-            'success',
-          );
-        } else {
-          showToast('Unrecognised barcode scan logged.', 'success');
-        }
-
-        // Auto-focus back to barcode input for next scan
-        setTimeout(() => barcodeInputRef.current?.focus(), 100);
-      }
-    } catch (err) {
-      console.error(err);
-      const errMsg = err.response?.data?.error || 'Failed to process scan.';
-      showToast(errMsg, 'error');
-
-      // Log failed scan locally
-      const logItem = {
-        id: Date.now(),
-        timestamp: new Date(),
-        barcode: barcodeInput.trim(),
-        found: false,
-        productName: 'Scan Process Failed',
-        sku: 'ERROR',
-        scanType: scanType,
-        quantity: scanQty,
-        success: false,
-        message: errMsg,
-      };
-      setRecentScans((prev) => [logItem, ...prev.slice(0, 9)]);
-
-      // Still re-focus for next attempt
-      setTimeout(() => barcodeInputRef.current?.focus(), 100);
-    } finally {
-      setScanning(false);
-    }
-  };
 
   // Helper formatting dates/time
   const formatDateTime = (dateStr) => {
@@ -544,39 +336,11 @@ const AutomationDashboard = () => {
       <header className='auto-page-header'>
         <div className='header-info'>
           <h1>Automation Center</h1>
-          <p>
-            Control background cron jobs, configure reorder rules, resolve barcode conflicts, and
-            scan in-browser
-          </p>
+          <p>Control background cron jobs, configure reorder rules, and view execution logs</p>
         </div>
       </header>
 
-      {/* Barcode Unrecognised Scans Warning Card */}
-      {unrecognisedCount > 0 && (
-        <div className='barcode-warning-card'>
-          <div className='warning-card-graphic'>
-            <WarningIcon className='warning-graphic-icon' />
-          </div>
-          <div className='warning-card-content'>
-            <h3>Unrecognised Barcode Conflicts Detected</h3>
-            <p>
-              <strong>{unrecognisedCount}</strong> scan record(s) could not be mapped to any
-              existing product catalog SKU.
-            </p>
-          </div>
-          <button
-            className='resolve-warning-btn'
-            onClick={() => {
-              setScanPage(1);
-              setDrawerOpen(true);
-            }}
-          >
-            Open Conflict Resolution
-          </button>
-        </div>
-      )}
-
-      {/* Section 1: Cron Jobs Cards */}
+      {/* Section: Cron Jobs */}
       <section className='auto-section-block'>
         <h2 className='section-title'>Background Scheduled Jobs</h2>
         <div className='cron-jobs-grid'>
@@ -616,53 +380,8 @@ const AutomationDashboard = () => {
         </div>
       </section>
 
-      {/* Section: Auto-Generate Barcodes Card */}
+      {/* Section: Reorder Rules */}
       <section className='auto-section-block'>
-        <h2 className='section-title'>Product Barcode Management</h2>
-        <div className='barcode-gen-card'>
-          <div className='card-header-section'>
-            <div className='card-icon-box'>
-              <BarcodeIcon className='card-icon' />
-            </div>
-            <div className='card-text-section'>
-              <h3>Auto-generate product barcodes</h3>
-              <p>
-                Generate barcodes for products without barcode values. Format: SIMS + product ID
-                (padded to 8 digits)
-              </p>
-            </div>
-          </div>
-          <div className='card-actions-section'>
-            <button
-              className='barcode-gen-btn'
-              onClick={handleGenerateBarcodes}
-              disabled={generatingBarcodes || !isAdmin}
-              title={
-                !isAdmin
-                  ? 'Admin privilege required'
-                  : 'Generate barcodes for all products without barcodes'
-              }
-            >
-              {generatingBarcodes ? (
-                <>
-                  <AutoIcon className='btn-icon spinning' />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <RunIcon className='btn-icon' />
-                  Run Now
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Two Columns Layout: Reorder Rules & Barcode Widget */}
-      <div className='auto-two-col-layout'>
-        {/* Left: Reorder Rules */}
-        <section className='auto-section-block left-panel'>
           <div className='panel-header-toolbar'>
             <h2 className='section-title'>Automated Reorder Rules</h2>
             <button className='panel-add-btn' onClick={openAddRuleModal}>
@@ -733,193 +452,7 @@ const AutomationDashboard = () => {
             )}
           </div>
         </section>
-
-        {/* Right: Barcode Scanner Widget */}
-        <section className='auto-section-block right-panel'>
-          <h2 className='section-title'>Browser Barcode Scanner</h2>
-          <div className='barcode-widget-box'>
-            <form onSubmit={handleBarcodeScanSubmit} className='scan-widget-form'>
-              <div className='widget-form-group'>
-                <label htmlFor='scan-code-input'>Enter or Scan Barcode</label>
-                <div className='input-with-icon'>
-                  <BarcodeIcon className='input-icon' />
-                  <input
-                    id='scan-code-input'
-                    ref={barcodeInputRef}
-                    type='text'
-                    placeholder='Scan barcode or type SKU...'
-                    value={barcodeInput}
-                    onChange={(e) => setBarcodeInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && barcodeInput.trim()) {
-                        e.preventDefault();
-                        handleBarcodeScanSubmit(e);
-                      }
-                    }}
-                    autoFocus
-                  />
-                </div>
-              </div>
-
-              <div className='widget-form-row'>
-                <div className='widget-form-group'>
-                  <label htmlFor='scan-warehouse-dropdown'>Select Warehouse</label>
-                  <select
-                    id='scan-warehouse-dropdown'
-                    value={scannerWarehouseId}
-                    onChange={(e) => setScannerWarehouseId(e.target.value)}
-                  >
-                    {Array.isArray(warehouses) && warehouses.map((w) => (
-                      <option key={w.warehouse_id} value={w.warehouse_id}>
-                        {w.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className='widget-form-group'>
-                  <label htmlFor='scan-qty-input'>Quantity</label>
-                  <input
-                    id='scan-qty-input'
-                    type='number'
-                    min='1'
-                    value={scanQty}
-                    onChange={(e) => setScanQty(Math.max(1, parseInt(e.target.value) || 1))}
-                  />
-                </div>
-              </div>
-
-              <div className='widget-form-group'>
-                <label>Scan Transaction Type</label>
-                <div className='scan-type-toggle-switch'>
-                  <button
-                    type='button'
-                    className={`toggle-btn stock_in ${scanType === 'stock_in' ? 'active' : ''}`}
-                    onClick={() => setScanType('stock_in')}
-                  >
-                    Stock In
-                  </button>
-                  <button
-                    type='button'
-                    className={`toggle-btn stock_out ${scanType === 'stock_out' ? 'active' : ''}`}
-                    onClick={() => setScanType('stock_out')}
-                  >
-                    Stock Out
-                  </button>
-                </div>
-              </div>
-
-              <div className='widget-form-group'>
-                <label htmlFor='scan-notes-input'>Scans Audit Notes (Optional)</label>
-                <input
-                  id='scan-notes-input'
-                  type='text'
-                  placeholder='Reason for adjustment, shelf code...'
-                  value={scannerNotes}
-                  onChange={(e) => setScannerNotes(e.target.value)}
-                />
-              </div>
-
-              <button type='submit' className='scan-widget-submit-btn' disabled={scanning}>
-                {scanning ? 'Processing Scan...' : 'Submit Barcode Scan'}
-              </button>
-            </form>
-
-            {/* Scan Real-time Result */}
-            {scanResult && (
-              <div className={`scan-result-card ${scanResult.found ? 'found' : 'not-found'}`}>
-                <div className='card-header'>
-                  {scanResult.found ? (
-                    <>
-                      <SuccessIcon className='text-success' />
-                      <strong>Item Matched & Processed</strong>
-                    </>
-                  ) : (
-                    <>
-                      <WarningIcon className='text-warning' />
-                      <strong>Unrecognised Item Logged</strong>
-                    </>
-                  )}
-                </div>
-
-                {scanResult.found ? (
-                  <div className='result-details'>
-                    <p className='prod-title'>
-                      Product: <strong>{scanResult.product?.name}</strong>
-                    </p>
-                    <p className='prod-sku'>
-                      SKU: <code>{scanResult.product?.sku}</code>
-                    </p>
-                    <div className='qty-shift'>
-                      Stock Level: <code>{scanResult.before_qty}</code> →{' '}
-                      <code className='txt-bold'>{scanResult.after_qty}</code>
-                    </div>
-                  </div>
-                ) : (
-                  <div className='result-details'>
-                    <p>
-                      Barcode <code>{scanResult.barcode}</code> could not be matched.
-                    </p>
-                    <span className='notice'>
-                      This scan has been saved to unrecognised logs for manual resolution.
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Recent Scans list */}
-            <div className='recent-scans-widget-box'>
-              <h4>Recent Widget Scans (Session Only)</h4>
-              {recentScans.length === 0 ? (
-                <p className='empty-txt'>No barcodes scanned yet in this window.</p>
-              ) : (
-                <div className='table-responsive'>
-                  <table className='recent-scans-table'>
-                    <thead>
-                      <tr>
-                        <th>SKU</th>
-                        <th>Product Name</th>
-                        <th>Action</th>
-                        <th className='align-center'>Qty</th>
-                        <th>Time</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {Array.isArray(recentScans) && recentScans.map((s) => (
-                        <tr key={s.id} className={s.success ? 'scan-row-ok' : 'scan-row-fail'}>
-                          <td>
-                            <code>{s.sku}</code>
-                          </td>
-                          <td>{s.productName}</td>
-                          <td>
-                            <span className={`badge-type ${s.scanType}`}>
-                              {s.scanType === 'stock_in' ? 'Stock In' : 'Stock Out'}
-                            </span>
-                          </td>
-                          <td className='align-center font-semibold'>
-                            {s.scanType === 'stock_in' ? '+' : '-'}
-                            {s.quantity}
-                          </td>
-                          <td className='scan-time'>
-                            {new Date(s.timestamp).toLocaleTimeString([], {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              second: '2-digit',
-                            })}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-      </div>
-
-      {/* Section: Logs Table */}
+      {/* Section: Execution Audit Logs */}
       <section className='auto-section-block'>
         <header className='logs-section-header'>
           <LogsIcon />
@@ -1086,126 +619,6 @@ const AutomationDashboard = () => {
           </div>
         )}
       </section>
-
-      {/* Drawer: Conflict Barcode Scan resolution drawer */}
-      <div className={`scan-resolution-drawer ${drawerOpen ? 'open' : ''}`}>
-        <div className='drawer-inner'>
-          <header className='drawer-header'>
-            <h3>Resolve Barcode Conflicts</h3>
-            <button className='drawer-close-btn' onClick={() => setDrawerOpen(false)}>
-              <CloseIcon />
-            </button>
-          </header>
-
-          <main className='drawer-body-scroller'>
-            <p className='drawer-helper-desc'>
-              These barcode scan inputs were not matched to any registered catalog SKU. Select an
-              existing product to link the barcode.
-            </p>
-
-            {loadingScans ? (
-              <div className='drawer-loading'>
-                <div className='spinner'></div>
-                <p>Loading conflict list...</p>
-              </div>
-            ) : unrecognisedScans.length === 0 ? (
-              <div className='drawer-empty'>
-                <p>All scanned barcodes resolved! No conflicts found.</p>
-              </div>
-            ) : (
-              <div className='unrecognised-scans-list'>
-                {Array.isArray(unrecognisedScans) && unrecognisedScans.map((scan) => (
-                  <div key={scan.id} className='conflict-card-row'>
-                    <div className='conflict-meta-box'>
-                      <div className='barcode-badge'>
-                        Barcode: <code>{scan.barcode}</code>
-                      </div>
-                      <div className='details'>
-                        <span>
-                          Warehouse: <strong>{scan.warehouse?.name || 'N/A'}</strong>
-                        </span>
-                        <span>
-                          Scan Type:{' '}
-                          <strong className='text-capitalize'>
-                            {scan.scan_type.replace('_', ' ')}
-                          </strong>
-                        </span>
-                        <span>
-                          Qty: <strong>{scan.quantity}</strong>
-                        </span>
-                        <span>
-                          Date: <strong>{formatDateTime(scan.created_at)}</strong>
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className='conflict-actions-bar'>
-                      {linkingScanId === scan.id ? (
-                        <div className='linking-form-row'>
-                          <select
-                            value={linkingProductId}
-                            onChange={(e) => setLinkingProductId(e.target.value)}
-                          >
-                            <option value=''>-- Choose Catalog Product --</option>
-                            {Array.isArray(products) && products.map((p) => (
-                              <option key={p.product_id} value={p.product_id}>
-                                [{p.sku}] {p.name}
-                              </option>
-                            ))}
-                          </select>
-                          <div className='link-actions'>
-                            <button className='link-btn-submit' onClick={handleLinkScan}>
-                              Confirm Link
-                            </button>
-                            <button
-                              className='link-btn-cancel'
-                              onClick={() => setLinkingScanId(null)}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <button
-                          className='link-product-init-btn'
-                          onClick={() => {
-                            setLinkingScanId(scan.id);
-                            setLinkingProductId('');
-                          }}
-                        >
-                          Link to Product
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </main>
-
-          {scanTotalPages > 1 && (
-            <footer className='drawer-footer-pagination'>
-              <button
-                className='page-btn'
-                onClick={() => setScanPage((p) => Math.max(1, p - 1))}
-                disabled={scanPage === 1}
-              >
-                Prev
-              </button>
-              <span className='page-label'>
-                Page {scanPage} of {scanTotalPages}
-              </span>
-              <button
-                className='page-btn'
-                onClick={() => setScanPage((p) => Math.min(scanTotalPages, p + 1))}
-                disabled={scanPage === scanTotalPages}
-              >
-                Next
-              </button>
-            </footer>
-          )}
-        </div>
-      </div>
 
       {/* Modal: Add/Edit Rule */}
       {ruleModalOpen && (
