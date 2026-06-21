@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 import { Inventory, Product, Warehouse, AuditLog, sequelize } from '../models/index.js';
 import logger from '../config/logger.js';
+import { resolveManagedWarehouseIdsForUser } from '../utils/warehouseAccess.js';
 
 /* ── helpers ─────────────────────────────────────────────────── */
 const uid  = (req) => req.user?.user_id || req.user?.id;
@@ -13,11 +14,11 @@ const role = (req) => req.user?.role;
  */
 async function getWarehouseScope(req) {
   if (role(req) === 'admin') return null;
-  const whs = await Warehouse.findAll({
-    where: { manager_id: uid(req) },
-    attributes: ['warehouse_id'],
+  return resolveManagedWarehouseIdsForUser({
+    id: uid(req),
+    role: role(req),
+    email: req.user?.email,
   });
-  return whs.length ? whs.map((w) => w.warehouse_id) : [];
 }
 
 function buildWhereFromScope(scope) {

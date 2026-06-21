@@ -18,7 +18,7 @@ import {
   Download as ExportIcon,
   FilterList as FilterIcon,
 } from '@mui/icons-material';
-import { settingsAPI } from '../services/api';
+import { settingsAPI, warehouseAPI } from '../services/api';
 import { setUser } from '../store/authSlice';
 import { useToast } from '../hooks/useToast';
 import Card from '../components/ui/Card';
@@ -101,6 +101,11 @@ const createUserSchema = Yup.object({
   email: Yup.string().email('Invalid email').required('Email is required'),
   password: Yup.string().min(8, 'Minimum 8 characters').required('Password is required'),
   role: Yup.string().oneOf(['admin', 'manager', 'staff', 'user']).required(),
+  warehouse_id: Yup.mixed().when('role', {
+    is: (role) => role === 'manager' || role === 'staff',
+    then: (schema) => schema.required('Warehouse is required'),
+    otherwise: (schema) => schema.optional().nullable(),
+  }),
 });
 
 const resetPasswordSchema = Yup.object({
@@ -400,6 +405,19 @@ function UserManagementSection() {
   const [resetTarget, setResetTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [actionLoading, setActionLoading] = useState('');
+  const [warehouses, setWarehouses] = useState([]);
+
+  useEffect(() => {
+    const fetchWarehouses = async () => {
+      try {
+        const res = await warehouseAPI.getAll({ limit: 100 });
+        setWarehouses(res.data?.data || res.data?.warehouses || []);
+      } catch (err) {
+        console.error('Failed to fetch warehouses:', err);
+      }
+    };
+    fetchWarehouses();
+  }, []);
 
   useEffect(() => {
     clearTimeout(debRef.current);
@@ -438,7 +456,13 @@ function UserManagementSection() {
   /* ── Create user ── */
   const handleCreate = async (values, { setSubmitting }) => {
     try {
-      await settingsAPI.createUser(values);
+      const payload = { ...values };
+      if (payload.role !== 'manager' && payload.role !== 'staff') {
+        payload.warehouse_id = null;
+      } else {
+        payload.warehouse_id = payload.warehouse_id ? parseInt(payload.warehouse_id, 10) : null;
+      }
+      await settingsAPI.createUser(payload);
       showToast(`User ${values.email} created`, 'success');
       setCreateOpen(false);
       fetchUsers();
@@ -452,7 +476,13 @@ function UserManagementSection() {
   /* ── Edit user ── */
   const handleEdit = async (values, { setSubmitting }) => {
     try {
-      await settingsAPI.updateUser(editTarget.id, values);
+      const payload = { ...values };
+      if (payload.role !== 'manager' && payload.role !== 'staff') {
+        payload.warehouse_id = null;
+      } else {
+        payload.warehouse_id = payload.warehouse_id ? parseInt(payload.warehouse_id, 10) : null;
+      }
+      await settingsAPI.updateUser(editTarget.id, payload);
       showToast('User updated', 'success');
       setEditTarget(null);
       fetchUsers();
@@ -782,7 +812,7 @@ function UserManagementSection() {
         size='md'
       >
         <Formik
-          initialValues={{ first_name: '', last_name: '', email: '', password: '', role: 'staff' }}
+          initialValues={{ first_name: '', last_name: '', email: '', password: '', role: 'staff', warehouse_id: '' }}
           validationSchema={createUserSchema}
           onSubmit={handleCreate}
         >
@@ -840,6 +870,25 @@ function UserManagementSection() {
                   <option value='admin'>Admin</option>
                   <option value='user'>User (Requester)</option>
                 </Select>
+                {(values.role === 'manager' || values.role === 'staff') && (
+                  <Select
+                    label='Warehouse'
+                    required
+                    name='warehouse_id'
+                    value={values.warehouse_id}
+                    onChange={(e) =>
+                      handleChange({ target: { name: 'warehouse_id', value: e.target.value } })
+                    }
+                    error={touched.warehouse_id && errors.warehouse_id}
+                  >
+                    <option value=''>Select a Warehouse</option>
+                    {warehouses.map((w) => (
+                      <option key={w.warehouse_id} value={w.warehouse_id}>
+                        {w.name}
+                      </option>
+                    ))}
+                  </Select>
+                )}
               </Modal.Body>
               <Modal.Footer>
                 <Button
@@ -873,11 +922,17 @@ function UserManagementSection() {
               last_name: editTarget.last_name || '',
               email: editTarget.email || '',
               role: editTarget.role || 'staff',
+              warehouse_id: editTarget.warehouse_id || '',
             }}
             validationSchema={Yup.object({
               first_name: Yup.string().trim().required('Required'),
               email: Yup.string().email('Invalid email').required('Required'),
               role: Yup.string().oneOf(['admin', 'manager', 'staff', 'user']).required(),
+              warehouse_id: Yup.mixed().when('role', {
+                is: (val) => val === 'manager' || val === 'staff',
+                then: (schema) => schema.required('Required'),
+                otherwise: (schema) => schema.optional().nullable(),
+              }),
             })}
             onSubmit={handleEdit}
           >
@@ -925,6 +980,25 @@ function UserManagementSection() {
                     <option value='admin'>Admin</option>
                     <option value='user'>User (Requester)</option>
                   </Select>
+                  {(values.role === 'manager' || values.role === 'staff') && (
+                    <Select
+                      label='Warehouse'
+                      required
+                      name='warehouse_id'
+                      value={values.warehouse_id}
+                      onChange={(e) =>
+                        handleChange({ target: { name: 'warehouse_id', value: e.target.value } })
+                      }
+                      error={touched.warehouse_id && errors.warehouse_id}
+                    >
+                      <option value=''>Select a Warehouse</option>
+                      {warehouses.map((w) => (
+                        <option key={w.warehouse_id} value={w.warehouse_id}>
+                          {w.name}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
                   {Number(editTarget.id) === Number(currentUser?.id) && (
                     <p
                       style={{

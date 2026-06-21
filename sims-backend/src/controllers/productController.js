@@ -10,6 +10,7 @@ import {
   sequelize,
 } from '../models/index.js';
 import logger from '../config/logger.js';
+import { resolveManagedWarehouseIdsForUser } from '../utils/warehouseAccess.js';
 
 /* ── helpers ─────────────────────────────────────────── */
 const userId = (req) => req.user?.user_id || req.user?.id;
@@ -18,11 +19,7 @@ async function getManagedWarehouseIds(req) {
   const { role } = req.user;
   const uid = userId(req);
   if (role === 'admin') return null; // no filter
-  const warehouses = await Warehouse.findAll({
-    where: { manager_id: uid },
-    attributes: ['warehouse_id'],
-  });
-  return warehouses.length ? warehouses.map((w) => w.warehouse_id) : null;
+  return resolveManagedWarehouseIdsForUser({ id: uid, role, email: req.user?.email });
 }
 
 /* ══════════════════════════════════════════════════════

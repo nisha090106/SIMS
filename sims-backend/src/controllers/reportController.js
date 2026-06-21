@@ -6,6 +6,7 @@ import {
 import asyncHandler from 'express-async-handler';
 import logger from '../config/logger.js';
 import { Parser } from 'json2csv';
+import { resolveManagedWarehouseIdsForUser } from '../utils/warehouseAccess.js';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -18,17 +19,13 @@ async function warehouseScope(req, warehouseIdParam) {
   const { role, id: userId } = req.user;
 
   if (role === 'manager') {
-    const managed = await Warehouse.findAll({
-      where: { manager_id: userId },
-      attributes: ['warehouse_id'],
-    });
-    const ids = managed.map(w => w.warehouse_id);
-    return ids.length ? { [Op.in]: ids } : { [Op.in]: [-1] }; // no match if no warehouses
+    const ids = await resolveManagedWarehouseIdsForUser({ id: userId, role, email: req.user?.email });
+    return ids?.length ? { [Op.in]: ids } : { [Op.in]: [-1] };
   }
 
   if (role === 'staff') {
-    const user = await User.findByPk(userId, { attributes: ['warehouse_id'] });
-    return user?.warehouse_id ? user.warehouse_id : { [Op.in]: [-1] };
+    const ids = await resolveManagedWarehouseIdsForUser({ id: userId, role, email: req.user?.email });
+    return ids?.length ? { [Op.in]: ids } : { [Op.in]: [-1] };
   }
 
   if (role === 'admin' && warehouseIdParam) {
@@ -44,6 +41,33 @@ function getPagination(query) {
   const limit = Math.min(500, Math.max(1, parseInt(query.limit) || 50));
   const offset = (page - 1) * limit;
   return { page, limit, offset };
+}
+
+export function getDisplayName(user, fallback = 'System') {
+  if (!user) return fallback;
+  if (typeof user === 'string') {
+    const trimmed = user.trim();
+    return trimmed || fallback;
+  }
+
+  const parts = [user.first_name, user.last_name].filter(Boolean).map((part) => String(part).trim());
+  const composed = parts.join(' ').trim();
+  if (composed) return composed;
+
+  if (typeof user.full_name === 'string') {
+    const trimmed = user.full_name.trim();
+    if (trimmed) return trimmed;
+  }
+
+  if (typeof user.email === 'string' && user.email.trim()) {
+    return user.email.trim();
+  }
+
+  return fallback;
+}
+
+export function buildLiveLowStockCondition() {
+  return 'i.quantity <= p.reorder_level';
 }
 
 // ─── Controller ─────────────────────────────────────────────────────────────
@@ -99,7 +123,7 @@ class ReportController {
         categoryDistribution: categoryDist.map(r => ({ category: r.category, count: Number(r.cnt || 0) })),
         recentActivity:       recentLogs.map(l => ({
           action:    l.action,
-          user:      l.user?.full_name || 'System',
+          user:      getDisplayName(l.user),
           timestamp: l.timestamp,
         })),
       },
@@ -124,18 +148,18 @@ class ReportController {
 
     if (status === 'out_of_stock')  invWhere.quantity = 0;
 
+    const inventoryWhere = status === 'low_stock'
+      ? { ...invWhere, [Op.and]: [literal(buildLiveLowStockCondition())] }
+      : invWhere;
+
     let allRows = await Inventory.findAll({
-      where: invWhere,
+      where: inventoryWhere,
       include: [
         { model: Product,   as: 'product',   where: productWhere, attributes: ['product_id', 'sku', 'name', 'category', 'unit_price', 'cost_price', 'reorder_level', 'reorder_qty'] },
         { model: Warehouse, as: 'warehouse', attributes: ['warehouse_id', 'name', 'location'] },
       ],
       order: [['product', 'name', 'ASC']],
     });
-
-    if (status === 'low_stock') {
-      allRows = allRows.filter(inv => inv.quantity <= inv.product.reorder_level);
-    }
 
     const count = allRows.length;
     const paginatedRows = allRows.slice(offset, offset + limit);
@@ -302,10 +326,11 @@ class ReportController {
 
     const items = rows.map(log => {
       const changes = log.changes || {};
+      const u = log.user;
       return {
         logId:     log.log_id,
         timestamp: log.timestamp,
-        user:      log.user?.full_name || 'System',
+        user:      u ? `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email || 'System' : 'System',
         action:    log.action,
         entity:    log.table_name,
         quantityChange: changes.quantity_change ?? changes.quantity ?? null,
@@ -338,9 +363,15 @@ class ReportController {
     const productWhere = {};
     if (category) productWhere.category = category;
 
-    // Low stock: quantity <= reorder_level, using a raw condition
+    const lowStockCondition = buildLiveLowStockCondition();
+
     const allLow = await Inventory.findAll({
-      where: invWhere,
+      where: {
+        ...invWhere,
+        [Op.and]: [
+          literal(`${lowStockCondition}`),
+        ],
+      },
       include: [
         {
           model: Product, as: 'product', where: productWhere,
@@ -350,8 +381,7 @@ class ReportController {
       ],
     });
 
-    // Filter in JS since Sequelize can't easily compare two model columns in a WHERE clause
-    const lowItems = allLow.filter(inv => inv.quantity <= inv.product.reorder_level);
+    const lowItems = allLow.filter(inv => inv.quantity <= (inv.product.reorder_level || 0));
     const total    = lowItems.length;
     const paginated = lowItems.slice(offset, offset + limit);
 
@@ -579,7 +609,7 @@ class ReportController {
       itemCount:    (() => { try { const p = typeof o.items === 'string' ? JSON.parse(o.items) : (o.items || []); return p.length; } catch (_) { return 0; } })(),
       warehouse:    o.warehouse?.name    || '-',
       warehouseId:  o.warehouse?.warehouse_id || null,
-      createdBy:    o.created_by_user?.full_name || 'System',
+      createdBy:    getDisplayName(o.created_by_user),
     }));
 
     res.json({
@@ -648,7 +678,7 @@ class ReportController {
       itemCount: (() => { try { const p = typeof po.items === 'string' ? JSON.parse(po.items) : (po.items || []); return p.length; } catch (_) { return 0; } })(),
       orderDate:      po.order_date,
       expectedDelivery: po.expected_delivery || null,
-      createdBy:      po.created_by_user?.full_name || 'System',
+      createdBy:      getDisplayName(po.created_by_user),
     }));
 
     res.json({
@@ -712,7 +742,7 @@ class ReportController {
       return {
         requestId:      r.id,
         requestNumber:  r.request_number,
-        requester:      r.requester?.full_name || '-',
+        requester:      getDisplayName(r.requester, '-'),
         requesterId:    r.requester?.id,
         warehouse:      r.warehouse?.name || '-',
         itemCount:      (r.items || []).length,
@@ -750,6 +780,100 @@ class ReportController {
   });
 
 
+  // ── GET /api/reports/summary ────────────────────────────────────────────
+  // Live, no-cache queries every call. Used by the Reports page KPI strip.
+  // Returns: totalProducts, totalStockValue, lowStockCount, outOfStockCount,
+  //          draftSubmittedOrdersCount, topLowStockItems (all fresh, no caching)
+  static getSummary = asyncHandler(async (req, res) => {
+    const [
+      totalProducts,
+      lowStockRows,
+      outOfStockRows,
+      stockValueRows,
+      draftSubmittedOrdersCount,
+      topLowStockRaw,
+    ] = await Promise.all([
+
+      // Total active products count
+      Product.count(),
+
+      // Low stock: aggregate quantity across all warehouses per product, then check <= reorder_level
+      sequelize.query(
+        `SELECT COUNT(*) AS cnt
+         FROM (
+           SELECT i.product_id
+           FROM inventory i
+           JOIN products p ON i.product_id = p.product_id
+           GROUP BY i.product_id, p.reorder_level
+           HAVING SUM(i.quantity) > 0 AND SUM(i.quantity) <= p.reorder_level
+         ) AS low
+         WHERE 1=1`,
+        { type: sequelize.QueryTypes.SELECT },
+      ),
+
+      // Out of stock: aggregate quantity across all warehouses per product, then check if total = 0
+      sequelize.query(
+        `SELECT COUNT(*) AS cnt
+         FROM (
+           SELECT i.product_id
+           FROM inventory i
+           JOIN products p ON i.product_id = p.product_id
+           GROUP BY i.product_id
+           HAVING SUM(i.quantity) = 0
+         ) AS oos
+         WHERE 1=1`,
+        { type: sequelize.QueryTypes.SELECT },
+      ),
+
+      // Total stock value: live SUM(quantity * unit_price)
+      sequelize.query(
+        `SELECT COALESCE(SUM(i.quantity * p.unit_price), 0) AS total_value
+         FROM inventory i
+         JOIN products p ON i.product_id = p.product_id`,
+        { type: sequelize.QueryTypes.SELECT },
+      ),
+
+      // Draft or submitted purchase orders
+      PurchaseOrder.count({ where: { status: { [Op.in]: ['draft', 'submitted'] } } }),
+
+      // Top 10 low stock products: live, ordered by how far below reorder_level
+      sequelize.query(
+        `SELECT p.product_id, p.name, p.sku, p.reorder_level, p.reorder_qty,
+                COALESCE(SUM(i.quantity), 0) AS current_qty,
+                (COALESCE(SUM(i.quantity), 0) - p.reorder_level) AS variance
+         FROM products p
+         LEFT JOIN inventory i ON p.product_id = i.product_id
+         WHERE p.is_active = 1
+         GROUP BY p.product_id, p.name, p.sku, p.reorder_level, p.reorder_qty
+         HAVING COALESCE(SUM(i.quantity), 0) <= p.reorder_level
+         ORDER BY variance ASC
+         LIMIT 10`,
+        { type: sequelize.QueryTypes.SELECT },
+      ),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalProducts,
+        totalStockValue: Number(stockValueRows[0]?.total_value || 0),
+        lowStockCount:   Number(lowStockRows[0]?.cnt   || 0),
+        outOfStockCount: Number(outOfStockRows[0]?.cnt || 0),
+        draftSubmittedOrdersCount,
+        topLowStockItems: topLowStockRaw.map(r => ({
+          productId:    r.product_id,
+          name:         r.name,
+          sku:          r.sku,
+          reorderLevel: Number(r.reorder_level),
+          reorderQty:   Number(r.reorder_qty),
+          currentQty:   Number(r.current_qty),
+          variance:     Number(r.variance),
+          stockStatus:  Number(r.current_qty) === 0 ? 'out_of_stock' : 'low_stock',
+        })),
+      },
+    });
+  });
+
   // ── GET /api/reports/audit-log ───────────────────────────────────────────
   static getAuditLog = asyncHandler(async (req, res) => {
     const { userId, action, from, to } = req.query;
@@ -778,7 +902,7 @@ class ReportController {
     const items = rows.map(l => ({
       logId:     l.log_id,
       timestamp: l.timestamp,
-      user:      l.user?.full_name  || 'System',
+      user:      getDisplayName(l.user, 'System'),
       email:     l.user?.email      || '-',
       role:      l.user?.role       || '-',
       action:    l.action,
@@ -932,7 +1056,7 @@ class ReportController {
         const changes = l.changes || {};
         return {
           Timestamp:      l.timestamp,
-          User:           l.user?.full_name || 'System',
+          User:           l.user ? `${l.user.first_name || ''} ${l.user.last_name || ''}`.trim() || 'System' : 'System',
           Action:         l.action,
           Entity:         l.table_name,
           QuantityChange: changes.quantity_change ?? changes.quantity ?? '',
@@ -955,7 +1079,7 @@ class ReportController {
       });
       reportData = logs.map(l => ({
         Timestamp: l.timestamp,
-        User:      l.user?.full_name || '',
+        User:      l.user ? `${l.user.first_name || ''} ${l.user.last_name || ''}`.trim() || '' : '',
         Role:      l.user?.role      || '',
         Action:    l.action,
         Entity:    l.table_name,

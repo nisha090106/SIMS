@@ -12,6 +12,11 @@ router.use(authMiddleware);
 // GET /api/reports/dashboard
 router.get('/dashboard', ReportController.getDashboardStats);
 
+// ── Live summary (no cache) ──────────────────────────────────────────────────
+// GET /api/reports/summary — fresh live queries: lowStockCount, outOfStockCount,
+//   totalStockValue, topLowStockItems (always uses quantity <= reorder_level)
+router.get('/summary', ReportController.getSummary);
+
 // ── Inventory ────────────────────────────────────────────────────────────────
 // GET /api/reports/inventory
 // Query: warehouseId, category, search, status (low_stock|out_of_stock), page, limit

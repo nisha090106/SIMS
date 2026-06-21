@@ -1,4 +1,5 @@
 import { Warehouse } from '../models/index.js';
+import { resolveManagedWarehouseIdsForUser } from '../utils/warehouseAccess.js';
 
 export const warehouseIsolation = async (req, res, next) => {
   try {
@@ -21,11 +22,11 @@ export const warehouseIsolation = async (req, res, next) => {
     }
 
     if (role === 'manager') {
-      const managedWarehouses = await Warehouse.findAll({
-        where: { manager_id: userId },
-        attributes: ['warehouse_id'],
+      const managedIds = await resolveManagedWarehouseIdsForUser({
+        id: userId,
+        role,
+        email: req.user?.email,
       });
-      const managedIds = managedWarehouses.map(w => w.warehouse_id);
 
       if (req.query.warehouseId) {
         const requestedId = parseInt(req.query.warehouseId);

@@ -13,7 +13,7 @@ import {
   Legend,
 } from 'recharts';
 import { Package, Layers, IndianRupee, TrendingDown, AlertTriangle } from 'lucide-react';
-import { warehouseAPI } from '../../../services/api';
+import { warehouseAPI, productAPI, categoryAPI } from '../../../services/api';
 import reportAPI from '../../../services/reportAPI';
 import KpiCard from '../shared/KpiCard';
 import ReportTable from '../shared/ReportTable';
@@ -37,10 +37,33 @@ const STOCK_STATUS_MAP = {
   out_of_stock: { label: 'Out of Stock', class: 'cancelled' },
 };
 
+const normalizeCategoryOptions = (value) => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        if (typeof item === 'number') return String(item);
+        if (item?.name) return item.name;
+        if (item?.category) return item.category;
+        if (item?.label) return item.label;
+        return '';
+      })
+      .filter(Boolean);
+  }
+
+  if (typeof value === 'string') return [value];
+  if (value?.name) return [value.name];
+  if (value?.category) return [value.category];
+  if (value?.label) return [value.label];
+  return [];
+};
+
 export default function InventoryTab() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [warehouses, setWarehouses] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
   const [page, setPage] = useState(1);
 
   const [filters, setFilters] = useState({
@@ -52,12 +75,25 @@ export default function InventoryTab() {
     limit: 15,
   });
 
-  // Load warehouse list for filter dropdown
+  // Load warehouse list, categories, and products for filter dropdowns
   useEffect(() => {
-    warehouseAPI
-      .getAll({ limit: 100 })
-      .then((r) => setWarehouses(r.data.data || r.data.warehouses || []))
-      .catch(() => {});
+    Promise.all([
+      warehouseAPI.getAll({ limit: 100 }).then((r) => setWarehouses(r.data.data || r.data.warehouses || [])).catch(() => {}),
+      categoryAPI.getAll().then((r) => {
+        const payload = r?.data?.data ?? r?.data ?? [];
+        const rawCategories = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.categories)
+            ? payload.categories
+            : [];
+        setCategories(normalizeCategoryOptions(rawCategories));
+      }).catch(() => {}),
+      productAPI.getAll({ limit: 500 }).then((r) => {
+        const payload = r?.data?.data ?? r?.data?.products ?? r?.data ?? [];
+        const normalized = Array.isArray(payload) ? payload : [];
+        setProducts(normalized);
+      }).catch(() => {}),
+    ]);
   }, []);
 
   const fetch = useCallback(
@@ -150,18 +186,30 @@ export default function InventoryTab() {
           </select>
         </FilterField>
         <FilterField label='Category'>
-          <input
-            placeholder='e.g. Electronics'
+          <select
             value={filters.category}
             onChange={(e) => setFilters((p) => ({ ...p, category: e.target.value }))}
-          />
+          >
+            <option value=''>All Categories</option>
+            {categories.map((cat, index) => (
+              <option key={`${cat}-${index}`} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
         </FilterField>
-        <FilterField label='Search Product'>
-          <input
-            placeholder='Product name…'
+        <FilterField label='Product'>
+          <select
             value={filters.search}
             onChange={(e) => setFilters((p) => ({ ...p, search: e.target.value }))}
-          />
+          >
+            <option value=''>All Products</option>
+            {products.map((prod) => (
+              <option key={prod.product_id} value={prod.name}>
+                {prod.sku} - {prod.name}
+              </option>
+            ))}
+          </select>
         </FilterField>
         <FilterField label='Stock Status'>
           <select

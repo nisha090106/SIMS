@@ -4,6 +4,7 @@ import {
   User, Warehouse, Inventory, Product, AuditLog,
 } from '../models/index.js';
 import logger from '../config/logger.js';
+import { resolveManagedWarehouseIdsForUser } from '../utils/warehouseAccess.js';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -13,11 +14,7 @@ const role = (req) => req.user?.role;
 /** Returns managed warehouse IDs for non-admin users, or null for admin. */
 async function getManagedWarehouseIds(userId, userRole) {
   if (userRole === 'admin') return null;
-  const rows = await Warehouse.findAll({
-    where: { manager_id: userId },
-    attributes: ['warehouse_id'],
-  });
-  return rows.map((w) => w.warehouse_id);   // [] means "no access"
+  return resolveManagedWarehouseIdsForUser({ id: userId, role: userRole });
 }
 
 /** Parse items JSON safely — always returns an array. */

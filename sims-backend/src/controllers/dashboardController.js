@@ -11,6 +11,7 @@ import {
   User,
 } from '../models/index.js';
 import logger from '../config/logger.js';
+import { resolveManagedWarehouseIdsForUser } from '../utils/warehouseAccess.js';
 
 /* ─────────────────────────────────────────────────────────────────
    Helper: resolve warehouse scope for manager / staff
@@ -21,20 +22,7 @@ import logger from '../config/logger.js';
 ──────────────────────────────────────────────────────────────────── */
 async function getManagedWarehouseIds(userId, role) {
   if (role === 'admin') return null; // null = no filter = all
-
-  if (role === 'staff') {
-    const user = await User.findByPk(userId, { attributes: ['warehouse_id'] });
-    return user?.warehouse_id ? [user.warehouse_id] : [-1];
-  }
-
-  // Manager: warehouses where manager_id = their user id
-  const warehouses = await Warehouse.findAll({
-    where: { manager_id: userId },
-    attributes: ['warehouse_id'],
-  });
-  // Fallback: if no warehouse assigned, include ALL (so they see something)
-  if (warehouses.length === 0) return null;
-  return warehouses.map((w) => w.warehouse_id);
+  return resolveManagedWarehouseIdsForUser({ id: userId, role });
 }
 
 /* ─────────────────────────────────────────────────────────────────

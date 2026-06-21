@@ -5,6 +5,7 @@ import {
 } from '../models/index.js';
 import logger from '../config/logger.js';
 import NotificationService from '../services/notificationService.js';
+import { resolveManagedWarehouseIdsForUser } from '../utils/warehouseAccess.js';
 
 /* ── helpers ─────────────────────────────────────────────────── */
 const uid  = (req) => req.user?.user_id || req.user?.id;
@@ -18,8 +19,11 @@ function genPONumber() {
 
 async function getManagedWarehouseIds(req) {
   if (role(req) === 'admin') return null;
-  const whs = await Warehouse.findAll({ where: { manager_id: uid(req) }, attributes: ['warehouse_id'] });
-  return whs.map((w) => w.warehouse_id);
+  return resolveManagedWarehouseIdsForUser({
+    id: uid(req),
+    role: role(req),
+    email: req.user?.email,
+  });
 }
 
 function parseItems(rawItems) {
@@ -138,8 +142,8 @@ export const createPurchaseOrder = async (req, res, next) => {
     // Resolve warehouse
     let resolvedWH = warehouse_id;
     if (!resolvedWH && role(req) !== 'admin') {
-      const wh = await Warehouse.findOne({ where: { manager_id: uid(req) } });
-      resolvedWH = wh?.warehouse_id ?? null;
+      const managedWarehouseIds = await getManagedWarehouseIds(req);
+      resolvedWH = managedWarehouseIds?.length ? managedWarehouseIds[0] : null;
     }
 
     // Build line items

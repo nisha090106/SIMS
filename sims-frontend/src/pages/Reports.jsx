@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useSelector } from 'react-redux';
 import {
   Package,
@@ -64,20 +64,18 @@ function OverviewStrip() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const load = useCallback(async () => {
-    try {
-      setLoading(true);
-      const res = await reportAPI.getDashboard();
-      setStats(res.data.data);
-    } catch (_) {
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    load();
-  }, [load]);
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await reportAPI.getSummary();
+        setStats(res.data.data);
+      } catch (_) {
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   const items = [
     { label: 'Total Products', value: stats?.totalProducts?.toLocaleString() },

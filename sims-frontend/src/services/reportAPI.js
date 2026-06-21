@@ -8,6 +8,10 @@ const reportAPI = {
   // Dashboard summary (used by the overview card at the top)
   getDashboard: () => api.get('/reports/dashboard'),
 
+  // Live summary — fresh queries every call, no caching
+  // Returns: lowStockCount, outOfStockCount, totalStockValue, topLowStockItems
+  getSummary: () => api.get('/reports/summary'),
+
   // ── Inventory ──────────────────────────────────────────────────────────
   // GET /reports/inventory
   // params: warehouseId, category, search, status, page, limit

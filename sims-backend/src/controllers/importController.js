@@ -4,6 +4,7 @@ import { ImportJob, Warehouse } from '../models/index.js';
 import * as importService from '../services/importService.js';
 import * as cronService from '../services/cronService.js';
 import logger from '../config/logger.js';
+import { resolveManagedWarehouseIdsForUser } from '../utils/warehouseAccess.js';
 
 /* ── helpers ─────────────────────────────────────────────────── */
 const uid = (req) => req.user?.user_id || req.user?.id;
@@ -18,8 +19,8 @@ async function resolveWarehouseId(req, bodyWarehouseId) {
   if (role === 'admin') return bodyWarehouseId || null;
 
   // Manager / Staff: find their first managed warehouse
-  const wh = await Warehouse.findOne({ where: { manager_id: uid(req) } });
-  return wh ? wh.warehouse_id : null;
+  const ids = await resolveManagedWarehouseIdsForUser({ id: uid(req), role, email: req.user?.email });
+  return ids?.length ? ids[0] : null;
 }
 
 /* ═══════════════════════════════════════════════════════════════
