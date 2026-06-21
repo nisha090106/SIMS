@@ -21,11 +21,12 @@ export const warehouseIsolation = async (req, res, next) => {
       return next();
     }
 
-    if (role === 'manager') {
+    if (role === 'manager' || role === 'staff') {
       const managedIds = await resolveManagedWarehouseIdsForUser({
-        id: userId,
-        role,
-        email: req.user?.email,
+        id: req.user.user_id || req.user.id,
+        role: req.user.role,
+        email: req.user.email,
+        warehouse_id: req.user.warehouse_id,
       });
 
       if (req.query.warehouseId) {
@@ -33,7 +34,7 @@ export const warehouseIsolation = async (req, res, next) => {
         if (!managedIds.includes(requestedId)) {
           return res.status(403).json({
             success: false,
-            error: 'Access denied: You do not manage this warehouse',
+            error: 'Access denied: You do not have access to this warehouse',
           });
         }
         req.allowedWarehouseIds = [requestedId];

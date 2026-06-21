@@ -19,7 +19,7 @@ async function resolveWarehouseId(req, bodyWarehouseId) {
   if (role === 'admin') return bodyWarehouseId || null;
 
   // Manager / Staff: find their first managed warehouse
-  const ids = await resolveManagedWarehouseIdsForUser({ id: uid(req), role, email: req.user?.email });
+  const ids = await resolveManagedWarehouseIdsForUser({ id: uid(req), role, email: req.user?.email, warehouse_id: req.user?.warehouse_id });
   return ids?.length ? ids[0] : null;
 }
 

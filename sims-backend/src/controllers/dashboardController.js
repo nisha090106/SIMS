@@ -20,9 +20,9 @@ import { resolveManagedWarehouseIdsForUser } from '../utils/warehouseAccess.js';
    Admin   → no filter (all warehouses)
    Requester → no warehouse access to admin data
 ──────────────────────────────────────────────────────────────────── */
-async function getManagedWarehouseIds(userId, role) {
-  if (role === 'admin') return null; // null = no filter = all
-  return resolveManagedWarehouseIdsForUser({ id: userId, role });
+async function getManagedWarehouseIds(reqUser) {
+  if (reqUser.role === 'admin') return null; // null = no filter = all
+  return resolveManagedWarehouseIdsForUser(reqUser);
 }
 
 /* ─────────────────────────────────────────────────────────────────
@@ -57,9 +57,9 @@ export async function getDashboardStats(req, res, next) {
     }
 
     /* ── Admin / Manager / Staff ── */
-    const warehouseIds = await getManagedWarehouseIds(userId, role);
-    const whClause = warehouseIds ? { warehouse_id: { [Op.in]: warehouseIds } } : {};
-    const whParam  = warehouseIds ? warehouseIds.join(',') : null;
+    const warehouseIds = await getManagedWarehouseIds(req.user);
+    const whClause = warehouseIds ? { warehouse_id: { [Op.in]: warehouseIds.length > 0 ? warehouseIds : [-1] } } : {};
+    const whParam  = warehouseIds ? (warehouseIds.length > 0 ? warehouseIds.join(',') : '-1') : null;
 
     // Build a reusable WHERE fragment for raw SQL
     const whSQL = whParam
@@ -116,22 +116,25 @@ export async function getDashboardStats(req, res, next) {
       sequelize.query(
         `SELECT COUNT(*) AS cnt
          FROM (
-           SELECT i.product_id
-           FROM inventory i
-           JOIN products p ON i.product_id = p.product_id
-           ${whSQL}
-           GROUP BY i.product_id
-           HAVING SUM(i.quantity) = 0
-         ) AS oos
-         WHERE 1=1`,
+           SELECT p.product_id
+           FROM products p
+           LEFT JOIN inventory i ON p.product_id = i.product_id ${whParam ? `AND i.warehouse_id IN (${whParam})` : ''}
+           WHERE p.is_active = 1
+           GROUP BY p.product_id
+           HAVING COALESCE(SUM(i.quantity), 0) = 0
+         ) AS oos`,
         { type: sequelize.QueryTypes.SELECT },
       ),
 
       // Pending purchase orders
-      PurchaseOrder.count({ where: { status: 'pending' } }),
+      warehouseIds
+        ? PurchaseOrder.count({ where: { status: 'pending', warehouse_id: { [Op.in]: warehouseIds.length > 0 ? warehouseIds : [-1] } } })
+        : PurchaseOrder.count({ where: { status: 'pending' } }),
 
       // Open user requests (pending + approved)
-      UserRequest.count({ where: { status: { [Op.in]: ['pending', 'approved'] } } }),
+      role === 'admin'
+        ? UserRequest.count({ where: { status: { [Op.in]: ['pending', 'approved'] } } })
+        : UserRequest.count({ where: { requested_by: userId, status: { [Op.in]: ['pending', 'approved'] } } }),
     ]);
 
     // ── Recent activity (last 10 audit logs, scoped by role) ────
@@ -243,8 +246,8 @@ export async function getDashboardCharts(req, res, next) {
     }
 
     /* Admin / Manager / Staff */
-    const warehouseIds = await getManagedWarehouseIds(userId, role);
-    const whParam = warehouseIds ? warehouseIds.join(',') : null;
+    const warehouseIds = await getManagedWarehouseIds(req.user);
+    const whParam = warehouseIds ? (warehouseIds.length > 0 ? warehouseIds.join(',') : '-1') : null;
     const whSQL   = whParam ? `AND i.warehouse_id IN (${whParam})` : '';
     const whWhere = whParam
       ? `WHERE w.warehouse_id IN (${whParam})`

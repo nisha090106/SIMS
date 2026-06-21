@@ -23,6 +23,7 @@ async function getManagedWarehouseIds(req) {
     id: uid(req),
     role: role(req),
     email: req.user?.email,
+    warehouse_id: req.user?.warehouse_id,
   });
 }
 

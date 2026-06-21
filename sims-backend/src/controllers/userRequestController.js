@@ -319,12 +319,17 @@ export const getAllRequests = async (req, res) => {
     const { status, requested_by, department, date_from, date_to, page = 1, limit = 10 } = req.query;
     const offset = (page - 1) * limit;
 
+    const scope = req.allowedWarehouseIds;
+    const requesterFilter = scope && scope.length > 0 ? { warehouse_id: { [Op.in]: scope } } : undefined;
     const where = {};
     if (status) {
       where.status = status;
     }
     if (requested_by) {
       where.requested_by = requested_by;
+    }
+    if (scope !== null && scope.length === 0) {
+      return res.status(200).json({ success: true, data: [], total: 0, page: parseInt(page), totalPages: 0 });
     }
     if (department) {
       where.department = department;
@@ -346,7 +351,9 @@ export const getAllRequests = async (req, res) => {
         {
           model: User,
           as: 'requester',
-          attributes: ['first_name', 'last_name', 'email'],
+          attributes: ['first_name', 'last_name', 'email', 'warehouse_id'],
+          where: requesterFilter,
+          required: Boolean(requesterFilter),
         },
         {
           model: UserRequestItem,
@@ -360,7 +367,9 @@ export const getAllRequests = async (req, res) => {
     });
 
     const mapped = rows.map(r => {
-      const requesterName = r.requester ? r.requester.full_name : 'Unknown';
+      const requesterName = r.requester
+        ? `${r.requester.first_name || ''} ${r.requester.last_name || ''}`.trim() || r.requester.email || 'Unknown'
+        : 'Unknown';
       const itemCount = r.items ? r.items.length : 0;
       const totalItems = r.items ? r.items.reduce((sum, item) => sum + (item.quantity_requested || 0), 0) : 0;
 
@@ -392,8 +401,13 @@ export const getAllRequests = async (req, res) => {
 export const approveRequest = async (req, res) => {
   try {
     const { id } = req.params;
+    const scope = req.allowedWarehouseIds;
     const { review_notes } = req.body;
     const reviewerId = req.user.id || req.user.user_id;
+
+    if (scope !== null && scope.length === 0) {
+      return res.status(403).json({ success: false, error: 'You do not have access to any warehouse' });
+    }
 
     const userRequest = await UserRequest.findByPk(id);
     if (!userRequest) {
@@ -444,8 +458,13 @@ export const approveRequest = async (req, res) => {
 export const rejectRequest = async (req, res) => {
   try {
     const { id } = req.params;
+    const scope = req.allowedWarehouseIds;
     const { review_notes } = req.body;
     const reviewerId = req.user.id || req.user.user_id;
+
+    if (scope !== null && scope.length === 0) {
+      return res.status(403).json({ success: false, error: 'You do not have access to any warehouse' });
+    }
 
     if (!review_notes) {
       return res.status(400).json({
@@ -502,9 +521,15 @@ export const fulfillRequest = async (req, res) => {
   try {
     const { id } = req.params;
     const { warehouse_id, fulfilled_items } = req.body;
+    const scope = req.allowedWarehouseIds;
     const reviewerId = req.user.id || req.user.user_id;
 
-    if (!warehouse_id || !fulfilled_items || !Array.isArray(fulfilled_items) || fulfilled_items.length === 0) {
+    if (scope !== null && scope.length === 0) {
+      return res.status(403).json({ success: false, error: 'You do not have access to any warehouse' });
+    }
+
+    const targetWarehouseId = Number(warehouse_id || (scope && scope[0]));
+    if (!targetWarehouseId || !fulfilled_items || !Array.isArray(fulfilled_items) || fulfilled_items.length === 0) {
       return res.status(400).json({
         success: false,
         error: 'warehouse_id and fulfilled_items are required',
@@ -517,6 +542,10 @@ export const fulfillRequest = async (req, res) => {
 
     if (!userRequest) {
       return res.status(404).json({ success: false, error: 'Request not found' });
+    }
+
+    if (scope && scope.length > 0 && !scope.includes(targetWarehouseId)) {
+      return res.status(403).json({ success: false, error: 'You do not have access to this warehouse' });
     }
 
     if (userRequest.status !== 'approved') {
@@ -541,7 +570,7 @@ export const fulfillRequest = async (req, res) => {
 
         // Find and validate stock
         const inventory = await Inventory.findOne({
-          where: { product_id: reqItem.product_id, warehouse_id },
+          where: { product_id: reqItem.product_id, warehouse_id: targetWarehouseId },
           transaction: t,
         });
 
@@ -570,7 +599,7 @@ export const fulfillRequest = async (req, res) => {
         table_name: 'user_requests',
         changes: JSON.stringify({
           request_id: userRequest.id,
-          warehouse_id,
+          warehouse_id: targetWarehouseId,
           fulfilled_items,
         }),
         ip_address: req.ip,

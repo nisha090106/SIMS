@@ -19,7 +19,7 @@ async function getManagedWarehouseIds(req) {
   const { role } = req.user;
   const uid = userId(req);
   if (role === 'admin') return null; // no filter
-  return resolveManagedWarehouseIdsForUser({ id: uid, role, email: req.user?.email });
+  return resolveManagedWarehouseIdsForUser({ id: uid, role, email: req.user?.email, warehouse_id: req.user?.warehouse_id });
 }
 
 /* ══════════════════════════════════════════════════════

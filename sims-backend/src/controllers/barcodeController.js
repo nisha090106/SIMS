@@ -39,8 +39,18 @@ export class BarcodeController {
         return res.status(400).json({ success: false, error: 'Quantity must be a positive integer' });
       }
 
+      const scope = req.allowedWarehouseIds;
+      if (scope !== null && scope.length === 0) {
+        return res.status(403).json({ success: false, error: 'You do not have access to any warehouse' });
+      }
+
+      const requestedWarehouseId = Number(warehouse_id);
+      if (scope && scope.length > 0 && !scope.includes(requestedWarehouseId)) {
+        return res.status(403).json({ success: false, error: 'You do not have access to this warehouse' });
+      }
+
       // Check if warehouse exists
-      const warehouse = await Warehouse.findByPk(warehouse_id);
+      const warehouse = await Warehouse.findByPk(requestedWarehouseId);
       if (!warehouse) {
         return res.status(400).json({ success: false, error: 'Warehouse not found' });
       }
@@ -76,7 +86,7 @@ export class BarcodeController {
       const t = await sequelize.transaction();
       try {
         let [inventory, created] = await Inventory.findOrCreate({
-          where: { product_id: product.product_id, warehouse_id },
+          where: { product_id: product.product_id, warehouse_id: requestedWarehouseId },
           defaults: {
             sku: product.sku,
             name: product.name,
@@ -140,7 +150,7 @@ export class BarcodeController {
             type: 'low_stock',
             message: `Stock level for product ${product.name} (SKU: ${product.sku}) in warehouse ${warehouse.name} has hit the reorder level (${after_qty} left, reorder level is ${product.reorder_level}).`,
             product_id: product.product_id,
-            warehouse_id,
+            warehouse_id: requestedWarehouseId,
             current_quantity: after_qty,
             reorder_level: product.reorder_level,
           }).catch((err) => logger.error('Failed to trigger low stock notification:', err));
@@ -180,10 +190,13 @@ export class BarcodeController {
   static async lookupBarcode(req, res, next) {
     try {
       const { barcode } = req.query;
+      const scope = req.allowedWarehouseIds;
 
       if (!barcode || barcode.trim() === '') {
         return res.status(400).json({ success: false, error: 'Barcode is required' });
       }
+
+      const inventoryFilter = scope && scope.length > 0 ? { warehouse_id: { [Op.in]: scope } } : undefined;
 
       const product = await Product.findOne({
         where: { [Op.or]: [{ barcode }, { sku: barcode }] },
@@ -191,6 +204,8 @@ export class BarcodeController {
           {
             association: 'inventory',
             attributes: ['id', 'warehouse_id', 'quantity', 'location', 'batch_no', 'expiry_date'],
+            where: inventoryFilter,
+            required: Boolean(inventoryFilter),
             include: [
               {
                 association: 'warehouse',
@@ -228,10 +243,16 @@ export class BarcodeController {
       const offset = (page - 1) * limit;
 
       const { warehouse_id, scan_type, date_from, date_to } = req.query;
+      const scope = req.allowedWarehouseIds;
 
       const where = {};
+      if (scope !== null && scope.length === 0) {
+        return res.status(200).json({ success: true, data: { logs: [], total: 0, page, totalPages: 0 } });
+      }
       if (warehouse_id) {
         where.warehouse_id = parseInt(warehouse_id, 10);
+      } else if (scope && scope.length > 0) {
+        where.warehouse_id = { [Op.in]: scope };
       }
       if (scan_type) {
         where.scan_type = scan_type;
@@ -291,8 +312,17 @@ export class BarcodeController {
       const limit = parseInt(req.query.limit, 10) || 10;
       const offset = (page - 1) * limit;
 
+      const scope = req.allowedWarehouseIds;
+      const where = { product_id: null };
+      if (scope !== null && scope.length === 0) {
+        return res.status(200).json({ success: true, data: { logs: [], total: 0, page, totalPages: 0 } });
+      }
+      if (scope && scope.length > 0) {
+        where.warehouse_id = { [Op.in]: scope };
+      }
+
       const { count: total, rows: logs } = await BarcodeScanLog.findAndCountAll({
-        where: { product_id: null },
+        where,
         limit,
         offset,
         order: [['created_at', 'DESC']],
@@ -543,6 +573,7 @@ export class BarcodeController {
   static async stockIn(req, res, next) {
     try {
       const { barcode, quantity, warehouse_id, batch_no, expiry_date } = req.body;
+      const scope = req.allowedWarehouseIds;
 
       if (!barcode || !quantity || !warehouse_id) {
         return res.status(400).json({ 
@@ -556,10 +587,13 @@ export class BarcodeController {
         return res.status(400).json({ success: false, error: 'Quantity must be positive' });
       }
 
-      // Apply warehouse isolation
+      if (scope !== null && scope.length === 0) {
+        return res.status(403).json({ success: false, error: 'You do not have access to any warehouse' });
+      }
+
       let whId = parseInt(warehouse_id, 10);
-      if (req.user.role === 'manager' || req.user.role === 'staff') {
-        whId = req.user.warehouse_id;
+      if (scope && scope.length > 0) {
+        whId = scope[0];
       }
 
       // Find product by barcode OR SKU
@@ -641,6 +675,7 @@ export class BarcodeController {
   static async stockOut(req, res, next) {
     try {
       const { barcode, quantity, warehouse_id, reference_no } = req.body;
+      const scope = req.allowedWarehouseIds;
 
       if (!barcode || !quantity || !warehouse_id) {
         return res.status(400).json({ 
@@ -654,10 +689,13 @@ export class BarcodeController {
         return res.status(400).json({ success: false, error: 'Quantity must be positive' });
       }
 
-      // Apply warehouse isolation
+      if (scope !== null && scope.length === 0) {
+        return res.status(403).json({ success: false, error: 'You do not have access to any warehouse' });
+      }
+
       let whId = parseInt(warehouse_id, 10);
-      if (req.user.role === 'manager' || req.user.role === 'staff') {
-        whId = req.user.warehouse_id;
+      if (scope && scope.length > 0) {
+        whId = scope[0];
       }
 
       // Find product by barcode OR SKU
@@ -745,6 +783,7 @@ export class BarcodeController {
   static async audit(req, res, next) {
     try {
       const { barcode, counted_quantity, warehouse_id } = req.body;
+      const scope = req.allowedWarehouseIds;
 
       if (!barcode || counted_quantity === undefined || !warehouse_id) {
         return res.status(400).json({ 
@@ -758,10 +797,13 @@ export class BarcodeController {
         return res.status(400).json({ success: false, error: 'Counted quantity must be non-negative' });
       }
 
-      // Apply warehouse isolation
+      if (scope !== null && scope.length === 0) {
+        return res.status(403).json({ success: false, error: 'You do not have access to any warehouse' });
+      }
+
       let whId = parseInt(warehouse_id, 10);
-      if (req.user.role === 'manager' || req.user.role === 'staff') {
-        whId = req.user.warehouse_id;
+      if (scope && scope.length > 0) {
+        whId = scope[0];
       }
 
       // Find product by barcode OR SKU
@@ -832,11 +874,15 @@ export class BarcodeController {
       const limit = parseInt(req.query.limit, 10) || 10;
       const offset = (page - 1) * limit;
 
+      const scope = req.allowedWarehouseIds;
       const where = { resolved: false };
 
-      // Manager sees only their warehouse
-      if (req.user.role === 'manager') {
-        where.warehouse_id = req.user.warehouse_id;
+      if (scope !== null && scope.length === 0) {
+        return res.status(200).json({ success: true, data: { unknownBarcodes: [], total: 0, page, totalPages: 0 } });
+      }
+
+      if (scope && scope.length > 0) {
+        where.warehouse_id = { [Op.in]: scope };
       }
 
       const { count: total, rows: unknownBarcodes } = await UnknownBarcode.findAndCountAll({

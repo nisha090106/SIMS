@@ -89,7 +89,7 @@ export default function InventoryTab() {
         setCategories(normalizeCategoryOptions(rawCategories));
       }).catch(() => {}),
       productAPI.getAll({ limit: 500 }).then((r) => {
-        const payload = r?.data?.data ?? r?.data?.products ?? r?.data ?? [];
+        const payload = r?.data?.data?.products ?? r?.data?.products ?? r?.data?.data ?? r?.data ?? [];
         const normalized = Array.isArray(payload) ? payload : [];
         setProducts(normalized);
       }).catch(() => {}),

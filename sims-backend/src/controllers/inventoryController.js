@@ -18,6 +18,7 @@ async function getWarehouseScope(req) {
     id: uid(req),
     role: role(req),
     email: req.user?.email,
+    warehouse_id: req.user?.warehouse_id,
   });
 }
 
@@ -441,7 +442,7 @@ export async function getLowStock(req, res, next) {
 export async function getValuation(req, res, next) {
   try {
     const scope   = await getWarehouseScope(req);
-    const whParam = scope !== null ? scope.join(',') : null;
+    const whParam = scope !== null ? (scope.length > 0 ? scope.join(',') : '-1') : null;
     const whSQL   = whParam ? `WHERE i.warehouse_id IN (${whParam})` : '';
 
     // Subquery: aggregated inventory by product
@@ -454,14 +455,14 @@ export async function getValuation(req, res, next) {
          COUNT(CASE WHEN prod_inv.total_qty > 0 AND prod_inv.total_qty <= prod_inv.reorder_level THEN 1 END) AS low_stock
        FROM (
          SELECT
-           i.product_id,
+           p.product_id,
            p.reorder_level,
-           SUM(i.quantity) AS total_qty,
-           SUM(i.quantity * p.unit_price) AS total_value
-         FROM inventory i
-         JOIN products p ON i.product_id = p.product_id
-         ${whSQL}
-         GROUP BY i.product_id, p.reorder_level
+           COALESCE(SUM(i.quantity), 0) AS total_qty,
+           COALESCE(SUM(i.quantity * p.unit_price), 0) AS total_value
+         FROM products p
+         LEFT JOIN inventory i ON p.product_id = i.product_id ${whParam ? `AND i.warehouse_id IN (${whParam})` : ''}
+         WHERE p.is_active = 1
+         GROUP BY p.product_id, p.reorder_level
        ) AS prod_inv`,
       { type: sequelize.QueryTypes.SELECT },
     );

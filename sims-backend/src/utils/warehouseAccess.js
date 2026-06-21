@@ -16,11 +16,16 @@ export async function resolveManagedWarehouseIdsForUser(user, deps = {}) {
 
   const userId = user.id ?? user.user_id ?? user.userId;
 
-  if (role === 'staff') {
-    const staffUser = user.warehouse_id != null
+  if (role === 'staff' || role === 'manager') {
+    const roleUser = user.warehouse_id != null
       ? { warehouse_id: user.warehouse_id }
       : await userModel.findByPk(userId, { attributes: ['warehouse_id'] });
-    return staffUser?.warehouse_id ? [Number(staffUser.warehouse_id)] : [];
+    
+    if (roleUser?.warehouse_id) {
+      return [Number(roleUser.warehouse_id)];
+    }
+    // If manager doesn't have a direct warehouse_id, fallback to checking Warehouse table
+    if (role === 'staff') return [];
   }
 
   const directWarehouses = await warehouseModel.findAll({

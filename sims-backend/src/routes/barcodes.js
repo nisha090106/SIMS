@@ -2,6 +2,7 @@ import express from 'express';
 import { BarcodeController } from '../controllers/barcodeController.js';
 import { authMiddleware, authorize } from '../middlewares/authMiddleware.js';
 import { asyncHandler } from '../middlewares/errorHandler.js';
+import warehouseIsolation from '../middlewares/warehouseIsolation.js';
 
 const router = express.Router();
 
@@ -10,6 +11,7 @@ router.post(
   '/scan',
   authMiddleware,
   authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(BarcodeController.scanBarcode),
 );
 
@@ -17,6 +19,7 @@ router.post(
 router.get(
   '/lookup',
   authMiddleware,
+  warehouseIsolation,
   asyncHandler(BarcodeController.lookupBarcode),
 );
 
@@ -24,7 +27,8 @@ router.get(
 router.get(
   '/history',
   authMiddleware,
-  authorize('admin', 'manager'),
+  authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(BarcodeController.getScanHistory),
 );
 
@@ -32,7 +36,8 @@ router.get(
 router.get(
   '/unrecognised',
   authMiddleware,
-  authorize('admin', 'manager'),
+  authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(BarcodeController.processUnrecognisedScans),
 );
 
@@ -40,7 +45,8 @@ router.get(
 router.patch(
   '/:scanId/link',
   authMiddleware,
-  authorize('admin', 'manager'),
+  authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(BarcodeController.linkScanToProduct),
 );
 
@@ -51,6 +57,7 @@ router.get(
   '/scan/:barcode',
   authMiddleware,
   authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(BarcodeController.scanLookup),
 );
 
@@ -59,6 +66,7 @@ router.post(
   '/stock-in',
   authMiddleware,
   authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(BarcodeController.stockIn),
 );
 
@@ -67,6 +75,7 @@ router.post(
   '/stock-out',
   authMiddleware,
   authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(BarcodeController.stockOut),
 );
 
@@ -75,6 +84,7 @@ router.post(
   '/audit',
   authMiddleware,
   authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(BarcodeController.audit),
 );
 
@@ -82,7 +92,8 @@ router.post(
 router.get(
   '/unknown',
   authMiddleware,
-  authorize('admin', 'manager'),
+  authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(BarcodeController.getUnknownBarcodes),
 );
 
@@ -90,7 +101,8 @@ router.get(
 router.post(
   '/unknown/:id/assign',
   authMiddleware,
-  authorize('admin', 'manager'),
+  authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(BarcodeController.assignUnknownBarcode),
 );
 
@@ -98,7 +110,8 @@ router.post(
 router.get(
   '/generate',
   authMiddleware,
-  authorize('admin', 'manager'),
+  authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(BarcodeController.generateBarcode),
 );
 

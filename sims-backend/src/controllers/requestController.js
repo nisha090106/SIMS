@@ -157,9 +157,11 @@ export class RequestController {
       if (req.user.role === 'requester' || req.user.role === 'user') {
         // Requester only sees own requests
         where.requester_id = req.user.user_id;
-      } else if (req.user.role === 'manager') {
-        // Manager sees requests for their warehouse
-        where.warehouse_id = req.user.warehouse_id;
+      } else if (req.user.role === 'manager' || req.user.role === 'staff') {
+        // Manager/staff sees requests for their warehouse
+        if (req.user.warehouse_id) {
+          where.warehouse_id = req.user.warehouse_id;
+        }
       }
       // Admin sees all requests
 
@@ -256,7 +258,7 @@ export class RequestController {
       if (req.user.role === 'requester' && request.requester_id !== req.user.user_id) {
         return res.status(403).json({ success: false, error: 'Unauthorized' });
       }
-      if (req.user.role === 'manager' && request.warehouse_id !== req.user.warehouse_id) {
+      if ((req.user.role === 'manager' || req.user.role === 'staff') && req.user.warehouse_id && request.warehouse_id !== req.user.warehouse_id) {
         return res.status(403).json({ success: false, error: 'Unauthorized' });
       }
 

@@ -17,6 +17,7 @@ export class AuthService {
         email: user.email,
         role: user.role,
         full_name: user.full_name,
+        warehouse_id: user.warehouse_id || null,
       },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRE },
@@ -127,6 +128,7 @@ export class AuthService {
             email: user.email,
             full_name: user.full_name,
             role: user.role,
+            warehouse_id: user.warehouse_id || null,
           },
         },
       };

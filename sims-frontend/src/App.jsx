@@ -106,7 +106,7 @@ const AppContent = () => {
         <Route
           path='/requests'
           element={
-            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+            <ProtectedRoute allowedRoles={['admin', 'manager', 'staff']}>
               <RequestsManagement />
             </ProtectedRoute>
           }
@@ -132,7 +132,7 @@ const AppContent = () => {
       {/* ── Requester — RequesterLayout with Outlet ─────────────── */}
       <Route
         element={
-          <ProtectedRoute roles={['user', 'staff']}>
+          <ProtectedRoute roles={['user']}>
             <RequesterLayout />
           </ProtectedRoute>
         }

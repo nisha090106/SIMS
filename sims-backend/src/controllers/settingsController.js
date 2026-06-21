@@ -9,7 +9,7 @@ import logger from '../config/logger.js';
 const uid  = (req) => req.user?.id || req.user?.user_id;
 const role = (req) => req.user?.role;
 
-const SAFE_ATTRS = ['id', 'email', 'first_name', 'last_name', 'role', 'status', 'created_at', 'updated_at'];
+const SAFE_ATTRS = ['id', 'email', 'first_name', 'last_name', 'role', 'status', 'created_at', 'updated_at', 'warehouse_id'];
 
 async function audit(req, action, changes, t) {
   try {
@@ -170,7 +170,7 @@ export const getUsers = asyncHandler(async (req, res) => {
  * Create a new user (admin only).
  */
 export const createUser = asyncHandler(async (req, res) => {
-  const { email, password, first_name, last_name, role: newRole = 'staff' } = req.body;
+  const { email, password, first_name, last_name, role: newRole = 'staff', warehouse_id } = req.body;
 
   if (!email || !password || !first_name) {
     return res.status(400).json({ success: false, error: 'email, password, and first_name are required' });
@@ -190,15 +190,31 @@ export const createUser = asyncHandler(async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const user = await User.create(
-      { email, password, first_name, last_name: last_name || '', role: newRole, status: 'active' },
+      {
+        email,
+        password,
+        first_name,
+        last_name: last_name || '',
+        role: newRole,
+        status: 'active',
+        warehouse_id: (newRole === 'manager' || newRole === 'staff') ? (warehouse_id || null) : null
+      },
       { transaction: t },
     );
-    await audit(req, 'create', { entity: 'user_create', created: { id: user.id, email, role: newRole } }, t);
+    await audit(req, 'create', { entity: 'user_create', created: { id: user.id, email, role: newRole, warehouse_id: user.warehouse_id } }, t);
     await t.commit();
 
     res.status(201).json({
       success: true,
-      data: { id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name, role: user.role, status: user.status },
+      data: {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role,
+        status: user.status,
+        warehouse_id: user.warehouse_id
+      },
       message: 'User created successfully',
     });
   } catch (e) {
@@ -214,7 +230,7 @@ export const createUser = asyncHandler(async (req, res) => {
  */
 export const updateUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { first_name, last_name, email, role: newRole } = req.body;
+  const { first_name, last_name, email, role: newRole, warehouse_id } = req.body;
   const currentUserId = uid(req);
 
   const user = await User.findByPk(id);
@@ -237,12 +253,19 @@ export const updateUser = asyncHandler(async (req, res) => {
 
   const t = await sequelize.transaction();
   try {
-    const before = { first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role };
+    const before = { first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role, warehouse_id: user.warehouse_id };
     const updates = {};
     if (first_name) updates.first_name = first_name.trim();
     if (last_name !== undefined) updates.last_name = (last_name || '').trim();
     if (email) updates.email = email.trim();
     if (newRole) updates.role = newRole;
+
+    const targetRole = newRole || user.role;
+    if (targetRole !== 'manager' && targetRole !== 'staff') {
+      updates.warehouse_id = null;
+    } else if (warehouse_id !== undefined) {
+      updates.warehouse_id = warehouse_id ? parseInt(warehouse_id, 10) : null;
+    }
 
     await user.update(updates, { transaction: t });
     await audit(req, 'update', { entity: 'user_update', targetUserId: Number(id), before, after: updates }, t);
@@ -250,7 +273,15 @@ export const updateUser = asyncHandler(async (req, res) => {
 
     res.json({
       success: true,
-      data: { id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name, role: user.role, status: user.status },
+      data: {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role,
+        status: user.status,
+        warehouse_id: user.warehouse_id
+      },
       message: 'User updated successfully',
     });
   } catch (e) {

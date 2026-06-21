@@ -1,43 +1,30 @@
-import { resolveManagedWarehouseIdsForUser } from '../src/utils/warehouseAccess.js';
+import path from 'node:path';
+import { jest } from '@jest/globals';
 
-describe('resolveManagedWarehouseIdsForUser', () => {
-  it('returns the warehouses assigned directly to a manager', async () => {
-    const user = { id: 42, role: 'manager' };
-    const warehouseModel = {
-      findAll: async () => [{ warehouse_id: 10 }, { warehouse_id: 11 }],
-    };
-    const userModel = {
-      findOne: async () => null,
-    };
+const mockResolveManagedWarehouseIdsForUser = jest.fn();
+const warehouseAccessPath = path.resolve(process.cwd(), 'src/utils/warehouseAccess.js');
 
-    const ids = await resolveManagedWarehouseIdsForUser(user, {
-      warehouseModel,
-      userModel,
-      logger: { warn: jest.fn() },
-    });
+jest.unstable_mockModule(warehouseAccessPath, () => ({
+  resolveManagedWarehouseIdsForUser: mockResolveManagedWarehouseIdsForUser,
+}));
 
-    expect(ids).toEqual([10, 11]);
+const { warehouseIsolation } = await import('../src/middlewares/warehouseIsolation.js');
+
+describe('warehouseIsolation', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it('falls back to the seeded manager account when no direct assignment is found', async () => {
-    const user = { id: 7, role: 'manager', email: 'manager@sims.com' };
-    const warehouseModel = {
-      findAll: async ({ where }) => {
-        if (where.manager_id === 7) return [];
-        if (where.manager_id === 2) return [{ warehouse_id: 15 }];
-        return [];
-      },
-    };
-    const userModel = {
-      findOne: async () => ({ id: 2, email: 'manager@sims.com', role: 'manager' }),
-    };
+  it('scopes staff users to their assigned warehouse', async () => {
+    const req = { user: { id: 9, role: 'staff', warehouse_id: 4 } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const next = jest.fn();
 
-    const ids = await resolveManagedWarehouseIdsForUser(user, {
-      warehouseModel,
-      userModel,
-      logger: { warn: jest.fn() },
-    });
+    mockResolveManagedWarehouseIdsForUser.mockResolvedValue([4]);
 
-    expect(ids).toEqual([15]);
+    await warehouseIsolation(req, res, next);
+
+    expect(req.allowedWarehouseIds).toEqual([4]);
+    expect(next).toHaveBeenCalledTimes(1);
   });
 });

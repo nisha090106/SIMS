@@ -12,6 +12,7 @@ import {
 } from '../controllers/userRequestController.js';
 import { authMiddleware, authorize } from '../middlewares/authMiddleware.js';
 import { asyncHandler } from '../middlewares/errorHandler.js';
+import warehouseIsolation from '../middlewares/warehouseIsolation.js';
 
 const router = express.Router();
 
@@ -43,7 +44,8 @@ router.get(
 router.get(
   '/requests',
   authMiddleware,
-  authorize('admin', 'manager'),
+  authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(getAllRequests),
 );
 
@@ -52,6 +54,7 @@ router.get(
   '/requests/:id',
   authMiddleware,
   authorize('user', 'staff', 'admin', 'manager'),
+  warehouseIsolation,
   asyncHandler(getRequestById),
 );
 
@@ -67,7 +70,8 @@ router.patch(
 router.patch(
   '/requests/:id/approve',
   authMiddleware,
-  authorize('admin', 'manager'),
+  authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(approveRequest),
 );
 
@@ -75,7 +79,8 @@ router.patch(
 router.patch(
   '/requests/:id/reject',
   authMiddleware,
-  authorize('admin', 'manager'),
+  authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(rejectRequest),
 );
 
@@ -83,7 +88,8 @@ router.patch(
 router.patch(
   '/requests/:id/fulfill',
   authMiddleware,
-  authorize('admin', 'manager'),
+  authorize('admin', 'manager', 'staff'),
+  warehouseIsolation,
   asyncHandler(fulfillRequest),
 );
 

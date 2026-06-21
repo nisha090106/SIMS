@@ -19,12 +19,12 @@ async function warehouseScope(req, warehouseIdParam) {
   const { role, id: userId } = req.user;
 
   if (role === 'manager') {
-    const ids = await resolveManagedWarehouseIdsForUser({ id: userId, role, email: req.user?.email });
+    const ids = await resolveManagedWarehouseIdsForUser({ id: userId, role, email: req.user?.email, warehouse_id: req.user?.warehouse_id });
     return ids?.length ? { [Op.in]: ids } : { [Op.in]: [-1] };
   }
 
   if (role === 'staff') {
-    const ids = await resolveManagedWarehouseIdsForUser({ id: userId, role, email: req.user?.email });
+    const ids = await resolveManagedWarehouseIdsForUser({ id: userId, role, email: req.user?.email, warehouse_id: req.user?.warehouse_id });
     return ids?.length ? { [Op.in]: ids } : { [Op.in]: [-1] };
   }
 

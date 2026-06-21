@@ -95,6 +95,7 @@ export class AuthController {
           full_name: user.full_name,
           email: user.email,
           role: user.role,
+          warehouse_id: user.warehouse_id || null,
         },
         accessToken,
         refreshToken,

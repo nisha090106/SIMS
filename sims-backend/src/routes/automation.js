@@ -61,11 +61,11 @@ router.post(
   asyncHandler(triggerJobManually),
 );
 
-// POST  /api/automation/admin/generate-barcodes → generateBarcodes (admin only)
+// POST  /api/automation/admin/generate-barcodes → generateBarcodes (admin, manager, staff)
 router.post(
   '/admin/generate-barcodes',
   authMiddleware,
-  authorize('admin'),
+  authorize('admin', 'manager', 'staff'),
   asyncHandler(generateBarcodes),
 );
 

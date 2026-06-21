@@ -442,14 +442,14 @@ function CreateOrderModal({ open, onClose, onSuccess, warehouses, userRole, user
               <TableContainer component={Paper} variant='outlined' sx={{ borderRadius: 2 }}>
                 <Table size='small'>
                   <TableHead>
-                    <TableRow sx={{ bgcolor: '#000000' }}>
+                    <TableRow sx={{ bgcolor: '#F8FAFC' }}>
                       {['Product', 'Stock', 'Qty', 'Unit Price', 'Total', ''].map((h) => (
                         <TableCell
                           key={h}
                           sx={{
                             fontWeight: 700,
                             fontSize: 11,
-                            color: '#000000',
+                            color: '#64748B',
                             textTransform: 'uppercase',
                             letterSpacing: '0.05em',
                             py: 1,
@@ -617,12 +617,12 @@ function CreateOrderModal({ open, onClose, onSuccess, warehouses, userRole, user
             </Paper>
 
             <Paper variant='outlined' sx={{ borderRadius: 2, overflow: 'hidden' }}>
-              <Box sx={{ bgcolor: '#000000', px: 2, py: 1, borderBottom: '1px solid #E2E8F0' }}>
+              <Box sx={{ bgcolor: '#F8FAFC', px: 2, py: 1, borderBottom: '1px solid #E2E8F0' }}>
                 <Typography
                   variant='subtitle2'
                   fontWeight={700}
                   sx={{
-                    color: '#000000',
+                    color: '#64748B',
                     textTransform: 'uppercase',
                     fontSize: 11,
                     letterSpacing: '0.05em',
@@ -752,14 +752,14 @@ function FulfillDialog({ order, open, onClose, onConfirm, loading }) {
         <TableContainer component={Paper} variant='outlined' sx={{ borderRadius: 2 }}>
           <Table size='small'>
             <TableHead>
-              <TableRow sx={{ bgcolor: '#000000' }}>
+              <TableRow sx={{ bgcolor: '#F8FAFC' }}>
                 {['Product', 'Qty to Deduct', 'Unit Price', 'Total'].map((h) => (
                   <TableCell
                     key={h}
                     sx={{
                       fontWeight: 700,
                       fontSize: 11,
-                      color: '#000000',
+                      color: '#64748B',
                       textTransform: 'uppercase',
                       py: 0.75,
                     }}
@@ -788,7 +788,7 @@ function FulfillDialog({ order, open, onClose, onConfirm, loading }) {
                     <Chip
                       label={`−${item.quantity}`}
                       size='small'
-                      sx={{ bgcolor: '#000000', color: '#000000', fontWeight: 700, fontSize: 12 }}
+                      sx={{ bgcolor: '#FEE2E2', color: '#EF4444', fontWeight: 700, fontSize: 12 }}
                     />
                   </TableCell>
                   <TableCell>
@@ -1395,8 +1395,9 @@ export default function SalesOrders() {
                 borderRadius: 2,
                 fontSize: 13,
                 textTransform: 'none',
-                bgcolor: '#000000',
-                '&:hover': { bgcolor: '#000000' },
+                bgcolor: '#3B82F6',
+                color: '#ffffff',
+                '&:hover': { bgcolor: '#2563EB' },
               }}
             >
               Create Order
@@ -1474,13 +1475,13 @@ export default function SalesOrders() {
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>
-                <SearchIcon sx={{ fontSize: 16, color: '#000000' }} />
+                <SearchIcon sx={{ fontSize: 16, color: '#64748B' }} />
               </InputAdornment>
             ),
           }}
           sx={{
             flex: '1 1 220px',
-            '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#000000' },
+            '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#ffffff' },
           }}
         />
 
@@ -1571,10 +1572,10 @@ export default function SalesOrders() {
                   <TableCell
                     key={h}
                     sx={{
-                      bgcolor: '#000000',
+                      bgcolor: '#F8FAFC',
                       fontWeight: 700,
                       fontSize: 11,
-                      color: '#000000',
+                      color: '#64748B',
                       textTransform: 'uppercase',
                       letterSpacing: '0.05em',
                       py: 1.25,
@@ -1623,7 +1624,7 @@ export default function SalesOrders() {
                       key={order.order_id}
                       sx={{
                         cursor: 'pointer',
-                        '&:hover': { bgcolor: '#000000' },
+                        '&:hover': { bgcolor: '#F8FAFC' },
                         '&:last-child td': { borderBottom: 'none' },
                       }}
                       onClick={() => setView(order)}
@@ -1663,8 +1664,8 @@ export default function SalesOrders() {
                           label={items.length}
                           size='small'
                           sx={{
-                            bgcolor: '#000000',
-                            color: '#000000',
+                            bgcolor: '#F1F5F9',
+                            color: '#475569',
                             fontWeight: 700,
                             fontSize: 11,
                             height: 20,
@@ -1695,8 +1696,8 @@ export default function SalesOrders() {
                               size='small'
                               onClick={() => setView(order)}
                               sx={{
-                                color: '#000000',
-                                '&:hover': { bgcolor: '#000000', color: '#000000' },
+                                color: '#64748B',
+                                '&:hover': { bgcolor: '#F1F5F9', color: '#1E293B' },
                               }}
                             >
                               <ViewIcon fontSize='small' />
@@ -1708,8 +1709,8 @@ export default function SalesOrders() {
                                 size='small'
                                 onClick={() => setFulfill(order)}
                                 sx={{
-                                  color: '#000000',
-                                  '&:hover': { bgcolor: '#000000', color: '#000000' },
+                                  color: '#64748B',
+                                  '&:hover': { bgcolor: '#F1F5F9', color: '#1E293B' },
                                 }}
                               >
                                 <ShipIcon fontSize='small' />
@@ -1723,8 +1724,8 @@ export default function SalesOrders() {
                                 disabled={actionLoading === `deliver-${order.order_id}`}
                                 onClick={() => handleDeliverConfirm(order)}
                                 sx={{
-                                  color: '#000000',
-                                  '&:hover': { bgcolor: '#000000', color: '#000000' },
+                                  color: '#64748B',
+                                  '&:hover': { bgcolor: '#F1F5F9', color: '#1E293B' },
                                 }}
                               >
                                 {actionLoading === `deliver-${order.order_id}` ? (
@@ -1741,8 +1742,8 @@ export default function SalesOrders() {
                                 size='small'
                                 onClick={() => setCancel(order)}
                                 sx={{
-                                  color: '#000000',
-                                  '&:hover': { bgcolor: '#000000', color: '#000000' },
+                                  color: '#64748B',
+                                  '&:hover': { bgcolor: '#F1F5F9', color: '#1E293B' },
                                 }}
                               >
                                 <CancelIcon fontSize='small' />

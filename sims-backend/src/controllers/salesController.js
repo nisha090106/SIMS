@@ -14,7 +14,7 @@ const role = (req) => req.user?.role;
 /** Returns managed warehouse IDs for non-admin users, or null for admin. */
 async function getManagedWarehouseIds(userId, userRole) {
   if (userRole === 'admin') return null;
-  return resolveManagedWarehouseIdsForUser({ id: userId, role: userRole });
+  return resolveManagedWarehouseIdsForUser({ id: userId, role: userRole, warehouse_id: req.user?.warehouse_id });
 }
 
 /** Parse items JSON safely — always returns an array. */

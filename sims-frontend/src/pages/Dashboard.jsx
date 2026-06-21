@@ -367,36 +367,61 @@ export default function Dashboard() {
   /* ── Admin / Manager / Staff ── */
   const { stats, charts, loading } = state;
 
-  const kpiCards = [
-    {
-      icon: <ValueIcon />,
-      label: 'Total Stock Value',
-      value: loading ? '—' : fmt(stats?.totalStockValue),
-      sub: stats?.totalWarehouses ? `${stats.totalWarehouses} warehouses` : null,
-      variant: 'success',
-    },
-    {
-      icon: <LowStockIcon />,
-      label: 'Low Stock Items',
-      value: loading ? '—' : fmtNum(stats?.lowStockCount),
-      sub: stats?.lowStockCount > 0 ? 'Needs attention' : 'All healthy',
-      variant: stats?.lowStockCount > 0 ? 'warning' : 'success',
-    },
-    {
-      icon: <POIcon />,
-      label: 'Pending Orders',
-      value: loading ? '—' : fmtNum(stats?.pendingPurchaseOrders),
-      sub: stats?.pendingPurchaseOrders > 0 ? 'Awaiting approval' : 'None pending',
-      variant: stats?.pendingPurchaseOrders > 0 ? 'warning' : 'neutral',
-    },
-    {
-      icon: <RequestIcon />,
-      label: 'Open Requests',
-      value: loading ? '—' : fmtNum(stats?.openRequests),
-      sub: stats?.openRequests > 0 ? 'Pending + approved' : 'Queue clear',
-      variant: stats?.openRequests > 0 ? 'primary' : 'neutral',
-    },
-  ];
+  // Staff role: no financial ₹ value card; show warehouse-scoped operational cards only
+  const kpiCards = role === 'staff'
+    ? [
+        {
+          icon: <LowStockIcon />,
+          label: 'Low Stock Items',
+          value: loading ? '—' : fmtNum(stats?.lowStockCount),
+          sub: stats?.lowStockCount > 0 ? 'Needs attention' : 'All healthy',
+          variant: stats?.lowStockCount > 0 ? 'warning' : 'success',
+        },
+        {
+          icon: <POIcon />,
+          label: 'Pending Orders',
+          value: loading ? '—' : fmtNum(stats?.pendingPurchaseOrders),
+          sub: stats?.pendingPurchaseOrders > 0 ? 'Awaiting processing' : 'None pending',
+          variant: stats?.pendingPurchaseOrders > 0 ? 'warning' : 'neutral',
+        },
+        {
+          icon: <RequestIcon />,
+          label: 'My Open Requests',
+          value: loading ? '—' : fmtNum(stats?.openRequests),
+          sub: stats?.openRequests > 0 ? 'Pending + approved' : 'Queue clear',
+          variant: stats?.openRequests > 0 ? 'primary' : 'neutral',
+        },
+      ]
+    : [
+        {
+          icon: <ValueIcon />,
+          label: 'Total Stock Value',
+          value: loading ? '—' : fmt(stats?.totalStockValue),
+          sub: stats?.totalWarehouses ? `${stats.totalWarehouses} warehouses` : null,
+          variant: 'success',
+        },
+        {
+          icon: <LowStockIcon />,
+          label: 'Low Stock Items',
+          value: loading ? '—' : fmtNum(stats?.lowStockCount),
+          sub: stats?.lowStockCount > 0 ? 'Needs attention' : 'All healthy',
+          variant: stats?.lowStockCount > 0 ? 'warning' : 'success',
+        },
+        {
+          icon: <POIcon />,
+          label: 'Pending Orders',
+          value: loading ? '—' : fmtNum(stats?.pendingPurchaseOrders),
+          sub: stats?.pendingPurchaseOrders > 0 ? 'Awaiting approval' : 'None pending',
+          variant: stats?.pendingPurchaseOrders > 0 ? 'warning' : 'neutral',
+        },
+        {
+          icon: <RequestIcon />,
+          label: 'Open Requests',
+          value: loading ? '—' : fmtNum(stats?.openRequests),
+          sub: stats?.openRequests > 0 ? 'Pending + approved' : 'Queue clear',
+          variant: stats?.openRequests > 0 ? 'primary' : 'neutral',
+        },
+      ];
 
   /* Extra cards for admin */
   if (role === 'admin') {
@@ -543,7 +568,8 @@ export default function Dashboard() {
           gap: 16,
         }}
       >
-        {/* Bar: Stock Value by Warehouse */}
+        {/* Bar: Stock Value by Warehouse (admin only — managers see one warehouse) */}
+        {role === 'admin' && (
         <Card title='Stock Value by Warehouse' style={{ minHeight: 320 }}>
           <Card.Body>
             {loading ? (
@@ -584,6 +610,7 @@ export default function Dashboard() {
             )}
           </Card.Body>
         </Card>
+        )}
 
         {/* Line: PO Trend */}
         <Card title='Purchase Orders — Last 7 Days' style={{ minHeight: 320 }}>
@@ -637,6 +664,22 @@ export default function Dashboard() {
                 }}
               >
                 <Spinner size='lg' />
+              </div>
+            ) : (charts?.requestStatusBreakdown || []).length === 0 ? (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 240,
+                  gap: 8,
+                  color: 'var(--color-text-muted)',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              >
+                <RequestIcon style={{ fontSize: 36, opacity: 0.3 }} />
+                <span style={{ fontSize: 'var(--text-sm)' }}>No requests submitted yet</span>
               </div>
             ) : (
               <ResponsiveContainer width='100%' height={240}>

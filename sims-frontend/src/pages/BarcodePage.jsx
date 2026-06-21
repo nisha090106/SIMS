@@ -293,12 +293,12 @@ function BarcodeScannerWidget({ warehouses, userRole, userId }) {
 
 // ─── Section 2: Auto-generate product barcodes ───────────────────────────────
 
-function BarcodeGenerationCard({ isAdmin }) {
+function BarcodeGenerationCard({ hasAccess }) {
   const { showToast } = useToast();
   const [generating, setGenerating] = useState(false);
 
   const handleGenerate = async () => {
-    if (!isAdmin) { showToast('Admin access required.', 'error'); return; }
+    if (!hasAccess) { showToast('Access denied.', 'error'); return; }
     setGenerating(true);
     try {
       const res = await automationAPI.generateBarcodes();
@@ -333,8 +333,8 @@ function BarcodeGenerationCard({ isAdmin }) {
           <button
             className="barcode-gen-btn"
             onClick={handleGenerate}
-            disabled={generating || !isAdmin}
-            title={!isAdmin ? 'Admin access required' : 'Generate barcodes for all products without one'}
+            disabled={generating || !hasAccess}
+            title={!hasAccess ? 'Access denied' : 'Generate barcodes for all products without one'}
           >
             {generating ? (
               <><AutoIcon className="btn-icon spinning" /> Generating…</>
@@ -354,7 +354,7 @@ export default function BarcodePage() {
   const { user } = useSelector((s) => s.auth);
   const userRole = user?.role || 'staff';
   const userId   = user?.id   || user?.user_id;
-  const isAdmin  = userRole === 'admin';
+  const hasAccess = ['admin', 'manager', 'staff'].includes(userRole);
 
   const [warehouses, setWarehouses] = useState([]);
 
@@ -391,7 +391,7 @@ export default function BarcodePage() {
       />
 
       {/* Section 2 — Auto-generate barcodes */}
-      <BarcodeGenerationCard isAdmin={isAdmin} />
+      <BarcodeGenerationCard hasAccess={hasAccess} />
     </div>
   );
 }
