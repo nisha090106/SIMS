@@ -80,7 +80,9 @@ const Modal = ({
     if (open) {
       const prev = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
-      return () => { document.body.style.overflow = prev; };
+      return () => {
+        document.body.style.overflow = prev;
+      };
     }
   }, [open]);
 
@@ -90,8 +92,8 @@ const Modal = ({
 
   const modal = (
     <div
-      role="dialog"
-      aria-modal="true"
+      role='dialog'
+      aria-modal='true'
       aria-label={title || 'Dialog'}
       style={{
         position: 'fixed',
@@ -160,7 +162,7 @@ const Modal = ({
               {title}
             </h3>
             <button
-              aria-label="Close dialog"
+              aria-label='Close dialog'
               onClick={onClose}
               style={{
                 background: 'none',

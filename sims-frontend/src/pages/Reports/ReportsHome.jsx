@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  Button,
-  Grid,
-} from '@mui/material';
+import { Box, Card, CardContent, CardMedia, Typography, Button, Grid } from '@mui/material';
 import { BarChart3, TrendingDown, Truck, FileText, BoxSelect, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -61,17 +53,19 @@ const ReportsHome = () => {
     },
   ];
 
-  const filteredReports = reports.filter(r => !r.adminOnly || userRole === 'admin');
+  const filteredReports = reports.filter((r) => !r.adminOnly || userRole === 'admin');
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" sx={{ mb: 1, fontWeight: 'bold' }}>Reports</Typography>
-      <Typography color="textSecondary" sx={{ mb: 3 }}>
+      <Typography variant='h4' sx={{ mb: 1, fontWeight: 'bold' }}>
+        Reports
+      </Typography>
+      <Typography color='textSecondary' sx={{ mb: 3 }}>
         Select a report to view detailed inventory, operational, and compliance metrics
       </Typography>
 
       <Grid container spacing={3}>
-        {filteredReports.map(report => (
+        {filteredReports.map((report) => (
           <Grid item xs={12} sm={6} md={4} key={report.id}>
             <Card
               sx={{
@@ -99,15 +93,19 @@ const ReportsHome = () => {
                 {report.icon}
               </Box>
               <CardContent sx={{ flexGrow: 1 }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                <Typography variant='h6' gutterBottom sx={{ fontWeight: 'bold' }}>
                   {report.title}
                 </Typography>
-                <Typography color="textSecondary" variant="body2">
+                <Typography color='textSecondary' variant='body2'>
                   {report.description}
                 </Typography>
               </CardContent>
               <Box sx={{ p: 2, pt: 0 }}>
-                <Button variant="contained" fullWidth onClick={() => navigate(`/reports/${report.id}`)}>
+                <Button
+                  variant='contained'
+                  fullWidth
+                  onClick={() => navigate(`/reports/${report.id}`)}
+                >
                   Run Report
                 </Button>
               </Box>

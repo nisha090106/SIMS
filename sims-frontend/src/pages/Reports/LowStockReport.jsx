@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
-  Chip,
-} from '@mui/material';
+import { Box, FormControl, InputLabel, Select, MenuItem, TextField, Chip } from '@mui/material';
 import ReportViewer from './ReportViewer';
 import api from '../../services/api';
 
@@ -47,7 +39,7 @@ const LowStockReport = () => {
       setError('');
       const response = await api.get('/reports/low-stock', { params: filters });
       setData(response.data.data.items || []);
-      
+
       const apiSummary = response.data.data.summary || {};
       setSummary({
         totalLowStockItems: apiSummary.totalLowStock || 0,
@@ -70,7 +62,10 @@ const LowStockReport = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `low-stock-${new Date().toISOString().split('T')[0]}.${format}`);
+      link.setAttribute(
+        'download',
+        `low-stock-${new Date().toISOString().split('T')[0]}.${format}`,
+      );
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
@@ -91,7 +86,7 @@ const LowStockReport = () => {
         <Chip
           label={v}
           color={v === 0 ? 'error' : 'warning'}
-          size="small"
+          size='small'
           sx={{ fontWeight: 'bold' }}
         />
       ),
@@ -102,17 +97,13 @@ const LowStockReport = () => {
       field: 'variance',
       label: 'Variance',
       align: 'right',
-      render: (v) => (
-        <span style={{ color: '#000000', fontWeight: 'bold' }}>
-          {v}
-        </span>
-      ),
+      render: (v) => <span style={{ color: '#000000', fontWeight: 'bold' }}>{v}</span>,
     },
   ];
 
   return (
     <ReportViewer
-      title="Low Stock Alert Report"
+      title='Low Stock Alert Report'
       filters={filters}
       onFiltersChange={setFilters}
       loading={loading}
@@ -124,15 +115,15 @@ const LowStockReport = () => {
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {userRole === 'admin' && (
-          <FormControl fullWidth size="small">
+          <FormControl fullWidth size='small'>
             <InputLabel>Warehouse</InputLabel>
             <Select
               value={filters.warehouseId}
               onChange={(e) => setFilters({ ...filters, warehouseId: e.target.value })}
-              label="Warehouse"
+              label='Warehouse'
             >
-              <MenuItem value="">All Warehouses</MenuItem>
-              {warehouses.map(wh => (
+              <MenuItem value=''>All Warehouses</MenuItem>
+              {warehouses.map((wh) => (
                 <MenuItem key={wh.warehouse_id} value={wh.warehouse_id}>
                   {wh.name}
                 </MenuItem>
@@ -142,13 +133,13 @@ const LowStockReport = () => {
         )}
 
         <TextField
-          label="Custom Threshold Level"
-          type="number"
+          label='Custom Threshold Level'
+          type='number'
           value={filters.threshold}
           onChange={(e) => setFilters({ ...filters, threshold: e.target.value })}
-          placeholder="e.g. 15 (Optional)"
+          placeholder='e.g. 15 (Optional)'
           fullWidth
-          size="small"
+          size='small'
         />
       </Box>
     </ReportViewer>

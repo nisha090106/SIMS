@@ -61,7 +61,7 @@ const RequestManagement = () => {
     try {
       setLoading(true);
       const statusFilter = tabValue === 0 ? null : statuses[tabValue - 1];
-      
+
       const response = await axios.get('/api/requests', {
         params: {
           page: page + 1,
@@ -119,7 +119,7 @@ const RequestManagement = () => {
   const handleOpenApproveModal = (request) => {
     setSelectedRequest(request);
     const initialQtys = {};
-    request.items.forEach(item => {
+    request.items.forEach((item) => {
       initialQtys[item.id] = item.requested_qty;
     });
     setApprovedQtys(initialQtys);
@@ -135,7 +135,7 @@ const RequestManagement = () => {
   const handleOpenFulfillModal = (request) => {
     setSelectedRequest(request);
     const initialQtys = {};
-    request.items.forEach(item => {
+    request.items.forEach((item) => {
       initialQtys[item.id] = item.approved_qty || item.requested_qty;
     });
     setFulfilledQtys(initialQtys);
@@ -145,7 +145,7 @@ const RequestManagement = () => {
   const handleApproveRequest = async () => {
     try {
       setModalLoading(true);
-      const approved_items = selectedRequest.items.map(item => ({
+      const approved_items = selectedRequest.items.map((item) => ({
         id: item.id,
         approved_qty: approvedQtys[item.id],
       }));
@@ -191,7 +191,7 @@ const RequestManagement = () => {
   const handleFulfillRequest = async () => {
     try {
       setModalLoading(true);
-      const fulfill_items = selectedRequest.items.map(item => ({
+      const fulfill_items = selectedRequest.items.map((item) => ({
         id: item.id,
         fulfilled_qty: fulfilledQtys[item.id],
       }));
@@ -211,22 +211,45 @@ const RequestManagement = () => {
     }
   };
 
-  const canApprove = (request) => (userRole === 'admin' || userRole === 'manager') && request.status === 'pending';
-  const canReject = (request) => (userRole === 'admin' || userRole === 'manager') && ['pending', 'approved'].includes(request.status);
-  const canFulfill = (request) => ['admin', 'manager', 'staff'].includes(userRole) && request.status === 'approved';
+  const canApprove = (request) =>
+    (userRole === 'admin' || userRole === 'manager') && request.status === 'pending';
+  const canReject = (request) =>
+    (userRole === 'admin' || userRole === 'manager') &&
+    ['pending', 'approved'].includes(request.status);
+  const canFulfill = (request) =>
+    ['admin', 'manager', 'staff'].includes(userRole) && request.status === 'approved';
 
   return (
     <Box sx={{ p: 3 }}>
       <Card>
         <CardContent>
-          <Typography variant="h5" sx={{ mb: 3 }}>Request Management</Typography>
+          <Typography variant='h5' sx={{ mb: 3 }}>
+            Request Management
+          </Typography>
 
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+          {error && (
+            <Alert severity='error' sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          {success && (
+            <Alert severity='success' sx={{ mb: 2 }}>
+              {success}
+            </Alert>
+          )}
 
           {/* Tabs */}
-          <Tabs value={tabValue} onChange={(e, v) => { setTabValue(v); setPage(0); }} sx={{ mb: 2 }}>
-            {statusLabels.map((label, idx) => <Tab key={idx} label={label} />)}
+          <Tabs
+            value={tabValue}
+            onChange={(e, v) => {
+              setTabValue(v);
+              setPage(0);
+            }}
+            sx={{ mb: 2 }}
+          >
+            {statusLabels.map((label, idx) => (
+              <Tab key={idx} label={label} />
+            ))}
           </Tabs>
 
           {loading ? (
@@ -243,24 +266,26 @@ const RequestManagement = () => {
                       <TableCell>Request #</TableCell>
                       <TableCell>Requester</TableCell>
                       <TableCell>Priority</TableCell>
-                      <TableCell align="center">Items</TableCell>
+                      <TableCell align='center'>Items</TableCell>
                       <TableCell>Warehouse</TableCell>
                       <TableCell>Status</TableCell>
                       <TableCell>Date</TableCell>
-                      <TableCell align="center">Actions</TableCell>
+                      <TableCell align='center'>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {requests.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
-                          <Typography color="textSecondary">No requests found</Typography>
+                        <TableCell colSpan={8} align='center' sx={{ py: 3 }}>
+                          <Typography color='textSecondary'>No requests found</Typography>
                         </TableCell>
                       </TableRow>
                     ) : (
                       requests.map((request) => (
                         <TableRow key={request.id} hover>
-                          <TableCell sx={{ fontWeight: 'bold' }}>{request.request_number}</TableCell>
+                          <TableCell sx={{ fontWeight: 'bold' }}>
+                            {request.request_number}
+                          </TableCell>
                           <TableCell>
                             {request.requester?.first_name} {request.requester?.last_name}
                           </TableCell>
@@ -268,23 +293,23 @@ const RequestManagement = () => {
                             <Chip
                               label={request.priority}
                               color={getPriorityColor(request.priority)}
-                              size="small"
-                              variant="outlined"
+                              size='small'
+                              variant='outlined'
                             />
                           </TableCell>
-                          <TableCell align="center">{request.items?.length || 0}</TableCell>
+                          <TableCell align='center'>{request.items?.length || 0}</TableCell>
                           <TableCell>{request.warehouse?.name}</TableCell>
                           <TableCell>
                             <Chip
                               label={request.status}
                               color={getStatusColor(request.status)}
-                              size="small"
+                              size='small'
                             />
                           </TableCell>
                           <TableCell>{new Date(request.created_at).toLocaleDateString()}</TableCell>
-                          <TableCell align="center">
+                          <TableCell align='center'>
                             <Button
-                              size="small"
+                              size='small'
                               startIcon={<Eye size={16} />}
                               onClick={() => handleViewRequest(request)}
                             >
@@ -292,8 +317,8 @@ const RequestManagement = () => {
                             </Button>
                             {canApprove(request) && (
                               <Button
-                                size="small"
-                                color="success"
+                                size='small'
+                                color='success'
                                 startIcon={<CheckCircle size={16} />}
                                 onClick={() => handleOpenApproveModal(request)}
                               >
@@ -302,8 +327,8 @@ const RequestManagement = () => {
                             )}
                             {canReject(request) && (
                               <Button
-                                size="small"
-                                color="error"
+                                size='small'
+                                color='error'
                                 startIcon={<XCircle size={16} />}
                                 onClick={() => handleOpenRejectModal(request)}
                               >
@@ -312,8 +337,8 @@ const RequestManagement = () => {
                             )}
                             {canFulfill(request) && (
                               <Button
-                                size="small"
-                                color="info"
+                                size='small'
+                                color='info'
                                 startIcon={<Truck size={16} />}
                                 onClick={() => handleOpenFulfillModal(request)}
                               >
@@ -331,7 +356,7 @@ const RequestManagement = () => {
               {/* Pagination */}
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
-                component="div"
+                component='div'
                 count={total}
                 rowsPerPage={rowsPerPage}
                 page={page}
@@ -347,40 +372,52 @@ const RequestManagement = () => {
       </Card>
 
       {/* View Modal */}
-      <Dialog open={viewModal} onClose={() => setViewModal(false)} maxWidth="md" fullWidth>
+      <Dialog open={viewModal} onClose={() => setViewModal(false)} maxWidth='md' fullWidth>
         <DialogTitle>Request Details: {selectedRequest?.request_number}</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           {selectedRequest && (
             <Box>
               <Grid container spacing={2} sx={{ mb: 3 }}>
                 <Grid item xs={12} sm={6}>
-                  <Typography color="textSecondary">Requester</Typography>
-                  <Typography>{selectedRequest.requester?.first_name} {selectedRequest.requester?.last_name}</Typography>
+                  <Typography color='textSecondary'>Requester</Typography>
+                  <Typography>
+                    {selectedRequest.requester?.first_name} {selectedRequest.requester?.last_name}
+                  </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography color="textSecondary">Warehouse</Typography>
+                  <Typography color='textSecondary'>Warehouse</Typography>
                   <Typography>{selectedRequest.warehouse?.name}</Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography color="textSecondary">Priority</Typography>
-                  <Chip label={selectedRequest.priority} size="small" color={getPriorityColor(selectedRequest.priority)} />
+                  <Typography color='textSecondary'>Priority</Typography>
+                  <Chip
+                    label={selectedRequest.priority}
+                    size='small'
+                    color={getPriorityColor(selectedRequest.priority)}
+                  />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography color="textSecondary">Status</Typography>
-                  <Chip label={selectedRequest.status} size="small" color={getStatusColor(selectedRequest.status)} />
+                  <Typography color='textSecondary'>Status</Typography>
+                  <Chip
+                    label={selectedRequest.status}
+                    size='small'
+                    color={getStatusColor(selectedRequest.status)}
+                  />
                 </Grid>
               </Grid>
 
-              <Typography variant="h6" sx={{ mb: 1 }}>Items</Typography>
+              <Typography variant='h6' sx={{ mb: 1 }}>
+                Items
+              </Typography>
               <TableContainer component={Paper}>
-                <Table size="small">
+                <Table size='small'>
                   <TableHead>
                     <TableRow sx={{ bgcolor: '#000000' }}>
                       <TableCell>SKU</TableCell>
                       <TableCell>Product</TableCell>
-                      <TableCell align="right">Requested</TableCell>
-                      <TableCell align="right">Approved</TableCell>
-                      <TableCell align="right">Fulfilled</TableCell>
+                      <TableCell align='right'>Requested</TableCell>
+                      <TableCell align='right'>Approved</TableCell>
+                      <TableCell align='right'>Fulfilled</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -388,9 +425,9 @@ const RequestManagement = () => {
                       <TableRow key={item.id}>
                         <TableCell>{item.product?.sku}</TableCell>
                         <TableCell>{item.product?.name}</TableCell>
-                        <TableCell align="right">{item.requested_qty}</TableCell>
-                        <TableCell align="right">{item.approved_qty || '-'}</TableCell>
-                        <TableCell align="right">{item.fulfilled_qty || '-'}</TableCell>
+                        <TableCell align='right'>{item.requested_qty}</TableCell>
+                        <TableCell align='right'>{item.approved_qty || '-'}</TableCell>
+                        <TableCell align='right'>{item.fulfilled_qty || '-'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -399,7 +436,7 @@ const RequestManagement = () => {
 
               {selectedRequest.notes && (
                 <Box sx={{ mt: 2 }}>
-                  <Typography color="textSecondary">Notes</Typography>
+                  <Typography color='textSecondary'>Notes</Typography>
                   <Typography>{selectedRequest.notes}</Typography>
                 </Box>
               )}
@@ -412,17 +449,21 @@ const RequestManagement = () => {
       </Dialog>
 
       {/* Approve Modal */}
-      <Dialog open={approveModal} onClose={() => setApproveModal(false)} maxWidth="sm" fullWidth>
+      <Dialog open={approveModal} onClose={() => setApproveModal(false)} maxWidth='sm' fullWidth>
         <DialogTitle>Approve Request: {selectedRequest?.request_number}</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 2 }}>Edit approved quantities:</Typography>
+          <Typography variant='subtitle2' sx={{ mb: 2 }}>
+            Edit approved quantities:
+          </Typography>
           {selectedRequest?.items?.map((item) => (
             <TextField
               key={item.id}
               label={`${item.product?.sku} - ${item.product?.name}`}
-              type="number"
+              type='number'
               value={approvedQtys[item.id] || 0}
-              onChange={(e) => setApprovedQtys({ ...approvedQtys, [item.id]: parseInt(e.target.value) })}
+              onChange={(e) =>
+                setApprovedQtys({ ...approvedQtys, [item.id]: parseInt(e.target.value) })
+              }
               inputProps={{ min: 0, max: item.requested_qty }}
               fullWidth
               sx={{ mb: 2 }}
@@ -431,46 +472,55 @@ const RequestManagement = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setApproveModal(false)}>Cancel</Button>
-          <Button onClick={handleApproveRequest} variant="contained" disabled={modalLoading}>
+          <Button onClick={handleApproveRequest} variant='contained' disabled={modalLoading}>
             {modalLoading ? <CircularProgress size={20} /> : 'Approve'}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Reject Modal */}
-      <Dialog open={rejectModal} onClose={() => setRejectModal(false)} maxWidth="sm" fullWidth>
+      <Dialog open={rejectModal} onClose={() => setRejectModal(false)} maxWidth='sm' fullWidth>
         <DialogTitle>Reject Request: {selectedRequest?.request_number}</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           <TextField
-            label="Rejection Reason"
+            label='Rejection Reason'
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
             fullWidth
             multiline
             rows={4}
-            placeholder="Provide a reason for rejection..."
+            placeholder='Provide a reason for rejection...'
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRejectModal(false)}>Cancel</Button>
-          <Button onClick={handleRejectRequest} variant="contained" color="error" disabled={modalLoading}>
+          <Button
+            onClick={handleRejectRequest}
+            variant='contained'
+            color='error'
+            disabled={modalLoading}
+          >
             {modalLoading ? <CircularProgress size={20} /> : 'Reject'}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Fulfill Modal */}
-      <Dialog open={fulfillModal} onClose={() => setFulfillModal(false)} maxWidth="sm" fullWidth>
+      <Dialog open={fulfillModal} onClose={() => setFulfillModal(false)} maxWidth='sm' fullWidth>
         <DialogTitle>Fulfill Request: {selectedRequest?.request_number}</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 2 }}>Set fulfilled quantities:</Typography>
+          <Typography variant='subtitle2' sx={{ mb: 2 }}>
+            Set fulfilled quantities:
+          </Typography>
           {selectedRequest?.items?.map((item) => (
             <TextField
               key={item.id}
               label={`${item.product?.sku} - Approved: ${item.approved_qty || item.requested_qty}`}
-              type="number"
+              type='number'
               value={fulfilledQtys[item.id] || 0}
-              onChange={(e) => setFulfilledQtys({ ...fulfilledQtys, [item.id]: parseInt(e.target.value) })}
+              onChange={(e) =>
+                setFulfilledQtys({ ...fulfilledQtys, [item.id]: parseInt(e.target.value) })
+              }
               inputProps={{ min: 0, max: item.approved_qty || item.requested_qty }}
               fullWidth
               sx={{ mb: 2 }}
@@ -479,7 +529,12 @@ const RequestManagement = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setFulfillModal(false)}>Cancel</Button>
-          <Button onClick={handleFulfillRequest} variant="contained" color="success" disabled={modalLoading}>
+          <Button
+            onClick={handleFulfillRequest}
+            variant='contained'
+            color='success'
+            disabled={modalLoading}
+          >
             {modalLoading ? <CircularProgress size={20} /> : 'Fulfill'}
           </Button>
         </DialogActions>

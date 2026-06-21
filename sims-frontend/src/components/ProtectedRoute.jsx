@@ -23,7 +23,7 @@ const ProtectedRoute = ({ children, allowedRoles, roles }) => {
 
   // Not authenticated at all → login
   if (!isAuthenticated && !token && !localToken) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to='/login' replace />;
   }
 
   const rolesToCheck = allowedRoles || roles;
@@ -31,9 +31,11 @@ const ProtectedRoute = ({ children, allowedRoles, roles }) => {
   // Role check (only once user is loaded from Redux)
   if (user && rolesToCheck && !rolesToCheck.includes(user.role)) {
     // Requester goes to their portal; everyone else to admin dashboard
-    return user.role === 'user'
-      ? <Navigate to="/user-dashboard" replace />
-      : <Navigate to="/dashboard" replace />;
+    return user.role === 'user' ? (
+      <Navigate to='/user-dashboard' replace />
+    ) : (
+      <Navigate to='/dashboard' replace />
+    );
   }
 
   // Layout route mode — render Outlet so nested routes work

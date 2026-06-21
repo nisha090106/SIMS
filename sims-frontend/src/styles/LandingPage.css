@@ -20,7 +20,12 @@
 }
 
 /* Typography */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Syne', sans-serif;
   font-weight: 700;
   color: #000000;
@@ -55,7 +60,8 @@ p {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -64,7 +70,8 @@ p {
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 4px 20px rgba(249, 115, 22, 0.08);
   }
   50% {
@@ -73,7 +80,8 @@ p {
 }
 
 @keyframes float-card-1 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(-4deg);
   }
   50% {
@@ -82,7 +90,8 @@ p {
 }
 
 @keyframes float-card-2 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(-5px) rotate(4deg);
   }
   50% {
@@ -91,7 +100,8 @@ p {
 }
 
 @keyframes float-card-3 {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(5px) rotate(-2deg);
   }
   50% {
@@ -120,6 +130,7 @@ p {
 
 .container {
   max-width: 1280px;
+  margin: 0 auto;
 }
 
 [data-animate] {
@@ -943,8 +954,8 @@ p {
 
 /* FOOTER */
 .footer {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border-top: 1px solid rgba(249, 115, 22, 0.1);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-top: 1px solid #e2e8f0;
   padding: 4.5rem 1.5rem 2rem;
   color: #000000;
 }
@@ -978,7 +989,7 @@ p {
 .footer-heading {
   font-weight: 700;
   margin-bottom: 1.25rem;
-  color: #ffffff;
+  color: #000000;
   font-size: 1rem;
 }
 
@@ -1004,14 +1015,14 @@ p {
 
 .footer-links a:hover,
 .footer-links button:hover {
-  color: #000000;
+  color: #1e40af;
 }
 
 .footer-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #e2e8f0;
   padding-top: 2rem;
   max-width: 1280px;
   margin: 0 auto;
@@ -1037,7 +1048,7 @@ p {
 }
 
 .footer-social a:hover {
-  color: #000000;
+  color: #1e40af;
 }
 
 /* RESPONSIVE LAYOUT adjustments */

@@ -9,8 +9,14 @@
 }
 
 @keyframes reportsFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Header ──────────────────────────────────────────────── */
@@ -165,16 +171,30 @@
 .reports-kpi-card::before {
   content: '';
   position: absolute;
-  top: 0; left: 0;
-  width: 4px; height: 100%;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
 }
 
-.reports-kpi-card.blue::before   { background: #3b82f6; }
-.reports-kpi-card.green::before  { background: #10b981; }
-.reports-kpi-card.orange::before { background: #f59e0b; }
-.reports-kpi-card.purple::before { background: #8b5cf6; }
-.reports-kpi-card.rose::before   { background: #f43f5e; }
-.reports-kpi-card.cyan::before   { background: #06b6d4; }
+.reports-kpi-card.blue::before {
+  background: #3b82f6;
+}
+.reports-kpi-card.green::before {
+  background: #10b981;
+}
+.reports-kpi-card.orange::before {
+  background: #f59e0b;
+}
+.reports-kpi-card.purple::before {
+  background: #8b5cf6;
+}
+.reports-kpi-card.rose::before {
+  background: #f43f5e;
+}
+.reports-kpi-card.cyan::before {
+  background: #06b6d4;
+}
 
 .kpi-icon-wrap {
   width: 40px;
@@ -186,12 +206,30 @@
   margin-bottom: 14px;
 }
 
-.kpi-icon-wrap.blue   { background: rgba(59,130,246,0.1);  color: #000000; }
-.kpi-icon-wrap.green  { background: rgba(16,185,129,0.1);  color: #000000; }
-.kpi-icon-wrap.orange { background: rgba(245,158,11,0.1);  color: #000000; }
-.kpi-icon-wrap.purple { background: rgba(139,92,246,0.1);  color: #000000; }
-.kpi-icon-wrap.rose   { background: rgba(244,63,94,0.1);   color: #000000; }
-.kpi-icon-wrap.cyan   { background: rgba(6,182,212,0.1);   color: #000000; }
+.kpi-icon-wrap.blue {
+  background: rgba(59, 130, 246, 0.1);
+  color: #000000;
+}
+.kpi-icon-wrap.green {
+  background: rgba(16, 185, 129, 0.1);
+  color: #000000;
+}
+.kpi-icon-wrap.orange {
+  background: rgba(245, 158, 11, 0.1);
+  color: #000000;
+}
+.kpi-icon-wrap.purple {
+  background: rgba(139, 92, 246, 0.1);
+  color: #000000;
+}
+.kpi-icon-wrap.rose {
+  background: rgba(244, 63, 94, 0.1);
+  color: #000000;
+}
+.kpi-icon-wrap.cyan {
+  background: rgba(6, 182, 212, 0.1);
+  color: #000000;
+}
 
 .kpi-label {
   font-size: var(--text-xs);
@@ -324,22 +362,70 @@
   text-transform: capitalize;
 }
 
-.status-pill.draft      { background: #DBEAFE; color: #000000; }
-.status-pill.pending    { background: #FEF3C7; color: #000000; }
-.status-pill.submitted  { background: #FEF3C7; color: #000000; }
-.status-pill.approved   { background: #DBEAFE; color: #000000; }
-.status-pill.dispatched { background: #FEF3C7; color: #000000; }
-.status-pill.shipped    { background: #FEF3C7; color: #000000; }
-.status-pill.delivered  { background: #D1FAE5; color: #000000; }
-.status-pill.received   { background: #D1FAE5; color: #000000; }
-.status-pill.fulfilled  { background: #D1FAE5; color: #000000; }
-.status-pill.active     { background: #D1FAE5; color: #000000; }
-.status-pill.in_stock   { background: #D1FAE5; color: #000000; }
-.status-pill.cancelled  { background: #FEE2E2; color: #000000; }
-.status-pill.rejected   { background: #FEE2E2; color: #000000; }
-.status-pill.inactive   { background: #FEE2E2; color: #000000; }
-.status-pill.out_of_stock { background: #FEE2E2; color: #000000; }
-.status-pill.low_stock  { background: #FEF3C7; color: #000000; }
+.status-pill.draft {
+  background: #dbeafe;
+  color: #000000;
+}
+.status-pill.pending {
+  background: #fef3c7;
+  color: #000000;
+}
+.status-pill.submitted {
+  background: #fef3c7;
+  color: #000000;
+}
+.status-pill.approved {
+  background: #dbeafe;
+  color: #000000;
+}
+.status-pill.dispatched {
+  background: #fef3c7;
+  color: #000000;
+}
+.status-pill.shipped {
+  background: #fef3c7;
+  color: #000000;
+}
+.status-pill.delivered {
+  background: #d1fae5;
+  color: #000000;
+}
+.status-pill.received {
+  background: #d1fae5;
+  color: #000000;
+}
+.status-pill.fulfilled {
+  background: #d1fae5;
+  color: #000000;
+}
+.status-pill.active {
+  background: #d1fae5;
+  color: #000000;
+}
+.status-pill.in_stock {
+  background: #d1fae5;
+  color: #000000;
+}
+.status-pill.cancelled {
+  background: #fee2e2;
+  color: #000000;
+}
+.status-pill.rejected {
+  background: #fee2e2;
+  color: #000000;
+}
+.status-pill.inactive {
+  background: #fee2e2;
+  color: #000000;
+}
+.status-pill.out_of_stock {
+  background: #fee2e2;
+  color: #000000;
+}
+.status-pill.low_stock {
+  background: #fef3c7;
+  color: #000000;
+}
 
 /* ── Pagination ──────────────────────────────────────────── */
 .reports-pagination {
@@ -440,12 +526,14 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ── Filter inputs match site style ──────────────────────── */
-.reports-filter-bar input[type="text"],
-.reports-filter-bar input[type="date"],
+.reports-filter-bar input[type='text'],
+.reports-filter-bar input[type='date'],
 .reports-filter-bar select {
   width: 100%;
   padding: 8px 12px;
@@ -464,7 +552,7 @@
 .reports-filter-bar input:focus,
 .reports-filter-bar select:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 .reports-filter-bar select {
@@ -490,8 +578,12 @@
 
 /* ── Skeleton shimmer ────────────────────────────────────── */
 @keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .skeleton-line {

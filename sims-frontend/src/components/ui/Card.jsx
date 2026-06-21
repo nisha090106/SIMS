@@ -36,7 +36,7 @@ const Header = ({ title, subtitle, action, style: extra = {}, children }) => (
       ...extra,
     }}
   >
-    {(title || subtitle) ? (
+    {title || subtitle ? (
       <div style={{ minWidth: 0 }}>
         {title && (
           <h3
@@ -65,7 +65,9 @@ const Header = ({ title, subtitle, action, style: extra = {}, children }) => (
           </p>
         )}
       </div>
-    ) : children}
+    ) : (
+      children
+    )}
     {action && <div style={{ flexShrink: 0 }}>{action}</div>}
   </div>
 );
@@ -116,14 +118,8 @@ const Card = ({
 
   return (
     <div className={className} style={{ ...cardStyle, ...extra }} {...rest}>
-      {hasShorthandHeader && (
-        <Header title={title} subtitle={subtitle} action={action} />
-      )}
-      {hasShorthandHeader ? (
-        <Body padding={padding}>{children}</Body>
-      ) : (
-        children
-      )}
+      {hasShorthandHeader && <Header title={title} subtitle={subtitle} action={action} />}
+      {hasShorthandHeader ? <Body padding={padding}>{children}</Body> : children}
     </div>
   );
 };

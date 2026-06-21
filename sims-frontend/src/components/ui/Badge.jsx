@@ -18,33 +18,33 @@ import React from 'react';
 const VARIANT_STYLES = {
   success: {
     backgroundColor: '#D1FAE5',
-    color:           '#000000',
+    color: '#000000',
   },
   warning: {
     backgroundColor: '#FEF3C7',
-    color:           '#000000',
+    color: '#000000',
   },
   danger: {
     backgroundColor: '#FEE2E2',
-    color:           '#000000',
+    color: '#000000',
   },
   info: {
     backgroundColor: '#DBEAFE',
-    color:           '#000000',
+    color: '#000000',
   },
   primary: {
     backgroundColor: '#DBEAFE',
-    color:           '#000000',
+    color: '#000000',
   },
   neutral: {
     backgroundColor: '#F1F5F9',
-    color:           '#000000',
+    color: '#000000',
   },
 };
 
 const SIZE_STYLES = {
-  sm: { fontSize: 11, padding: '2px 7px',  borderRadius: 6,  fontWeight: 700, lineHeight: '16px' },
-  md: { fontSize: 12, padding: '3px 10px', borderRadius: 6,  fontWeight: 700, lineHeight: '18px' },
+  sm: { fontSize: 11, padding: '2px 7px', borderRadius: 6, fontWeight: 700, lineHeight: '16px' },
+  md: { fontSize: 12, padding: '3px 10px', borderRadius: 6, fontWeight: 700, lineHeight: '18px' },
 };
 
 const Badge = ({
@@ -57,7 +57,7 @@ const Badge = ({
   ...rest
 }) => {
   const variantStyle = VARIANT_STYLES[variant] || VARIANT_STYLES.neutral;
-  const sizeStyle    = SIZE_STYLES[size]        || SIZE_STYLES.sm;
+  const sizeStyle = SIZE_STYLES[size] || SIZE_STYLES.sm;
 
   return (
     <span
@@ -78,13 +78,15 @@ const Badge = ({
       {...rest}
     >
       {dot && (
-        <span style={{
-          width: 5,
-          height: 5,
-          borderRadius: '50%',
-          backgroundColor: 'currentColor',
-          flexShrink: 0,
-        }} />
+        <span
+          style={{
+            width: 5,
+            height: 5,
+            borderRadius: '50%',
+            backgroundColor: 'currentColor',
+            flexShrink: 0,
+          }}
+        />
       )}
       {children}
     </span>

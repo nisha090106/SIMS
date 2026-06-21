@@ -66,7 +66,7 @@ const ReportViewer = ({
     <Box sx={{ display: 'flex', height: 'calc(100vh - 80px)' }}>
       {/* Left Panel - Filters */}
       <Drawer
-        variant="permanent"
+        variant='permanent'
         sx={{
           width: 300,
           flexShrink: 0,
@@ -80,17 +80,21 @@ const ReportViewer = ({
           },
         }}
       >
-        <Typography variant="h6" sx={{ mb: 2 }}>Filters</Typography>
+        <Typography variant='h6' sx={{ mb: 2 }}>
+          Filters
+        </Typography>
         <Divider sx={{ mb: 2 }} />
 
         {/* Date Range Presets */}
         <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>Date Range Presets:</Typography>
+          <Typography variant='subtitle2' sx={{ mb: 1 }}>
+            Date Range Presets:
+          </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {getPresetButtons().map(preset => (
+            {getPresetButtons().map((preset) => (
               <Button
                 key={preset.label}
-                size="small"
+                size='small'
                 variant={
                   preset.days === 0 && filters.from === format(new Date(), 'yyyy-MM-dd')
                     ? 'contained'
@@ -113,11 +117,21 @@ const ReportViewer = ({
       {/* Main Content Area */}
       <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
         {/* Header with Title and Export */}
-        <Box sx={{ p: 3, bgcolor: '#000000', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>{title}</Typography>
+        <Box
+          sx={{
+            p: 3,
+            bgcolor: '#000000',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Typography variant='h5' sx={{ fontWeight: 'bold' }}>
+            {title}
+          </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button
-              variant="outlined"
+              variant='outlined'
               startIcon={<Download size={18} />}
               onClick={() => onExport('csv')}
               disabled={loading || !data || data.length === 0}
@@ -126,7 +140,7 @@ const ReportViewer = ({
             </Button>
             {userRole === 'admin' && (
               <Button
-                variant="outlined"
+                variant='outlined'
                 startIcon={<FileDown size={18} />}
                 onClick={() => onExport('pdf')}
                 disabled={loading || !data || data.length === 0}
@@ -139,10 +153,21 @@ const ReportViewer = ({
 
         {/* Content Area */}
         <Box sx={{ flexGrow: 1, overflow: 'auto', p: 3 }}>
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {error && (
+            <Alert severity='error' sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100%',
+              }}
+            >
               <CircularProgress />
             </Box>
           ) : data && data.length > 0 ? (
@@ -154,10 +179,14 @@ const ReportViewer = ({
                     <Grid item xs={12} sm={6} md={3} key={key}>
                       <Card>
                         <CardContent>
-                          <Typography color="textSecondary" variant="caption" sx={{ textTransform: 'uppercase' }}>
+                          <Typography
+                            color='textSecondary'
+                            variant='caption'
+                            sx={{ textTransform: 'uppercase' }}
+                          >
                             {key.replace(/([A-Z])/g, ' $1').trim()}
                           </Typography>
-                          <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 1 }}>
+                          <Typography variant='h6' sx={{ fontWeight: 'bold', mt: 1 }}>
                             {typeof value === 'number' ? value.toLocaleString() : value}
                           </Typography>
                         </CardContent>
@@ -172,7 +201,7 @@ const ReportViewer = ({
                 <Table>
                   <TableHead>
                     <TableRow sx={{ bgcolor: '#000000' }}>
-                      {columns.map(col => (
+                      {columns.map((col) => (
                         <TableCell key={col.field} align={col.align || 'left'}>
                           {col.label}
                         </TableCell>
@@ -182,7 +211,7 @@ const ReportViewer = ({
                   <TableBody>
                     {data.map((row, idx) => (
                       <TableRow key={idx}>
-                        {columns.map(col => (
+                        {columns.map((col) => (
                           <TableCell key={col.field} align={col.align || 'left'}>
                             {col.render ? col.render(row[col.field], row) : row[col.field]}
                           </TableCell>
@@ -195,7 +224,9 @@ const ReportViewer = ({
             </>
           ) : (
             <Box sx={{ textAlign: 'center', py: 5 }}>
-              <Typography color="textSecondary">No data available for the selected filters</Typography>
+              <Typography color='textSecondary'>
+                No data available for the selected filters
+              </Typography>
             </Box>
           )}
         </Box>

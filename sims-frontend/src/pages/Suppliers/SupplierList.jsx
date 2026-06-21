@@ -49,7 +49,7 @@ const SupplierList = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [ratingFilter, setRatingFilter] = useState(false); // true means rating >= 3
-  
+
   // Pagination
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -184,13 +184,13 @@ const SupplierList = () => {
     <Box sx={{ p: 3 }}>
       {/* Title & Add Button */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#000000' }}>
+        <Typography variant='h4' sx={{ fontWeight: 'bold', color: '#000000' }}>
           Suppliers
         </Typography>
         {isManagerOrAdmin && (
           <Button
-            variant="contained"
-            color="primary"
+            variant='contained'
+            color='primary'
             startIcon={<Plus size={18} />}
             onClick={handleOpenAddForm}
             sx={{ textTransform: 'none' }}
@@ -201,20 +201,30 @@ const SupplierList = () => {
       </Box>
 
       {/* Filters Area */}
-      <Paper sx={{ p: 2, mb: 3, display: 'flex', gap: 2.5, alignItems: 'center', flexWrap: 'wrap', borderRadius: 2 }}>
+      <Paper
+        sx={{
+          p: 2,
+          mb: 3,
+          display: 'flex',
+          gap: 2.5,
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          borderRadius: 2,
+        }}
+      >
         <TextField
-          label="Search Suppliers"
-          size="small"
+          label='Search Suppliers'
+          size='small'
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
             setPage(1);
           }}
-          placeholder="Name, email, contact, country..."
+          placeholder='Name, email, contact, country...'
           sx={{ minWidth: 280 }}
         />
 
-        <FormControl size="small" sx={{ minWidth: 160 }}>
+        <FormControl size='small' sx={{ minWidth: 160 }}>
           <InputLabel>Status</InputLabel>
           <Select
             value={statusFilter}
@@ -222,12 +232,12 @@ const SupplierList = () => {
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            label="Status"
+            label='Status'
           >
-            <MenuItem value="all">All Statuses</MenuItem>
-            <MenuItem value="active">Active</MenuItem>
-            <MenuItem value="inactive">Inactive</MenuItem>
-            <MenuItem value="blacklisted">Blacklisted</MenuItem>
+            <MenuItem value='all'>All Statuses</MenuItem>
+            <MenuItem value='active'>Active</MenuItem>
+            <MenuItem value='inactive'>Inactive</MenuItem>
+            <MenuItem value='blacklisted'>Blacklisted</MenuItem>
           </Select>
         </FormControl>
 
@@ -239,17 +249,21 @@ const SupplierList = () => {
                 setRatingFilter(e.target.checked);
                 setPage(1);
               }}
-              color="primary"
+              color='primary'
             />
           }
-          label="≥ 3 Stars Rating"
+          label='≥ 3 Stars Rating'
         />
       </Paper>
 
       {/* Error Message */}
       {error && (
-        <Paper sx={{ p: 2, mb: 2, bgcolor: '#000000', border: '1px solid #ffcdd2', borderRadius: 2 }}>
-          <Typography color="error" variant="body2">{error}</Typography>
+        <Paper
+          sx={{ p: 2, mb: 2, bgcolor: '#000000', border: '1px solid #ffcdd2', borderRadius: 2 }}
+        >
+          <Typography color='error' variant='body2'>
+            {error}
+          </Typography>
         </Paper>
       )}
 
@@ -264,26 +278,28 @@ const SupplierList = () => {
           sx={{
             borderRadius: 2,
             boxShadow: 1,
-            overflowX: 'auto',          // horizontal scroll on small screens
+            overflowX: 'auto', // horizontal scroll on small screens
           }}
         >
           <Table sx={{ minWidth: 700 }}>
             <TableHead>
               <TableRow sx={{ bgcolor: '#000000' }}>
-                <TableCell sx={{ fontWeight: 'bold', width: 48 }} />  {/* expand toggle */}
+                <TableCell sx={{ fontWeight: 'bold', width: 48 }} /> {/* expand toggle */}
                 <TableCell sx={{ fontWeight: 'bold' }}>Company Name</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Contact Person</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Email</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Payment Terms</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Actions</TableCell>
+                <TableCell align='right' sx={{ fontWeight: 'bold' }}>
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {suppliers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
-                    <Typography color="textSecondary">No suppliers found</Typography>
+                  <TableCell colSpan={7} align='center' sx={{ py: 6 }}>
+                    <Typography color='textSecondary'>No suppliers found</Typography>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -293,16 +309,20 @@ const SupplierList = () => {
                     <TableRow
                       hover
                       sx={{
-                        '& > *': { borderBottom: expandedRows[supplier.supplier_id] ? 'none' : undefined },
+                        '& > *': {
+                          borderBottom: expandedRows[supplier.supplier_id] ? 'none' : undefined,
+                        },
                       }}
                     >
                       <TableCell sx={{ pr: 0, width: 48 }}>
                         <IconButton
-                          size="small"
+                          size='small'
                           onClick={() => toggleRowExpand(supplier.supplier_id)}
                           sx={{
                             transition: 'transform 0.2s',
-                            transform: expandedRows[supplier.supplier_id] ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transform: expandedRows[supplier.supplier_id]
+                              ? 'rotate(180deg)'
+                              : 'rotate(0deg)',
                           }}
                         >
                           <ChevronDown size={16} />
@@ -328,26 +348,26 @@ const SupplierList = () => {
                         <Chip
                           label={supplier.status?.toUpperCase()}
                           color={getStatusChipColor(supplier.status)}
-                          size="small"
+                          size='small'
                           sx={{ fontWeight: 'bold' }}
                         />
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell align='right'>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-                          <Tooltip title="View Detail">
+                          <Tooltip title='View Detail'>
                             <IconButton
-                              size="small"
-                              color="primary"
+                              size='small'
+                              color='primary'
                               onClick={() => navigate(`/suppliers/${supplier.supplier_id}`)}
                             >
                               <Eye size={16} />
                             </IconButton>
                           </Tooltip>
                           {isManagerOrAdmin && (
-                            <Tooltip title="Edit Supplier">
+                            <Tooltip title='Edit Supplier'>
                               <IconButton
-                                size="small"
-                                color="warning"
+                                size='small'
+                                color='warning'
                                 onClick={() => handleOpenEditForm(supplier)}
                               >
                                 <Edit2 size={16} />
@@ -355,10 +375,10 @@ const SupplierList = () => {
                             </Tooltip>
                           )}
                           {isAdmin && (
-                            <Tooltip title="Delete Supplier">
+                            <Tooltip title='Delete Supplier'>
                               <IconButton
-                                size="small"
-                                color="error"
+                                size='small'
+                                color='error'
                                 onClick={() => handleOpenDeleteConfirm(supplier)}
                               >
                                 <Trash2 size={16} />
@@ -371,8 +391,18 @@ const SupplierList = () => {
 
                     {/* Expandable Detail Row */}
                     <TableRow>
-                      <TableCell colSpan={7} sx={{ py: 0, borderBottom: expandedRows[supplier.supplier_id] ? undefined : 'none' }}>
-                        <Collapse in={expandedRows[supplier.supplier_id]} timeout="auto" unmountOnExit>
+                      <TableCell
+                        colSpan={7}
+                        sx={{
+                          py: 0,
+                          borderBottom: expandedRows[supplier.supplier_id] ? undefined : 'none',
+                        }}
+                      >
+                        <Collapse
+                          in={expandedRows[supplier.supplier_id]}
+                          timeout='auto'
+                          unmountOnExit
+                        >
                           <Box
                             sx={{
                               py: 2,
@@ -388,33 +418,45 @@ const SupplierList = () => {
                           >
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               <Phone size={15} style={{ color: '#000000' }} />
-                              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                              <Typography
+                                variant='body2'
+                                color='text.secondary'
+                                sx={{ fontWeight: 600 }}
+                              >
                                 Phone:
                               </Typography>
-                              <Typography variant="body2">{supplier.phone || '-'}</Typography>
+                              <Typography variant='body2'>{supplier.phone || '-'}</Typography>
                             </Box>
 
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               <Clock size={15} style={{ color: '#000000' }} />
-                              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                              <Typography
+                                variant='body2'
+                                color='text.secondary'
+                                sx={{ fontWeight: 600 }}
+                              >
                                 Lead Time:
                               </Typography>
-                              <Typography variant="body2">
+                              <Typography variant='body2'>
                                 {supplier.lead_time ? `${supplier.lead_time} days` : '-'}
                               </Typography>
                             </Box>
 
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               <Star size={15} style={{ color: '#000000' }} />
-                              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                              <Typography
+                                variant='body2'
+                                color='text.secondary'
+                                sx={{ fontWeight: 600 }}
+                              >
                                 Rating:
                               </Typography>
                               <Rating
                                 value={supplier.rating ? Math.round(supplier.rating) : 0}
                                 readOnly
-                                size="small"
+                                size='small'
                               />
-                              <Typography variant="caption" color="text.secondary">
+                              <Typography variant='caption' color='text.secondary'>
                                 ({supplier.rating ? parseFloat(supplier.rating).toFixed(1) : '0.0'})
                               </Typography>
                             </Box>
@@ -437,7 +479,7 @@ const SupplierList = () => {
             count={totalPages}
             page={page}
             onChange={(e, val) => setPage(val)}
-            color="primary"
+            color='primary'
           />
         </Box>
       )}
@@ -456,14 +498,24 @@ const SupplierList = () => {
         <DialogTitle sx={{ fontWeight: 'bold' }}>Delete Supplier?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete <strong>{supplierToDelete?.name}</strong>? This will perform a soft delete.
+            Are you sure you want to delete <strong>{supplierToDelete?.name}</strong>? This will
+            perform a soft delete.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
-          <Button onClick={handleCloseDeleteConfirm} variant="outlined" sx={{ textTransform: 'none' }}>
+          <Button
+            onClick={handleCloseDeleteConfirm}
+            variant='outlined'
+            sx={{ textTransform: 'none' }}
+          >
             Cancel
           </Button>
-          <Button onClick={handleConfirmDelete} variant="contained" color="error" sx={{ textTransform: 'none' }}>
+          <Button
+            onClick={handleConfirmDelete}
+            variant='contained'
+            color='error'
+            sx={{ textTransform: 'none' }}
+          >
             Delete Supplier
           </Button>
         </DialogActions>

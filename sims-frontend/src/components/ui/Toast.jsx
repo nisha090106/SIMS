@@ -50,8 +50,8 @@ const ToastItem = ({ toast, onRemove }) => {
 
   return (
     <div
-      role="alert"
-      aria-live="assertive"
+      role='alert'
+      aria-live='assertive'
       style={{
         display: 'flex',
         alignItems: 'flex-start',
@@ -106,7 +106,7 @@ const ToastItem = ({ toast, onRemove }) => {
 
       {/* Close */}
       <button
-        aria-label="Dismiss notification"
+        aria-label='Dismiss notification'
         onClick={() => onRemove(toast.id)}
         style={{
           background: 'none',

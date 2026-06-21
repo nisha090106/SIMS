@@ -20,7 +20,7 @@ const Spinner = ({
 
   return (
     <span
-      role="status"
+      role='status'
       aria-label={label}
       style={{
         display: 'inline-block',

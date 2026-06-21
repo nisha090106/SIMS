@@ -15,22 +15,22 @@ import { authAPI } from '../services/api';
 import { useToast } from '../hooks/useToast';
 
 const NAV_LINKS = [
-  { path: '/user-dashboard',   label: 'Home',        icon: HomeIcon },
-  { path: '/user/catalog',     label: 'Catalog',     icon: CatalogIcon },
+  { path: '/user-dashboard', label: 'Home', icon: HomeIcon },
+  { path: '/user/catalog', label: 'Catalog', icon: CatalogIcon },
   { path: '/user/my-requests', label: 'My Requests', icon: RequestsIcon },
 ];
 
 const RequesterLayout = () => {
-  const dispatch  = useDispatch();
-  const navigate  = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { showToast } = useToast();
-  const { user }  = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   const fullName = user?.full_name || user?.name || 'Requester';
-  const email    = user?.email || '';
+  const email = user?.email || '';
 
   /* Close dropdown on outside click */
   useEffect(() => {
@@ -45,14 +45,23 @@ const RequesterLayout = () => {
 
   const handleLogout = async () => {
     setDropdownOpen(false);
-    try { await authAPI.logout(); } catch { /* silent */ }
+    try {
+      await authAPI.logout();
+    } catch {
+      /* silent */
+    }
     dispatch(logout());
     showToast('Logged out successfully', 'success');
     navigate('/login');
   };
 
   const getInitials = (name = '') =>
-    name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() || '?';
+    name
+      .split(' ')
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase() || '?';
 
   const activeLinkStyle = {
     color: 'var(--color-primary)',
@@ -95,7 +104,7 @@ const RequesterLayout = () => {
       >
         {/* Brand */}
         <NavLink
-          to="/user-dashboard"
+          to='/user-dashboard'
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -130,7 +139,9 @@ const RequesterLayout = () => {
             >
               SIMS
             </span>
-            <Badge variant="primary" size="sm">Request Portal</Badge>
+            <Badge variant='primary' size='sm'>
+              Request Portal
+            </Badge>
           </div>
         </NavLink>
 
@@ -284,19 +295,23 @@ const RequesterLayout = () => {
                   {email}
                 </div>
                 <div style={{ marginTop: 6 }}>
-                  <Badge variant="success" size="sm">Requester</Badge>
+                  <Badge variant='success' size='sm'>
+                    Requester
+                  </Badge>
                 </div>
               </div>
 
               <DDItem
                 icon={<ProfileIcon style={{ fontSize: 15 }} />}
-                label="Profile"
-                onClick={() => { setDropdownOpen(false); }}
+                label='Profile'
+                onClick={() => {
+                  setDropdownOpen(false);
+                }}
               />
               <div style={{ height: 1, background: 'var(--color-border)', margin: '4px 0' }} />
               <DDItem
                 icon={<LogoutIcon style={{ fontSize: 15 }} />}
-                label="Sign Out"
+                label='Sign Out'
                 danger
                 onClick={handleLogout}
               />
@@ -369,9 +384,16 @@ const DDItem = ({ icon, label, onClick, danger = false }) => (
         ? 'var(--color-danger-soft)'
         : 'var(--color-surface-alt)';
     }}
-    onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.background = 'none';
+    }}
   >
-    <span style={{ color: danger ? 'var(--color-danger)' : 'var(--color-text-secondary)', display: 'flex' }}>
+    <span
+      style={{
+        color: danger ? 'var(--color-danger)' : 'var(--color-text-secondary)',
+        display: 'flex',
+      }}
+    >
       {icon}
     </span>
     {label}

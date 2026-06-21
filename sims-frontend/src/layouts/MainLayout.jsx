@@ -35,9 +35,7 @@ const MainLayout = ({ children }) => {
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          marginLeft: collapsed
-            ? 'var(--sidebar-collapsed-width)'
-            : 'var(--sidebar-width)',
+          marginLeft: collapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
           transition: 'margin-left var(--transition-slow)',
           minWidth: 0,
           minHeight: '100vh',

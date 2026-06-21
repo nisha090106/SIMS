@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Chip,
-} from '@mui/material';
+import { Box, FormControl, InputLabel, Select, MenuItem, Chip } from '@mui/material';
 import ReportViewer from './ReportViewer';
 import api from '../../services/api';
 
@@ -20,7 +13,7 @@ const RequestFulfillmentReport = () => {
   const [error, setError] = useState('');
   const [data, setData] = useState([]);
   const [summary, setSummary] = useState(null);
-  
+
   // Local filter for requester (selected from dropdown filled dynamically)
   const [selectedRequester, setSelectedRequester] = useState('ALL');
 
@@ -34,7 +27,7 @@ const RequestFulfillmentReport = () => {
       setError('');
       const response = await api.get('/reports/request-fulfillment', { params: filters });
       setData(response.data.data.items || []);
-      
+
       const apiSummary = response.data.data.summary || {};
       setSummary({
         totalRequests: apiSummary.totalRequests || 0,
@@ -59,7 +52,10 @@ const RequestFulfillmentReport = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `request-fulfillment-${new Date().toISOString().split('T')[0]}.${format}`);
+      link.setAttribute(
+        'download',
+        `request-fulfillment-${new Date().toISOString().split('T')[0]}.${format}`,
+      );
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
@@ -71,7 +67,7 @@ const RequestFulfillmentReport = () => {
   // Extract unique requesters from the fetched data
   const getUniqueRequesters = () => {
     const requestersMap = {};
-    data.forEach(item => {
+    data.forEach((item) => {
       if (item.requester) {
         requestersMap[item.requester] = true;
       }
@@ -79,7 +75,7 @@ const RequestFulfillmentReport = () => {
     return Object.keys(requestersMap).sort();
   };
 
-  const filteredData = data.filter(item => {
+  const filteredData = data.filter((item) => {
     if (selectedRequester === 'ALL') return true;
     return item.requester === selectedRequester;
   });
@@ -124,7 +120,7 @@ const RequestFulfillmentReport = () => {
         <Chip
           label={v?.toUpperCase()}
           color={getStatusChipColor(v)}
-          size="small"
+          size='small'
           sx={{ fontWeight: 'bold' }}
         />
       ),
@@ -136,8 +132,8 @@ const RequestFulfillmentReport = () => {
         <Chip
           label={v?.toUpperCase()}
           color={getPriorityChipColor(v)}
-          variant="outlined"
-          size="small"
+          variant='outlined'
+          size='small'
           sx={{ fontWeight: 'bold' }}
         />
       ),
@@ -158,7 +154,7 @@ const RequestFulfillmentReport = () => {
 
   return (
     <ReportViewer
-      title="Request Fulfillment Report"
+      title='Request Fulfillment Report'
       filters={filters}
       onFiltersChange={setFilters}
       loading={loading}
@@ -169,32 +165,32 @@ const RequestFulfillmentReport = () => {
       onExport={handleExport}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <FormControl fullWidth size="small">
+        <FormControl fullWidth size='small'>
           <InputLabel>Status</InputLabel>
           <Select
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            label="Status"
+            label='Status'
           >
-            <MenuItem value="">All Statuses</MenuItem>
-            <MenuItem value="pending">Pending</MenuItem>
-            <MenuItem value="approved">Approved</MenuItem>
-            <MenuItem value="rejected">Rejected</MenuItem>
-            <MenuItem value="fulfilled">Fulfilled</MenuItem>
-            <MenuItem value="cancelled">Cancelled</MenuItem>
+            <MenuItem value=''>All Statuses</MenuItem>
+            <MenuItem value='pending'>Pending</MenuItem>
+            <MenuItem value='approved'>Approved</MenuItem>
+            <MenuItem value='rejected'>Rejected</MenuItem>
+            <MenuItem value='fulfilled'>Fulfilled</MenuItem>
+            <MenuItem value='cancelled'>Cancelled</MenuItem>
           </Select>
         </FormControl>
 
-        <FormControl fullWidth size="small">
+        <FormControl fullWidth size='small'>
           <InputLabel>Requester</InputLabel>
           <Select
             value={selectedRequester}
             onChange={(e) => setSelectedRequester(e.target.value)}
-            label="Requester"
+            label='Requester'
             disabled={uniqueRequesters.length === 0}
           >
-            <MenuItem value="ALL">All Requesters</MenuItem>
-            {uniqueRequesters.map(req => (
+            <MenuItem value='ALL'>All Requesters</MenuItem>
+            {uniqueRequesters.map((req) => (
               <MenuItem key={req} value={req}>
                 {req}
               </MenuItem>

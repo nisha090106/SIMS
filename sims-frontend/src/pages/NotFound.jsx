@@ -8,8 +8,7 @@ const NotFound = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
 
-  const home =
-    user?.role === 'user' ? '/user-dashboard' : user ? '/dashboard' : '/login';
+  const home = user?.role === 'user' ? '/user-dashboard' : user ? '/dashboard' : '/login';
 
   return (
     <div
@@ -79,7 +78,7 @@ const NotFound = () => {
         The page you're looking for doesn't exist or has been moved.
       </p>
 
-      <Button onClick={() => navigate(home)} size="md">
+      <Button onClick={() => navigate(home)} size='md'>
         Back to Home
       </Button>
     </div>

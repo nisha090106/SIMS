@@ -5,60 +5,60 @@ const theme = createTheme({
     mode: 'light',
     background: {
       default: '#F8FAFC',
-      paper:   '#FFFFFF',
+      paper: '#FFFFFF',
     },
     primary: {
-      light:        '#EFF6FF',
-      main:         '#1E40AF',
-      dark:         '#1D4ED8',
+      light: '#EFF6FF',
+      main: '#1E40AF',
+      dark: '#1D4ED8',
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main:         '#475569',
+      main: '#475569',
       contrastText: '#FFFFFF',
     },
     success: {
-      main:  '#10B981',
+      main: '#10B981',
       light: '#D1FAE5',
     },
     warning: {
-      main:  '#F59E0B',
+      main: '#F59E0B',
       light: '#FEF3C7',
     },
     error: {
-      main:  '#EF4444',
+      main: '#EF4444',
       light: '#FEE2E2',
     },
     info: {
-      main:  '#1E40AF',
+      main: '#1E40AF',
       light: '#EFF6FF',
     },
     text: {
-      primary:   '#1E293B',
+      primary: '#1E293B',
       secondary: '#475569',
-      disabled:  '#94A3B8',
+      disabled: '#94A3B8',
     },
     divider: '#E2E8F0',
   },
 
   typography: {
-    fontFamily: '\'Inter\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
-    fontWeightLight:   300,
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    fontWeightLight: 300,
     fontWeightRegular: 400,
-    fontWeightMedium:  500,
-    fontWeightBold:    700,
+    fontWeightMedium: 500,
+    fontWeightBold: 700,
 
-    h1: { fontSize: '2rem',    fontWeight: 800, lineHeight: 1.2 },
-    h2: { fontSize: '1.5rem',  fontWeight: 700, lineHeight: 1.25 },
+    h1: { fontSize: '2rem', fontWeight: 800, lineHeight: 1.2 },
+    h2: { fontSize: '1.5rem', fontWeight: 700, lineHeight: 1.25 },
     h3: { fontSize: '1.25rem', fontWeight: 700, lineHeight: 1.3 },
-    h4: { fontSize: '1.125rem',fontWeight: 600, lineHeight: 1.35 },
-    h5: { fontSize: '1rem',    fontWeight: 600, lineHeight: 1.4 },
-    h6: { fontSize: '0.875rem',fontWeight: 600, lineHeight: 1.4 },
+    h4: { fontSize: '1.125rem', fontWeight: 600, lineHeight: 1.35 },
+    h5: { fontSize: '1rem', fontWeight: 600, lineHeight: 1.4 },
+    h6: { fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.4 },
 
-    body1:   { fontSize: '0.875rem',  lineHeight: 1.6 },
-    body2:   { fontSize: '0.8125rem', lineHeight: 1.5 },
-    caption: { fontSize: '0.75rem',   lineHeight: 1.4 },
-    button:  { fontSize: '0.875rem',  fontWeight: 600, textTransform: 'none', letterSpacing: 0 },
+    body1: { fontSize: '0.875rem', lineHeight: 1.6 },
+    body2: { fontSize: '0.8125rem', lineHeight: 1.5 },
+    caption: { fontSize: '0.75rem', lineHeight: 1.4 },
+    button: { fontSize: '0.875rem', fontWeight: 600, textTransform: 'none', letterSpacing: 0 },
   },
 
   shape: { borderRadius: 8 },
@@ -83,7 +83,7 @@ const theme = createTheme({
           textTransform: 'none',
           fontSize: '0.875rem',
           padding: '7px 16px',
-          fontFamily: '\'Inter\', sans-serif',
+          fontFamily: "'Inter', sans-serif",
         },
         containedPrimary: {
           background: '#1E40AF',
@@ -98,10 +98,13 @@ const theme = createTheme({
         root: {
           borderRadius: 8,
           fontSize: '0.875rem',
-          fontFamily: '\'Inter\', sans-serif',
+          fontFamily: "'Inter', sans-serif",
           background: '#FFFFFF',
           '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#CBD5E1' },
-          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1E40AF', borderWidth: 1 },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#1E40AF',
+            borderWidth: 1,
+          },
         },
         notchedOutline: { borderColor: '#E2E8F0' },
         input: { padding: '9px 14px', height: 'auto' },
@@ -113,7 +116,7 @@ const theme = createTheme({
         root: {
           fontSize: '0.875rem',
           color: '#475569',
-          fontFamily: '\'Inter\', sans-serif',
+          fontFamily: "'Inter', sans-serif",
           '&.Mui-focused': { color: '#1E40AF' },
         },
       },
@@ -152,7 +155,7 @@ const theme = createTheme({
 
     MuiCardContent: {
       styleOverrides: {
-        root: { fontFamily: '\'Inter\', sans-serif' },
+        root: { fontFamily: "'Inter', sans-serif" },
       },
     },
 
@@ -164,7 +167,7 @@ const theme = createTheme({
           fontWeight: 600,
           fontSize: '0.75rem',
           height: 24,
-          fontFamily: '\'Inter\', sans-serif',
+          fontFamily: "'Inter', sans-serif",
         },
       },
     },
@@ -178,10 +181,11 @@ const theme = createTheme({
     MuiDialogTitle: {
       styleOverrides: {
         root: {
-          fontSize: '1rem', fontWeight: 700,
+          fontSize: '1rem',
+          fontWeight: 700,
           padding: '16px 24px',
           borderBottom: '1px solid #E2E8F0',
-          fontFamily: '\'Inter\', sans-serif',
+          fontFamily: "'Inter', sans-serif",
         },
       },
     },
@@ -207,7 +211,7 @@ const theme = createTheme({
             color: '#64748B',
             borderBottom: '1px solid #E2E8F0',
             padding: '10px 16px',
-            fontFamily: '\'Inter\', sans-serif',
+            fontFamily: "'Inter', sans-serif",
           },
         },
       },
@@ -220,7 +224,7 @@ const theme = createTheme({
             padding: '11px 16px',
             borderBottom: '1px solid #F1F5F9',
             color: '#1E293B',
-            fontFamily: '\'Inter\', sans-serif',
+            fontFamily: "'Inter', sans-serif",
           },
           '& .MuiTableRow-root': {
             '&:hover': { background: '#F8FAFC' },
@@ -241,7 +245,7 @@ const theme = createTheme({
           fontWeight: 500,
           borderRadius: 6,
           padding: '5px 9px',
-          fontFamily: '\'Inter\', sans-serif',
+          fontFamily: "'Inter', sans-serif",
         },
         arrow: { color: '#1E293B' },
       },
@@ -280,7 +284,7 @@ const theme = createTheme({
       styleOverrides: {
         body: {
           backgroundColor: '#F8FAFC',
-          fontFamily: '\'Inter\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           color: '#1E293B',
         },
       },

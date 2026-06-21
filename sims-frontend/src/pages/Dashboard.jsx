@@ -2,9 +2,19 @@ import React, { useCallback, useEffect, useReducer } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
-  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip as RechartTooltip,
-  ResponsiveContainer, Legend,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartTooltip,
+  ResponsiveContainer,
+  Legend,
 } from 'recharts';
 import {
   Inventory2 as StockIcon,
@@ -38,37 +48,43 @@ import Table from '../components/ui/Table';
 
 /* ── constants ──────────────────────────────────────────────── */
 const PIE_COLORS = {
-  pending:   '#D97706',
-  approved:  '#2563EB',
+  pending: '#D97706',
+  approved: '#2563EB',
   fulfilled: '#16A34A',
-  rejected:  '#DC2626',
+  rejected: '#DC2626',
   cancelled: '#94A3B8',
 };
-const PIE_FALLBACK = ['#2563EB','#16A34A','#D97706','#DC2626','#0891B2','#7C3AED'];
+const PIE_FALLBACK = ['#2563EB', '#16A34A', '#D97706', '#DC2626', '#0891B2', '#7C3AED'];
 
 /* ── reducer ────────────────────────────────────────────────── */
 const INIT = {
-  stats:    null,
-  charts:   null,
-  loading:  true,
-  error:    null,
+  stats: null,
+  charts: null,
+  loading: true,
+  error: null,
   recentActivity: [],
   warehouseBreakdown: [],
   recentRequests: [],
 };
 function reducer(state, action) {
   switch (action.type) {
-    case 'FETCH_START':  return { ...state, loading: true, error: null };
-    case 'FETCH_OK':     return { ...state, loading: false, ...action.payload };
-    case 'FETCH_ERR':    return { ...state, loading: false, error: action.error };
-    default:             return state;
+    case 'FETCH_START':
+      return { ...state, loading: true, error: null };
+    case 'FETCH_OK':
+      return { ...state, loading: false, ...action.payload };
+    case 'FETCH_ERR':
+      return { ...state, loading: false, error: action.error };
+    default:
+      return state;
   }
 }
 
 /* ── helpers ─────────────────────────────────────────────────── */
 const fmt = (n) =>
   new Intl.NumberFormat('en-IN', {
-    style: 'currency', currency: 'INR', maximumFractionDigits: 0,
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
   }).format(n || 0);
 
 const fmtNum = (n) => new Intl.NumberFormat('en-IN').format(n || 0);
@@ -77,10 +93,10 @@ function relativeTime(iso) {
   if (!iso) return '';
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1)  return 'just now';
+  if (mins < 1) return 'just now';
   if (mins < 60) return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24)  return `${hrs}h ago`;
+  if (hrs < 24) return `${hrs}h ago`;
   const days = Math.floor(hrs / 24);
   return `${days}d ago`;
 }
@@ -106,10 +122,10 @@ function activityIcon(action = '') {
 
 function statusBadgeVariant(status) {
   const map = {
-    pending:   'warning',
-    approved:  'primary',
+    pending: 'warning',
+    approved: 'primary',
     fulfilled: 'success',
-    rejected:  'danger',
+    rejected: 'danger',
     cancelled: 'neutral',
   };
   return map[status] || 'neutral';
@@ -139,43 +155,51 @@ const KpiCard = ({ icon, label, value, sub, variant = 'neutral', loading }) => (
         </div>
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{
-            margin: 0,
-            fontSize: 'var(--text-xs)',
-            fontWeight: 600,
-            color: 'var(--color-text-muted)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-            fontFamily: 'var(--font-sans)',
-          }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: 'var(--text-xs)',
+              fontWeight: 600,
+              color: 'var(--color-text-muted)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              fontFamily: 'var(--font-sans)',
+            }}
+          >
             {label}
           </p>
 
           {loading ? (
-            <div style={{
-              marginTop: 8,
-              height: 28,
-              width: '60%',
-              borderRadius: 'var(--radius-sm)',
-              background: 'var(--color-surface-alt)',
-              animation: 'sims-skeleton 1.4s ease infinite',
-            }} />
+            <div
+              style={{
+                marginTop: 8,
+                height: 28,
+                width: '60%',
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--color-surface-alt)',
+                animation: 'sims-skeleton 1.4s ease infinite',
+              }}
+            />
           ) : (
-            <p style={{
-              margin: '4px 0 0',
-              fontSize: 'var(--text-3xl)',
-              fontWeight: 800,
-              color: 'var(--color-text-primary)',
-              fontFamily: 'var(--font-sans)',
-              lineHeight: 1,
-            }}>
+            <p
+              style={{
+                margin: '4px 0 0',
+                fontSize: 'var(--text-3xl)',
+                fontWeight: 800,
+                color: 'var(--color-text-primary)',
+                fontFamily: 'var(--font-sans)',
+                lineHeight: 1,
+              }}
+            >
               {value}
             </p>
           )}
 
           {sub && !loading && (
             <div style={{ marginTop: 6 }}>
-              <Badge variant={variant} size="sm" dot>{sub}</Badge>
+              <Badge variant={variant} size='sm' dot>
+                {sub}
+              </Badge>
             </div>
           )}
         </div>
@@ -190,8 +214,8 @@ function variantColor(v) {
     primary: 'var(--color-primary)',
     success: 'var(--color-success)',
     warning: 'var(--color-warning)',
-    danger:  'var(--color-danger)',
-    info:    'var(--color-info)',
+    danger: 'var(--color-danger)',
+    info: 'var(--color-info)',
     neutral: 'var(--color-text-secondary)',
   };
   return map[v] || map.neutral;
@@ -201,8 +225,8 @@ function variantSoft(v) {
     primary: 'var(--color-primary-soft)',
     success: 'var(--color-success-soft)',
     warning: 'var(--color-warning-soft)',
-    danger:  'var(--color-danger-soft)',
-    info:    'var(--color-info-soft)',
+    danger: 'var(--color-danger-soft)',
+    info: 'var(--color-info-soft)',
     neutral: 'var(--color-surface-alt)',
   };
   return map[v] || map.neutral;
@@ -217,19 +241,41 @@ const chartTooltipStyle = {
     fontSize: 12,
     color: '#000000',
   },
-  itemStyle:  { color: '#000000' },
+  itemStyle: { color: '#000000' },
   labelStyle: { color: '#000000', fontWeight: 700 },
 };
 
 /* ── Activity skeleton ───────────────────────────────────────── */
 const ActivitySkeleton = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-    {[1,2,3,4,5].map((i) => (
+    {[1, 2, 3, 4, 5].map((i) => (
       <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-        <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--color-surface-alt)' }} />
+        <div
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: '50%',
+            background: 'var(--color-surface-alt)',
+          }}
+        />
         <div style={{ flex: 1 }}>
-          <div style={{ height: 12, width: '70%', borderRadius: 4, background: 'var(--color-surface-alt)', marginBottom: 6 }} />
-          <div style={{ height: 10, width: '40%', borderRadius: 4, background: 'var(--color-surface-alt)' }} />
+          <div
+            style={{
+              height: 12,
+              width: '70%',
+              borderRadius: 4,
+              background: 'var(--color-surface-alt)',
+              marginBottom: 6,
+            }}
+          />
+          <div
+            style={{
+              height: 10,
+              width: '40%',
+              borderRadius: 4,
+              background: 'var(--color-surface-alt)',
+            }}
+          />
         </div>
       </div>
     ))}
@@ -258,11 +304,11 @@ export default function Dashboard() {
       dispatch({
         type: 'FETCH_OK',
         payload: {
-          stats:              statsRes.data.stats,
-          recentActivity:     statsRes.data.recentActivity     || [],
+          stats: statsRes.data.stats,
+          recentActivity: statsRes.data.recentActivity || [],
           warehouseBreakdown: statsRes.data.warehouseBreakdown || [],
-          recentRequests:     statsRes.data.recentRequests     || [],
-          charts:             chartsRes.data,
+          recentRequests: statsRes.data.recentRequests || [],
+          charts: chartsRes.data,
         },
       });
       setLastUpdated(new Date());
@@ -274,7 +320,9 @@ export default function Dashboard() {
   }, [showToast]);
 
   // Initial load
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   // ── Real-time polling: refresh every 30 seconds automatically ──
   useEffect(() => {
@@ -285,16 +333,18 @@ export default function Dashboard() {
           dispatch({
             type: 'FETCH_OK',
             payload: {
-              stats:              statsRes.data.stats,
-              recentActivity:     statsRes.data.recentActivity     || [],
+              stats: statsRes.data.stats,
+              recentActivity: statsRes.data.recentActivity || [],
               warehouseBreakdown: statsRes.data.warehouseBreakdown || [],
-              recentRequests:     statsRes.data.recentRequests     || [],
-              charts:             chartsRes.data,
+              recentRequests: statsRes.data.recentRequests || [],
+              charts: chartsRes.data,
             },
           });
           setLastUpdated(new Date());
         })
-        .catch(() => { /* silent — don't disrupt UX on background poll failure */ });
+        .catch(() => {
+          /* silent — don't disrupt UX on background poll failure */
+        });
     }, 30_000); // every 30 s
 
     return () => clearInterval(id);
@@ -302,7 +352,10 @@ export default function Dashboard() {
 
   /* ── Quick-action: create PO for low stock item ── */
   const handleReorder = async (item) => {
-    showToast(`Reorder for ${item.productName || item.sku} — open Purchase Orders to complete.`, 'info');
+    showToast(
+      `Reorder for ${item.productName || item.sku} — open Purchase Orders to complete.`,
+      'info',
+    );
     navigate('/purchase-orders');
   };
 
@@ -365,47 +418,100 @@ export default function Dashboard() {
 
   /* Low-stock table columns */
   const lowStockCols = [
-    { key: 'sku',          label: 'SKU',           width: 100, skeletonWidth: '80%' },
-    { key: 'productName',  label: 'Product',       skeletonWidth: '70%' },
-    { key: 'currentQty',   label: 'Current Qty',   align: 'center', width: 110 },
+    { key: 'sku', label: 'SKU', width: 100, skeletonWidth: '80%' },
+    { key: 'productName', label: 'Product', skeletonWidth: '70%' },
+    { key: 'currentQty', label: 'Current Qty', align: 'center', width: 110 },
     { key: 'reorderLevel', label: 'Reorder Level', align: 'center', width: 120 },
-    { key: 'actions',      label: '',              align: 'right',  width: 100 },
+    { key: 'actions', label: '', align: 'right', width: 100 },
   ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-
       {/* ── Header ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 12,
+        }}
+      >
         <div>
-          <h1 style={{ margin: 0, fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'var(--font-sans)' }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 'var(--text-2xl)',
+              fontWeight: 800,
+              color: 'var(--color-text-primary)',
+              fontFamily: 'var(--font-sans)',
+            }}
+          >
             Dashboard
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-            <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 'var(--text-sm)',
+                color: 'var(--color-text-muted)',
+                fontFamily: 'var(--font-sans)',
+              }}
+            >
               Real-time inventory and operations overview
             </p>
             {/* Live indicator dot */}
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{
-                width: 7, height: 7, borderRadius: '50%',
-                background: '#10B981',
-                boxShadow: '0 0 0 2px rgba(16,185,129,0.25)',
-                animation: 'livePulse 2s ease-in-out infinite',
-                display: 'inline-block',
-              }} />
-              <span style={{ fontSize: 11, color: '#000000', fontWeight: 600, fontFamily: 'var(--font-sans)' }}>
+              <span
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  background: '#10B981',
+                  boxShadow: '0 0 0 2px rgba(16,185,129,0.25)',
+                  animation: 'livePulse 2s ease-in-out infinite',
+                  display: 'inline-block',
+                }}
+              />
+              <span
+                style={{
+                  fontSize: 11,
+                  color: '#000000',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-sans)',
+                }}
+              >
                 Live
               </span>
             </span>
             {lastUpdated && (
-              <span style={{ fontSize: 11, color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
-                · Updated {lastUpdated.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              <span
+                style={{
+                  fontSize: 11,
+                  color: 'var(--color-text-muted)',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              >
+                · Updated{' '}
+                {lastUpdated.toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                })}
               </span>
             )}
           </div>
         </div>
-        <Button variant="secondary" size="sm" leftIcon={<RefreshIcon style={{ fontSize: 16 }} />} onClick={() => { fetchAll(); setLastUpdated(new Date()); }} loading={loading}>
+        <Button
+          variant='secondary'
+          size='sm'
+          leftIcon={<RefreshIcon style={{ fontSize: 16 }} />}
+          onClick={() => {
+            fetchAll();
+            setLastUpdated(new Date());
+          }}
+          loading={loading}
+        >
           Refresh
         </Button>
       </div>
@@ -417,34 +523,62 @@ export default function Dashboard() {
       `}</style>
 
       {/* ── KPI Cards ── */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: 16,
-      }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 16,
+        }}
+      >
         {kpiCards.map((c, i) => (
           <KpiCard key={i} {...c} loading={loading} />
         ))}
       </div>
 
       {/* ── Charts row ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
-
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 16,
+        }}
+      >
         {/* Bar: Stock Value by Warehouse */}
-        <Card title="Stock Value by Warehouse" style={{ minHeight: 320 }}>
+        <Card title='Stock Value by Warehouse' style={{ minHeight: 320 }}>
           <Card.Body>
             {loading ? (
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height: 240 }}>
-                <Spinner size="lg" />
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 240,
+                }}
+              >
+                <Spinner size='lg' />
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={charts?.stockByWarehouse || []} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="warehouseName" tick={{ fill: '#64748B', fontSize: 11 }} />
-                  <YAxis tick={{ fill: '#64748B', fontSize: 11 }} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
-                  <RechartTooltip {...chartTooltipStyle} formatter={(v) => [fmt(v), 'Stock Value']} />
-                  <Bar dataKey="stockValue" name="Stock Value" fill="var(--color-primary)" radius={[4,4,0,0]} />
+              <ResponsiveContainer width='100%' height={240}>
+                <BarChart
+                  data={charts?.stockByWarehouse || []}
+                  margin={{ top: 4, right: 4, left: -16, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray='3 3' stroke='var(--color-border)' />
+                  <XAxis dataKey='warehouseName' tick={{ fill: '#64748B', fontSize: 11 }} />
+                  <YAxis
+                    tick={{ fill: '#64748B', fontSize: 11 }}
+                    tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                  />
+                  <RechartTooltip
+                    {...chartTooltipStyle}
+                    formatter={(v) => [fmt(v), 'Stock Value']}
+                  />
+                  <Bar
+                    dataKey='stockValue'
+                    name='Stock Value'
+                    fill='var(--color-primary)'
+                    radius={[4, 4, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -452,24 +586,34 @@ export default function Dashboard() {
         </Card>
 
         {/* Line: PO Trend */}
-        <Card title="Purchase Orders — Last 7 Days" style={{ minHeight: 320 }}>
+        <Card title='Purchase Orders — Last 7 Days' style={{ minHeight: 320 }}>
           <Card.Body>
             {loading ? (
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height: 240 }}>
-                <Spinner size="lg" />
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 240,
+                }}
+              >
+                <Spinner size='lg' />
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={240}>
-                <LineChart data={charts?.purchaseOrderTrend || []} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="label" tick={{ fill: '#64748B', fontSize: 11 }} />
+              <ResponsiveContainer width='100%' height={240}>
+                <LineChart
+                  data={charts?.purchaseOrderTrend || []}
+                  margin={{ top: 4, right: 4, left: -16, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray='3 3' stroke='var(--color-border)' />
+                  <XAxis dataKey='label' tick={{ fill: '#64748B', fontSize: 11 }} />
                   <YAxis tick={{ fill: '#64748B', fontSize: 11 }} allowDecimals={false} />
                   <RechartTooltip {...chartTooltipStyle} formatter={(v) => [v, 'Orders']} />
                   <Line
-                    type="monotone"
-                    dataKey="count"
-                    name="Orders"
-                    stroke="var(--color-primary)"
+                    type='monotone'
+                    dataKey='count'
+                    name='Orders'
+                    stroke='var(--color-primary)'
                     strokeWidth={2.5}
                     dot={{ r: 4, fill: 'var(--color-primary)', strokeWidth: 0 }}
                     activeDot={{ r: 6 }}
@@ -481,27 +625,37 @@ export default function Dashboard() {
         </Card>
 
         {/* Pie: Request Status */}
-        <Card title="Request Status Breakdown" style={{ minHeight: 320 }}>
+        <Card title='Request Status Breakdown' style={{ minHeight: 320 }}>
           <Card.Body>
             {loading ? (
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height: 240 }}>
-                <Spinner size="lg" />
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 240,
+                }}
+              >
+                <Spinner size='lg' />
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={240}>
+              <ResponsiveContainer width='100%' height={240}>
                 <PieChart>
                   <Pie
                     data={charts?.requestStatusBreakdown || []}
-                    dataKey="count"
-                    nameKey="status"
-                    cx="50%"
-                    cy="46%"
+                    dataKey='count'
+                    nameKey='status'
+                    cx='50%'
+                    cy='46%'
                     outerRadius={85}
                     label={({ status, count }) => `${status} (${count})`}
                     labelLine={false}
                   >
                     {(charts?.requestStatusBreakdown || []).map((entry, i) => (
-                      <Cell key={i} fill={PIE_COLORS[entry.status] || PIE_FALLBACK[i % PIE_FALLBACK.length]} />
+                      <Cell
+                        key={i}
+                        fill={PIE_COLORS[entry.status] || PIE_FALLBACK[i % PIE_FALLBACK.length]}
+                      />
                     ))}
                   </Pie>
                   <RechartTooltip {...chartTooltipStyle} />
@@ -514,14 +668,15 @@ export default function Dashboard() {
       </div>
 
       {/* ── Bottom row: Low-stock table + Activity feed ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.6fr) minmax(0,1fr)', gap: 16 }}>
-
+      <div
+        style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.6fr) minmax(0,1fr)', gap: 16 }}
+      >
         {/* Low-stock table */}
         <Card
-          title="Top Low Stock Items"
-          subtitle="Products approaching or below reorder level"
+          title='Top Low Stock Items'
+          subtitle='Products approaching or below reorder level'
           action={
-            <Button variant="ghost" size="sm" onClick={() => navigate('/inventory')}>
+            <Button variant='ghost' size='sm' onClick={() => navigate('/inventory')}>
               View All
             </Button>
           }
@@ -531,11 +686,17 @@ export default function Dashboard() {
             columns={lowStockCols}
             data={charts?.topLowStockItems || []}
             loading={loading}
-            emptyText="No low stock items — all products are well stocked."
+            emptyText='No low stock items — all products are well stocked.'
             renderRow={(item, idx) => (
               <tr key={idx}>
                 <td style={tdStyle}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: 'var(--text-xs)',
+                      color: 'var(--color-text-muted)',
+                    }}
+                  >
                     {item.sku}
                   </span>
                 </td>
@@ -543,23 +704,18 @@ export default function Dashboard() {
                   <span style={{ fontWeight: 600 }}>{item.productName}</span>
                 </td>
                 <td style={{ ...tdStyle, textAlign: 'center' }}>
-                  <Badge
-                    variant={item.currentQty === 0 ? 'danger' : 'warning'}
-                    size="sm"
-                  >
+                  <Badge variant={item.currentQty === 0 ? 'danger' : 'warning'} size='sm'>
                     {item.currentQty}
                   </Badge>
                 </td>
-                <td style={{ ...tdStyle, textAlign: 'center', color: 'var(--color-text-secondary)' }}>
+                <td
+                  style={{ ...tdStyle, textAlign: 'center', color: 'var(--color-text-secondary)' }}
+                >
                   {item.reorderLevel}
                 </td>
                 <td style={{ ...tdStyle, textAlign: 'right' }}>
                   {(role === 'admin' || role === 'manager') && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleReorder(item)}
-                    >
+                    <Button variant='secondary' size='sm' onClick={() => handleReorder(item)}>
                       Reorder
                     </Button>
                   )}
@@ -570,73 +726,93 @@ export default function Dashboard() {
         </Card>
 
         {/* Activity feed */}
-        <Card title="Recent Activity" subtitle="Last 10 system events">
+        <Card title='Recent Activity' subtitle='Last 10 system events'>
           <Card.Body padding={false}>
             {loading ? (
-              <div style={{ padding: 20 }}><ActivitySkeleton /></div>
+              <div style={{ padding: 20 }}>
+                <ActivitySkeleton />
+              </div>
             ) : state.recentActivity.length === 0 ? (
-              <div style={{
-                padding: '40px 20px',
-                textAlign: 'center',
-                color: 'var(--color-text-muted)',
-                fontSize: 'var(--text-sm)',
-                fontFamily: 'var(--font-sans)',
-              }}>
+              <div
+                style={{
+                  padding: '40px 20px',
+                  textAlign: 'center',
+                  color: 'var(--color-text-muted)',
+                  fontSize: 'var(--text-sm)',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              >
                 No activity recorded yet.
               </div>
             ) : (
               <ul style={{ margin: 0, padding: '8px 0', listStyle: 'none' }}>
                 {state.recentActivity.map((log, i) => (
-                  <li key={i} style={{
-                    display: 'flex',
-                    gap: 10,
-                    alignItems: 'flex-start',
-                    padding: '10px 20px',
-                    borderBottom: i < state.recentActivity.length - 1
-                      ? '1px solid var(--color-border)' : 'none',
-                  }}>
-                    {/* Icon */}
-                    <div style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: '50%',
-                      background: 'var(--color-surface-alt)',
+                  <li
+                    key={i}
+                    style={{
                       display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      marginTop: 1,
-                    }}>
+                      gap: 10,
+                      alignItems: 'flex-start',
+                      padding: '10px 20px',
+                      borderBottom:
+                        i < state.recentActivity.length - 1
+                          ? '1px solid var(--color-border)'
+                          : 'none',
+                    }}
+                  >
+                    {/* Icon */}
+                    <div
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: '50%',
+                        background: 'var(--color-surface-alt)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        marginTop: 1,
+                      }}
+                    >
                       {activityIcon(log.action)}
                     </div>
 
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{
-                        margin: 0,
-                        fontSize: 'var(--text-sm)',
-                        fontWeight: 500,
-                        color: 'var(--color-text-primary)',
-                        fontFamily: 'var(--font-sans)',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: 'var(--text-sm)',
+                          fontWeight: 500,
+                          color: 'var(--color-text-primary)',
+                          fontFamily: 'var(--font-sans)',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
                         {formatAction(log.action)}
                         {log.tableName && (
                           <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>
-                            {' '}<span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)' }}>{log.tableName}</span>
+                            {' '}
+                            <span
+                              style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)' }}
+                            >
+                              {log.tableName}
+                            </span>
                           </span>
                         )}
                       </p>
-                      <div style={{
-                        marginTop: 2,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        fontSize: 'var(--text-xs)',
-                        color: 'var(--color-text-muted)',
-                        fontFamily: 'var(--font-sans)',
-                      }}>
+                      <div
+                        style={{
+                          marginTop: 2,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          fontSize: 'var(--text-xs)',
+                          color: 'var(--color-text-muted)',
+                          fontFamily: 'var(--font-sans)',
+                        }}
+                      >
                         <span>{log.user}</span>
                         <span style={{ opacity: 0.4 }}>·</span>
                         <span>{relativeTime(log.timestamp)}</span>
@@ -653,10 +829,10 @@ export default function Dashboard() {
       {/* ── Warehouse breakdown (admin only, full-width) ── */}
       {role === 'admin' && !loading && state.warehouseBreakdown.length > 0 && (
         <Card
-          title="Warehouse Breakdown"
-          subtitle="Stock distribution across all warehouses"
+          title='Warehouse Breakdown'
+          subtitle='Stock distribution across all warehouses'
           action={
-            <Button variant="ghost" size="sm" onClick={() => navigate('/warehouses')}>
+            <Button variant='ghost' size='sm' onClick={() => navigate('/warehouses')}>
               Manage
             </Button>
           }
@@ -664,14 +840,14 @@ export default function Dashboard() {
         >
           <Table
             columns={[
-              { key: 'name',     label: 'Warehouse' },
-              { key: 'qty',      label: 'Total Qty',       align: 'right', width: 120 },
-              { key: 'value',    label: 'Stock Value',     align: 'right', width: 150 },
+              { key: 'name', label: 'Warehouse' },
+              { key: 'qty', label: 'Total Qty', align: 'right', width: 120 },
+              { key: 'value', label: 'Stock Value', align: 'right', width: 150 },
               { key: 'products', label: 'Unique Products', align: 'right', width: 140 },
             ]}
             data={state.warehouseBreakdown}
             loading={false}
-            emptyText="No warehouses found."
+            emptyText='No warehouses found.'
             renderRow={(row, i) => (
               <tr key={i}>
                 <td style={tdStyle}>
@@ -684,14 +860,15 @@ export default function Dashboard() {
                   {fmt(row.stockValue)}
                 </td>
                 <td style={{ ...tdStyle, textAlign: 'right' }}>
-                  <Badge variant="neutral" size="sm">{row.uniqueProducts}</Badge>
+                  <Badge variant='neutral' size='sm'>
+                    {row.uniqueProducts}
+                  </Badge>
                 </td>
               </tr>
             )}
           />
         </Card>
       )}
-
     </div>
   );
 }
@@ -725,67 +902,114 @@ function RequesterDashboard({ state, navigate, onRefresh }) {
   ];
 
   const reqCols = [
-    { key: 'number',   label: 'Request #',   width: 140 },
-    { key: 'purpose',  label: 'Purpose' },
-    { key: 'status',   label: 'Status',      align: 'center', width: 110 },
-    { key: 'date',     label: 'Date',        align: 'right',  width: 130 },
+    { key: 'number', label: 'Request #', width: 140 },
+    { key: 'purpose', label: 'Purpose' },
+    { key: 'status', label: 'Status', align: 'center', width: 110 },
+    { key: 'date', label: 'Date', align: 'right', width: 130 },
   ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 12,
+        }}
+      >
         <div>
-          <h1 style={{ margin: 0, fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--color-text-primary)', fontFamily: 'var(--font-sans)' }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 'var(--text-2xl)',
+              fontWeight: 800,
+              color: 'var(--color-text-primary)',
+              fontFamily: 'var(--font-sans)',
+            }}
+          >
             My Dashboard
           </h1>
-          <p style={{ margin: '4px 0 0', fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
+          <p
+            style={{
+              margin: '4px 0 0',
+              fontSize: 'var(--text-sm)',
+              color: 'var(--color-text-muted)',
+              fontFamily: 'var(--font-sans)',
+            }}
+          >
             Track your inventory requests
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Button
-            variant="primary"
-            size="sm"
+            variant='primary'
+            size='sm'
             leftIcon={<OpenIcon style={{ fontSize: 16 }} />}
             onClick={() => navigate('/user/catalog')}
           >
             Browse Catalog
           </Button>
-          <Button variant="secondary" size="sm" leftIcon={<RefreshIcon style={{ fontSize: 16 }} />} onClick={onRefresh} loading={loading}>
+          <Button
+            variant='secondary'
+            size='sm'
+            leftIcon={<RefreshIcon style={{ fontSize: 16 }} />}
+            onClick={onRefresh}
+            loading={loading}
+          >
             Refresh
           </Button>
         </div>
       </div>
 
       {/* KPI cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16 }}>
-        {kpiCards.map((c, i) => <KpiCard key={i} {...c} loading={loading} />)}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: 16,
+        }}
+      >
+        {kpiCards.map((c, i) => (
+          <KpiCard key={i} {...c} loading={loading} />
+        ))}
       </div>
 
       {/* Request breakdown pie + recent requests table */}
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,2fr)', gap: 16 }}>
-        <Card title="Request Breakdown">
+        <Card title='Request Breakdown'>
           <Card.Body>
             {loading ? (
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height: 200 }}>
-                <Spinner size="lg" />
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 200,
+                }}
+              >
+                <Spinner size='lg' />
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width='100%' height={200}>
                 <PieChart>
                   <Pie
                     data={charts?.requestStatusBreakdown || []}
-                    dataKey="count"
-                    nameKey="status"
-                    cx="50%"
-                    cy="46%"
+                    dataKey='count'
+                    nameKey='status'
+                    cx='50%'
+                    cy='46%'
                     outerRadius={72}
                     label={({ status, count }) => `${status} (${count})`}
                     labelLine={false}
                   >
                     {(charts?.requestStatusBreakdown || []).map((entry, i) => (
-                      <Cell key={i} fill={PIE_COLORS[entry.status] || PIE_FALLBACK[i % PIE_FALLBACK.length]} />
+                      <Cell
+                        key={i}
+                        fill={PIE_COLORS[entry.status] || PIE_FALLBACK[i % PIE_FALLBACK.length]}
+                      />
                     ))}
                   </Pie>
                   <RechartTooltip {...chartTooltipStyle} />
@@ -796,9 +1020,9 @@ function RequesterDashboard({ state, navigate, onRefresh }) {
         </Card>
 
         <Card
-          title="My Recent Requests"
+          title='My Recent Requests'
           action={
-            <Button variant="ghost" size="sm" onClick={() => navigate('/user/my-requests')}>
+            <Button variant='ghost' size='sm' onClick={() => navigate('/user/my-requests')}>
               View All
             </Button>
           }
@@ -808,23 +1032,44 @@ function RequesterDashboard({ state, navigate, onRefresh }) {
             columns={reqCols}
             data={recentRequests}
             loading={loading}
-            emptyText="No requests yet. Browse the catalog to submit your first request."
+            emptyText='No requests yet. Browse the catalog to submit your first request.'
             renderRow={(req, i) => (
               <tr key={i}>
                 <td style={tdStyle}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', fontWeight: 600 }}>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: 'var(--text-xs)',
+                      fontWeight: 600,
+                    }}
+                  >
                     {req.request_number}
                   </span>
                 </td>
-                <td style={{ ...tdStyle, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <td
+                  style={{
+                    ...tdStyle,
+                    maxWidth: 200,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {req.purpose}
                 </td>
                 <td style={{ ...tdStyle, textAlign: 'center' }}>
-                  <Badge variant={statusBadgeVariant(req.status)} size="sm">
+                  <Badge variant={statusBadgeVariant(req.status)} size='sm'>
                     {req.status}
                   </Badge>
                 </td>
-                <td style={{ ...tdStyle, textAlign: 'right', color: 'var(--color-text-muted)', fontSize: 'var(--text-xs)' }}>
+                <td
+                  style={{
+                    ...tdStyle,
+                    textAlign: 'right',
+                    color: 'var(--color-text-muted)',
+                    fontSize: 'var(--text-xs)',
+                  }}
+                >
                   {new Date(req.created_at).toLocaleDateString()}
                 </td>
               </tr>

@@ -9,13 +9,7 @@ import { createPortal } from 'react-dom';
  * </Tooltip>
  */
 
-const Tooltip = ({
-  children,
-  content,
-  placement = 'top',
-  delay = 120,
-  disabled = false,
-}) => {
+const Tooltip = ({ children, content, placement = 'top', delay = 120, disabled = false }) => {
   const [visible, setVisible] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const triggerRef = useRef(null);
@@ -74,17 +68,29 @@ const Tooltip = ({
     <>
       {React.cloneElement(child, {
         ref: triggerRef,
-        onMouseEnter: (e) => { show(); child.props.onMouseEnter?.(e); },
-        onMouseLeave: (e) => { hide(); child.props.onMouseLeave?.(e); },
-        onFocus:      (e) => { show(); child.props.onFocus?.(e); },
-        onBlur:       (e) => { hide(); child.props.onBlur?.(e); },
+        onMouseEnter: (e) => {
+          show();
+          child.props.onMouseEnter?.(e);
+        },
+        onMouseLeave: (e) => {
+          hide();
+          child.props.onMouseLeave?.(e);
+        },
+        onFocus: (e) => {
+          show();
+          child.props.onFocus?.(e);
+        },
+        onBlur: (e) => {
+          hide();
+          child.props.onBlur?.(e);
+        },
       })}
 
       {visible &&
         createPortal(
           <div
             ref={tooltipRef}
-            role="tooltip"
+            role='tooltip'
             style={{
               position: 'absolute',
               top: coords.top,

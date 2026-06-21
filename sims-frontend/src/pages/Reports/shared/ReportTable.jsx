@@ -24,23 +24,26 @@ export default function ReportTable({
   const isServer = onPageChange !== undefined;
 
   const [clientPage, setClientPage] = useState(0);
-  useEffect(() => { setClientPage(0); }, [rows]);
+  useEffect(() => {
+    setClientPage(0);
+  }, [rows]);
 
-  const page       = isServer ? (serverPage - 1) : clientPage;
+  const page = isServer ? serverPage - 1 : clientPage;
   const totalPages = isServer ? serverPages : Math.ceil(rows.length / pageSize);
-  const total      = isServer ? serverTotal : rows.length;
+  const total = isServer ? serverTotal : rows.length;
 
-  const displayRows = isServer
-    ? rows
-    : rows.slice(page * pageSize, (page + 1) * pageSize);
+  const displayRows = isServer ? rows : rows.slice(page * pageSize, (page + 1) * pageSize);
 
   const goTo = (p) => {
-    if (isServer) { onPageChange(p + 1); }
-    else          { setClientPage(p); }
+    if (isServer) {
+      onPageChange(p + 1);
+    } else {
+      setClientPage(p);
+    }
   };
 
   const pageStart = page * pageSize + 1;
-  const pageEnd   = Math.min((page + 1) * pageSize, total);
+  const pageEnd = Math.min((page + 1) * pageSize, total);
 
   /* ── build page numbers ── */
   const pages = [];
@@ -49,18 +52,22 @@ export default function ReportTable({
   for (let i = start; i < Math.min(start + window, totalPages); i++) pages.push(i);
 
   return (
-    <div className="reports-table-card">
-      <div className="reports-table-header">
+    <div className='reports-table-card'>
+      <div className='reports-table-header'>
         <h3>{title}</h3>
-        <span className="table-badge">{total?.toLocaleString()} records</span>
+        <span className='table-badge'>{total?.toLocaleString()} records</span>
       </div>
 
-      <div className="reports-table-wrap">
-        <table className="reports-data-table">
+      <div className='reports-table-wrap'>
+        <table className='reports-data-table'>
           <thead>
             <tr>
               {columns.map((c) => (
-                <th key={c.key} className={c.align === 'right' ? 'right' : ''} style={c.width ? { width: c.width } : {}}>
+                <th
+                  key={c.key}
+                  className={c.align === 'right' ? 'right' : ''}
+                  style={c.width ? { width: c.width } : {}}
+                >
                   {c.label}
                 </th>
               ))}
@@ -72,14 +79,19 @@ export default function ReportTable({
                 <tr key={i}>
                   {columns.map((c) => (
                     <td key={c.key}>
-                      <div style={{ height: 14, borderRadius: 4, background: '#f1f5f9', width: '70%' }} />
+                      <div
+                        style={{ height: 14, borderRadius: 4, background: '#f1f5f9', width: '70%' }}
+                      />
                     </td>
                   ))}
                 </tr>
               ))
             ) : displayRows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} style={{ textAlign: 'center', padding: 48, color: '#000000', fontSize: 14 }}>
+                <td
+                  colSpan={columns.length}
+                  style={{ textAlign: 'center', padding: 48, color: '#000000', fontSize: 14 }}
+                >
                   No data found for the selected filters.
                 </td>
               </tr>
@@ -100,20 +112,28 @@ export default function ReportTable({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="reports-pagination">
-          <span className="page-info">
+        <div className='reports-pagination'>
+          <span className='page-info'>
             Showing {pageStart}–{pageEnd} of {total?.toLocaleString()}
           </span>
-          <div className="page-buttons">
-            <button className="page-btn" disabled={page === 0} onClick={() => goTo(page - 1)}>
+          <div className='page-buttons'>
+            <button className='page-btn' disabled={page === 0} onClick={() => goTo(page - 1)}>
               <ChevronLeft size={14} />
             </button>
             {pages.map((p) => (
-              <button key={p} className={`page-btn ${p === page ? 'active' : ''}`} onClick={() => goTo(p)}>
+              <button
+                key={p}
+                className={`page-btn ${p === page ? 'active' : ''}`}
+                onClick={() => goTo(p)}
+              >
                 {p + 1}
               </button>
             ))}
-            <button className="page-btn" disabled={page >= totalPages - 1} onClick={() => goTo(page + 1)}>
+            <button
+              className='page-btn'
+              disabled={page >= totalPages - 1}
+              onClick={() => goTo(page + 1)}
+            >
               <ChevronRight size={14} />
             </button>
           </div>

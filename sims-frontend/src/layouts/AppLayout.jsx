@@ -25,7 +25,9 @@ const AppLayout = () => {
   const toggleCollapsed = () => {
     setCollapsed((prev) => {
       const next = !prev;
-      try { localStorage.setItem('sidebarCollapsed', String(next)); } catch {}
+      try {
+        localStorage.setItem('sidebarCollapsed', String(next));
+      } catch {}
       return next;
     });
   };
@@ -45,9 +47,7 @@ const AppLayout = () => {
       {/* ── Right panel: topbar + content ── */}
       <div
         style={{
-          marginLeft: collapsed
-            ? 'var(--sidebar-collapsed-width)'
-            : 'var(--sidebar-width)',
+          marginLeft: collapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
           transition: 'margin-left var(--transition-slow)',
           flex: 1,
           display: 'flex',

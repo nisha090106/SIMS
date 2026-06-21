@@ -118,14 +118,11 @@ const UnknownBarcodes = () => {
 
     try {
       setAssigning(true);
-      const response = await axios.post(
-        `/api/barcodes/unknown/${selectedBarcode.id}/assign`,
-        { product_id: selectedProduct.product_id }
-      );
+      const response = await axios.post(`/api/barcodes/unknown/${selectedBarcode.id}/assign`, {
+        product_id: selectedProduct.product_id,
+      });
 
-      setSuccess(
-        `Barcode assigned successfully to ${response.data.product.sku}`
-      );
+      setSuccess(`Barcode assigned successfully to ${response.data.product.sku}`);
       handleCloseModal();
       fetchUnknownBarcodes();
 
@@ -160,8 +157,9 @@ const UnknownBarcodes = () => {
   if (userRole !== 'admin' && userRole !== 'manager') {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="error">
-          You don't have permission to access this module. Only Admins and Managers can view unknown barcodes.
+        <Alert severity='error'>
+          You don't have permission to access this module. Only Admins and Managers can view unknown
+          barcodes.
         </Alert>
       </Box>
     );
@@ -171,12 +169,20 @@ const UnknownBarcodes = () => {
     <Box sx={{ p: 3 }}>
       <Card>
         <CardContent>
-          <Typography variant="h5" sx={{ mb: 3 }}>
+          <Typography variant='h5' sx={{ mb: 3 }}>
             Unknown Barcodes Management
           </Typography>
 
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+          {error && (
+            <Alert severity='error' sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          {success && (
+            <Alert severity='success' sx={{ mb: 2 }}>
+              {success}
+            </Alert>
+          )}
 
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -195,24 +201,22 @@ const UnknownBarcodes = () => {
                       <TableCell>Qty</TableCell>
                       <TableCell>Scanned By</TableCell>
                       <TableCell>Scanned At</TableCell>
-                      <TableCell align="center">Resolved</TableCell>
-                      <TableCell align="center">Action</TableCell>
+                      <TableCell align='center'>Resolved</TableCell>
+                      <TableCell align='center'>Action</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {unknownBarcodes.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
-                          <Typography color="textSecondary">
-                            No unknown barcodes found
-                          </Typography>
+                        <TableCell colSpan={8} align='center' sx={{ py: 3 }}>
+                          <Typography color='textSecondary'>No unknown barcodes found</Typography>
                         </TableCell>
                       </TableRow>
                     ) : (
                       unknownBarcodes.map((barcode) => (
                         <TableRow key={barcode.id} hover>
                           <TableCell>
-                            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                            <Typography variant='body2' sx={{ fontFamily: 'monospace' }}>
                               {barcode.barcode}
                             </Typography>
                           </TableCell>
@@ -221,8 +225,8 @@ const UnknownBarcodes = () => {
                             <Chip
                               label={barcode.action}
                               color={getActionColor(barcode.action)}
-                              size="small"
-                              variant="outlined"
+                              size='small'
+                              variant='outlined'
                             />
                           </TableCell>
                           <TableCell>{barcode.quantity || 1}</TableCell>
@@ -230,18 +234,18 @@ const UnknownBarcodes = () => {
                             {barcode.scanner?.first_name} {barcode.scanner?.last_name}
                           </TableCell>
                           <TableCell>{formatDate(barcode.scanned_at)}</TableCell>
-                          <TableCell align="center">
+                          <TableCell align='center'>
                             {barcode.resolved ? (
-                              <CheckCircle size={20} color="green" />
+                              <CheckCircle size={20} color='green' />
                             ) : (
-                              <AlertCircle size={20} color="orange" />
+                              <AlertCircle size={20} color='orange' />
                             )}
                           </TableCell>
-                          <TableCell align="center">
+                          <TableCell align='center'>
                             {!barcode.resolved && (
                               <Button
-                                size="small"
-                                variant="contained"
+                                size='small'
+                                variant='contained'
                                 startIcon={<Search size={16} />}
                                 onClick={() => handleOpenModal(barcode)}
                               >
@@ -259,7 +263,7 @@ const UnknownBarcodes = () => {
               {/* Pagination */}
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
-                component="div"
+                component='div'
                 count={total}
                 rowsPerPage={rowsPerPage}
                 page={page}
@@ -275,22 +279,29 @@ const UnknownBarcodes = () => {
       </Card>
 
       {/* Assignment Modal */}
-      <Dialog open={openModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+      <Dialog open={openModal} onClose={handleCloseModal} maxWidth='sm' fullWidth>
         <DialogTitle>
-          Assign Barcode: <span style={{ fontFamily: 'monospace' }}>{selectedBarcode?.barcode}</span>
+          Assign Barcode:{' '}
+          <span style={{ fontFamily: 'monospace' }}>{selectedBarcode?.barcode}</span>
         </DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2 }}>
             {/* Barcode Info */}
             {selectedBarcode && (
               <Paper sx={{ p: 2, mb: 2, bgcolor: '#000000' }}>
-                <Typography variant="body2" color="textSecondary">
-                  Action: <Chip label={selectedBarcode.action} size="small" color={getActionColor(selectedBarcode.action)} variant="outlined" />
+                <Typography variant='body2' color='textSecondary'>
+                  Action:{' '}
+                  <Chip
+                    label={selectedBarcode.action}
+                    size='small'
+                    color={getActionColor(selectedBarcode.action)}
+                    variant='outlined'
+                  />
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
+                <Typography variant='body2' color='textSecondary'>
                   Qty: {selectedBarcode.quantity || 1}
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
+                <Typography variant='body2' color='textSecondary'>
                   Warehouse: {selectedBarcode.warehouse?.name}
                 </Typography>
               </Paper>
@@ -298,23 +309,23 @@ const UnknownBarcodes = () => {
 
             {/* Product Search */}
             <TextField
-              label="Search Product (Name or SKU)"
+              label='Search Product (Name or SKU)'
               value={searchQuery}
               onChange={(e) => handleSearchProduct(e.target.value)}
               fullWidth
-              placeholder="Type to search..."
+              placeholder='Type to search...'
               sx={{ mb: 2 }}
             />
 
             {/* Search Results */}
             {searchResults.length > 0 && (
               <Paper sx={{ mb: 2, maxHeight: '300px', overflow: 'auto' }}>
-                <Table size="small">
+                <Table size='small'>
                   <TableHead>
                     <TableRow sx={{ bgcolor: '#000000' }}>
                       <TableCell>SKU</TableCell>
                       <TableCell>Name</TableCell>
-                      <TableCell align="center">Select</TableCell>
+                      <TableCell align='center'>Select</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -322,13 +333,19 @@ const UnknownBarcodes = () => {
                       <TableRow key={product.product_id}>
                         <TableCell>{product.sku}</TableCell>
                         <TableCell>{product.name}</TableCell>
-                        <TableCell align="center">
+                        <TableCell align='center'>
                           <Button
-                            size="small"
-                            variant={selectedProduct?.product_id === product.product_id ? 'contained' : 'outlined'}
+                            size='small'
+                            variant={
+                              selectedProduct?.product_id === product.product_id
+                                ? 'contained'
+                                : 'outlined'
+                            }
                             onClick={() => setSelectedProduct(product)}
                           >
-                            {selectedProduct?.product_id === product.product_id ? 'Selected' : 'Select'}
+                            {selectedProduct?.product_id === product.product_id
+                              ? 'Selected'
+                              : 'Select'}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -340,7 +357,7 @@ const UnknownBarcodes = () => {
 
             {/* Selected Product */}
             {selectedProduct && (
-              <Alert severity="info" sx={{ mb: 2 }}>
+              <Alert severity='info' sx={{ mb: 2 }}>
                 <CheckCircle size={20} style={{ marginRight: '8px', display: 'inline' }} />
                 Selected: {selectedProduct.sku} - {selectedProduct.name}
               </Alert>
@@ -351,7 +368,7 @@ const UnknownBarcodes = () => {
           <Button onClick={handleCloseModal}>Cancel</Button>
           <Button
             onClick={handleAssign}
-            variant="contained"
+            variant='contained'
             disabled={!selectedProduct || assigning}
           >
             {assigning ? <CircularProgress size={20} /> : 'Assign'}

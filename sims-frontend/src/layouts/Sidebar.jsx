@@ -28,60 +28,60 @@ import { useToast } from '../hooks/useToast';
 /* ── Nav definitions per role ── */
 const NAV = {
   admin: [
-    { path: '/dashboard',       label: 'Dashboard',       icon: DashboardIcon },
-    { path: '/products',        label: 'Products',        icon: InventoryIcon },
-    { path: '/inventory',       label: 'Inventory',       icon: WarehouseIcon },
-    { path: '/warehouses',      label: 'Warehouses',      icon: StoreIcon },
-    { path: '/suppliers',       label: 'Suppliers',       icon: PeopleIcon },
+    { path: '/dashboard', label: 'Dashboard', icon: DashboardIcon },
+    { path: '/products', label: 'Products', icon: InventoryIcon },
+    { path: '/inventory', label: 'Inventory', icon: WarehouseIcon },
+    { path: '/warehouses', label: 'Warehouses', icon: StoreIcon },
+    { path: '/suppliers', label: 'Suppliers', icon: PeopleIcon },
     { path: '/purchase-orders', label: 'Purchase Orders', icon: PurchaseIcon },
-    { path: '/sales-orders',    label: 'Sales Orders',    icon: SalesIcon },
-    { path: '/requests',        label: 'Requests',        icon: RequestsIcon, badge: true },
-    { path: '/barcode',         label: 'Barcode',         icon: BarcodeIcon },
-    { path: '/import-center',   label: 'Bulk Import',     icon: ImportIcon },
-    { path: '/automation',      label: 'Automation',      icon: AutomationIcon },
-    { path: '/reports',         label: 'Reports',         icon: ReportsIcon },
-    { path: '/settings',        label: 'Settings',        icon: SettingsIcon },
+    { path: '/sales-orders', label: 'Sales Orders', icon: SalesIcon },
+    { path: '/requests', label: 'Requests', icon: RequestsIcon, badge: true },
+    { path: '/barcode', label: 'Barcode', icon: BarcodeIcon },
+    { path: '/import-center', label: 'Bulk Import', icon: ImportIcon },
+    { path: '/automation', label: 'Automation', icon: AutomationIcon },
+    { path: '/reports', label: 'Reports', icon: ReportsIcon },
+    { path: '/settings', label: 'Settings', icon: SettingsIcon },
   ],
   manager: [
-    { path: '/dashboard',       label: 'Dashboard',       icon: DashboardIcon },
-    { path: '/products',        label: 'Products',        icon: InventoryIcon },
-    { path: '/inventory',       label: 'Inventory',       icon: WarehouseIcon },
-    { path: '/suppliers',       label: 'Suppliers',       icon: PeopleIcon },
+    { path: '/dashboard', label: 'Dashboard', icon: DashboardIcon },
+    { path: '/products', label: 'Products', icon: InventoryIcon },
+    { path: '/inventory', label: 'Inventory', icon: WarehouseIcon },
+    { path: '/suppliers', label: 'Suppliers', icon: PeopleIcon },
     { path: '/purchase-orders', label: 'Purchase Orders', icon: PurchaseIcon },
-    { path: '/sales-orders',    label: 'Sales Orders',    icon: SalesIcon },
-    { path: '/requests',        label: 'Requests',        icon: RequestsIcon, badge: true },
-    { path: '/barcode',         label: 'Barcode',         icon: BarcodeIcon },
-    { path: '/import-center',   label: 'Bulk Import',     icon: ImportIcon },
-    { path: '/automation',      label: 'Automation',      icon: AutomationIcon },
-    { path: '/reports',         label: 'Reports',         icon: ReportsIcon },
+    { path: '/sales-orders', label: 'Sales Orders', icon: SalesIcon },
+    { path: '/requests', label: 'Requests', icon: RequestsIcon, badge: true },
+    { path: '/barcode', label: 'Barcode', icon: BarcodeIcon },
+    { path: '/import-center', label: 'Bulk Import', icon: ImportIcon },
+    { path: '/automation', label: 'Automation', icon: AutomationIcon },
+    { path: '/reports', label: 'Reports', icon: ReportsIcon },
   ],
   staff: [
-    { path: '/dashboard',  label: 'Dashboard', icon: DashboardIcon },
-    { path: '/products',   label: 'Products',  icon: InventoryIcon },
-    { path: '/inventory',  label: 'Inventory', icon: WarehouseIcon },
-    { path: '/requests',   label: 'Requests',  icon: RequestsIcon },
-    { path: '/barcode',    label: 'Barcode',   icon: BarcodeIcon },
+    { path: '/dashboard', label: 'Dashboard', icon: DashboardIcon },
+    { path: '/products', label: 'Products', icon: InventoryIcon },
+    { path: '/inventory', label: 'Inventory', icon: WarehouseIcon },
+    { path: '/requests', label: 'Requests', icon: RequestsIcon },
+    { path: '/barcode', label: 'Barcode', icon: BarcodeIcon },
   ],
   user: [
-    { path: '/user-dashboard', label: 'Dashboard',       icon: DashboardIcon },
-    { path: '/user/catalog',   label: 'Product Catalog', icon: InventoryIcon },
-    { path: '/user/my-requests', label: 'My Requests',   icon: RequestsIcon },
+    { path: '/user-dashboard', label: 'Dashboard', icon: DashboardIcon },
+    { path: '/user/catalog', label: 'Product Catalog', icon: InventoryIcon },
+    { path: '/user/my-requests', label: 'My Requests', icon: RequestsIcon },
   ],
 };
 
 /* ── Role label map ── */
 const ROLE_LABELS = {
-  admin:   'Administrator',
+  admin: 'Administrator',
   manager: 'Manager',
-  staff:   'Staff',
-  user:    'Requester',
+  staff: 'Staff',
+  user: 'Requester',
 };
 
 const ROLE_BADGE_VARIANT = {
-  admin:   'danger',
+  admin: 'danger',
   manager: 'warning',
-  staff:   'info',
-  user:    'success',
+  staff: 'info',
+  user: 'success',
 };
 
 /* ── Sidebar ── */
@@ -102,7 +102,9 @@ const Sidebar = ({ collapsed, onToggle }) => {
       try {
         const res = await requestAPI.getAll({ status: 'pending', limit: 1 });
         if (res.data?.success) setPendingCount(res.data.total || 0);
-      } catch { /* silent */ }
+      } catch {
+        /* silent */
+      }
     };
 
     fetchPending();
@@ -113,17 +115,26 @@ const Sidebar = ({ collapsed, onToggle }) => {
   const navItems = NAV[role] || NAV.staff;
 
   const handleLogout = async () => {
-    try { await authAPI.logout(); } catch { /* silent */ }
+    try {
+      await authAPI.logout();
+    } catch {
+      /* silent */
+    }
     dispatch(logout());
     showToast('Logged out successfully', 'success');
     navigate('/login');
   };
 
   const getInitials = (name = '') =>
-    name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() || '?';
+    name
+      .split(' ')
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase() || '?';
 
   const fullName = user?.full_name || user?.name || 'User';
-  const email    = user?.email || '';
+  const email = user?.email || '';
 
   return (
     <aside
@@ -206,11 +217,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
           const showBadge = item.badge && pendingCount > 0;
 
           return (
-            <Tooltip
-              key={item.path}
-              content={collapsed ? item.label : null}
-              placement="right"
-            >
+            <Tooltip key={item.path} content={collapsed ? item.label : null} placement='right'>
               <NavLink
                 to={item.path}
                 style={({ isActive }) => ({
@@ -250,7 +257,14 @@ const Sidebar = ({ collapsed, onToggle }) => {
                 }}
               >
                 {/* Icon + collapsed dot badge */}
-                <span style={{ position: 'relative', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                <span
+                  style={{
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexShrink: 0,
+                  }}
+                >
                   <Icon style={{ fontSize: 18 }} />
                   {showBadge && collapsed && (
                     <span
@@ -275,7 +289,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
                       {item.label}
                     </span>
                     {showBadge && (
-                      <Badge variant="danger" size="sm">
+                      <Badge variant='danger' size='sm'>
                         {pendingCount}
                       </Badge>
                     )}
@@ -344,7 +358,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
                 {fullName}
               </div>
               <div style={{ marginTop: 2 }}>
-                <Badge variant={ROLE_BADGE_VARIANT[role] || 'neutral'} size="sm">
+                <Badge variant={ROLE_BADGE_VARIANT[role] || 'neutral'} size='sm'>
                   {ROLE_LABELS[role] || role}
                 </Badge>
               </div>
@@ -353,7 +367,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
         )}
 
         {/* Logout */}
-        <Tooltip content={collapsed ? 'Sign Out' : null} placement="right">
+        <Tooltip content={collapsed ? 'Sign Out' : null} placement='right'>
           <button
             onClick={handleLogout}
             style={{
@@ -421,10 +435,14 @@ const Sidebar = ({ collapsed, onToggle }) => {
             e.currentTarget.style.color = '#94A3B8';
           }}
         >
-          {collapsed
-            ? <ExpandIcon style={{ fontSize: 18 }} />
-            : <><CollapseIcon style={{ fontSize: 18, flexShrink: 0 }} /><span>Collapse</span></>
-          }
+          {collapsed ? (
+            <ExpandIcon style={{ fontSize: 18 }} />
+          ) : (
+            <>
+              <CollapseIcon style={{ fontSize: 18, flexShrink: 0 }} />
+              <span>Collapse</span>
+            </>
+          )}
         </button>
       </div>
     </aside>

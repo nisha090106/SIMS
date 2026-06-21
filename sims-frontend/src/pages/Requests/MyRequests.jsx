@@ -101,9 +101,7 @@ const MyRequests = () => {
   };
 
   const getStatusTimeline = (request) => {
-    const timeline = [
-      { status: 'Created', date: request.created_at, icon: '📋' },
-    ];
+    const timeline = [{ status: 'Created', date: request.created_at, icon: '📋' }];
 
     if (request.approved_at) {
       timeline.push({ status: 'Approved', date: request.approved_at, icon: '✓' });
@@ -149,10 +147,20 @@ const MyRequests = () => {
     <Box sx={{ p: 3 }}>
       <Card>
         <CardContent>
-          <Typography variant="h5" sx={{ mb: 3 }}>My Requests</Typography>
+          <Typography variant='h5' sx={{ mb: 3 }}>
+            My Requests
+          </Typography>
 
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+          {error && (
+            <Alert severity='error' sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          {success && (
+            <Alert severity='success' sx={{ mb: 2 }}>
+              {success}
+            </Alert>
+          )}
 
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -171,14 +179,14 @@ const MyRequests = () => {
                       <TableCell>Priority</TableCell>
                       <TableCell>Status</TableCell>
                       <TableCell>Date</TableCell>
-                      <TableCell align="center">Actions</TableCell>
+                      <TableCell align='center'>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {requests.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
-                          <Typography color="textSecondary">No requests found</Typography>
+                        <TableCell colSpan={7} align='center' sx={{ py: 3 }}>
+                          <Typography color='textSecondary'>No requests found</Typography>
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -188,41 +196,48 @@ const MyRequests = () => {
                           <TableRow hover>
                             <TableCell sx={{ width: '50px' }}>
                               <Button
-                                size="small"
-                                onClick={() => setExpandedId(expandedId === request.id ? null : request.id)}
+                                size='small'
+                                onClick={() =>
+                                  setExpandedId(expandedId === request.id ? null : request.id)
+                                }
                               >
                                 <ExpandMore
                                   size={20}
                                   style={{
-                                    transform: expandedId === request.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transform:
+                                      expandedId === request.id ? 'rotate(180deg)' : 'rotate(0deg)',
                                     transition: 'transform 0.3s',
                                   }}
                                 />
                               </Button>
                             </TableCell>
-                            <TableCell sx={{ fontWeight: 'bold' }}>{request.request_number}</TableCell>
-                            <TableCell align="center">{request.items?.length || 0}</TableCell>
+                            <TableCell sx={{ fontWeight: 'bold' }}>
+                              {request.request_number}
+                            </TableCell>
+                            <TableCell align='center'>{request.items?.length || 0}</TableCell>
                             <TableCell>
                               <Chip
                                 label={request.priority}
                                 color={getPriorityColor(request.priority)}
-                                size="small"
-                                variant="outlined"
+                                size='small'
+                                variant='outlined'
                               />
                             </TableCell>
                             <TableCell>
                               <Chip
                                 label={request.status}
                                 color={getStatusColor(request.status)}
-                                size="small"
+                                size='small'
                               />
                             </TableCell>
-                            <TableCell>{new Date(request.created_at).toLocaleDateString()}</TableCell>
-                            <TableCell align="center">
+                            <TableCell>
+                              {new Date(request.created_at).toLocaleDateString()}
+                            </TableCell>
+                            <TableCell align='center'>
                               {request.status === 'pending' && (
                                 <Button
-                                  size="small"
-                                  color="error"
+                                  size='small'
+                                  color='error'
                                   startIcon={<Cancel size={16} />}
                                   onClick={() => handleOpenCancelModal(request)}
                                 >
@@ -235,19 +250,21 @@ const MyRequests = () => {
                           {/* Expanded Row */}
                           <TableRow>
                             <TableCell colSpan={7} sx={{ py: 0 }}>
-                              <Collapse in={expandedId === request.id} timeout="auto" unmountOnExit>
+                              <Collapse in={expandedId === request.id} timeout='auto' unmountOnExit>
                                 <Box sx={{ p: 2, bgcolor: '#000000' }}>
                                   {/* Items Table */}
-                                  <Typography variant="subtitle2" sx={{ mb: 1 }}>Items:</Typography>
+                                  <Typography variant='subtitle2' sx={{ mb: 1 }}>
+                                    Items:
+                                  </Typography>
                                   <TableContainer component={Paper} sx={{ mb: 3 }}>
-                                    <Table size="small">
+                                    <Table size='small'>
                                       <TableHead>
                                         <TableRow sx={{ bgcolor: '#000000' }}>
                                           <TableCell>SKU</TableCell>
                                           <TableCell>Product</TableCell>
-                                          <TableCell align="right">Requested</TableCell>
-                                          <TableCell align="right">Approved</TableCell>
-                                          <TableCell align="right">Fulfilled</TableCell>
+                                          <TableCell align='right'>Requested</TableCell>
+                                          <TableCell align='right'>Approved</TableCell>
+                                          <TableCell align='right'>Fulfilled</TableCell>
                                         </TableRow>
                                       </TableHead>
                                       <TableBody>
@@ -255,9 +272,15 @@ const MyRequests = () => {
                                           <TableRow key={item.id}>
                                             <TableCell>{item.product?.sku}</TableCell>
                                             <TableCell>{item.product?.name}</TableCell>
-                                            <TableCell align="right">{item.requested_qty}</TableCell>
-                                            <TableCell align="right">{item.approved_qty || '-'}</TableCell>
-                                            <TableCell align="right">{item.fulfilled_qty || '-'}</TableCell>
+                                            <TableCell align='right'>
+                                              {item.requested_qty}
+                                            </TableCell>
+                                            <TableCell align='right'>
+                                              {item.approved_qty || '-'}
+                                            </TableCell>
+                                            <TableCell align='right'>
+                                              {item.fulfilled_qty || '-'}
+                                            </TableCell>
                                           </TableRow>
                                         ))}
                                       </TableBody>
@@ -265,21 +288,29 @@ const MyRequests = () => {
                                   </TableContainer>
 
                                   {/* Timeline */}
-                                  <Typography variant="subtitle2" sx={{ mb: 1 }}>Request Timeline:</Typography>
-                                  <Timeline position="alternate">
+                                  <Typography variant='subtitle2' sx={{ mb: 1 }}>
+                                    Request Timeline:
+                                  </Typography>
+                                  <Timeline position='alternate'>
                                     {getStatusTimeline(request).map((event, idx) => (
                                       <TimelineItem key={idx}>
-                                        <TimelineOppositeContent color="textSecondary">
+                                        <TimelineOppositeContent color='textSecondary'>
                                           {new Date(event.date).toLocaleString()}
                                         </TimelineOppositeContent>
                                         <TimelineSeparator>
-                                          <TimelineDot color={event.status === 'Rejected' ? 'error' : 'primary'}>
+                                          <TimelineDot
+                                            color={
+                                              event.status === 'Rejected' ? 'error' : 'primary'
+                                            }
+                                          >
                                             {event.icon}
                                           </TimelineDot>
-                                          {idx < getStatusTimeline(request).length - 1 && <TimelineConnector />}
+                                          {idx < getStatusTimeline(request).length - 1 && (
+                                            <TimelineConnector />
+                                          )}
                                         </TimelineSeparator>
                                         <TimelineContent>
-                                          <Typography variant="h6">{event.status}</Typography>
+                                          <Typography variant='h6'>{event.status}</Typography>
                                         </TimelineContent>
                                       </TimelineItem>
                                     ))}
@@ -287,16 +318,26 @@ const MyRequests = () => {
 
                                   {/* Notes */}
                                   {request.notes && (
-                                    <Box sx={{ mt: 2, p: 1, bgcolor: '#fff', border: '1px solid #e0e0e0', borderRadius: 1 }}>
-                                      <Typography variant="subtitle2">Notes:</Typography>
-                                      <Typography variant="body2">{request.notes}</Typography>
+                                    <Box
+                                      sx={{
+                                        mt: 2,
+                                        p: 1,
+                                        bgcolor: '#fff',
+                                        border: '1px solid #e0e0e0',
+                                        borderRadius: 1,
+                                      }}
+                                    >
+                                      <Typography variant='subtitle2'>Notes:</Typography>
+                                      <Typography variant='body2'>{request.notes}</Typography>
                                     </Box>
                                   )}
 
                                   {request.rejection_reason && (
-                                    <Alert severity="error" sx={{ mt: 2 }}>
-                                      <Typography variant="subtitle2">Rejection Reason:</Typography>
-                                      <Typography variant="body2">{request.rejection_reason}</Typography>
+                                    <Alert severity='error' sx={{ mt: 2 }}>
+                                      <Typography variant='subtitle2'>Rejection Reason:</Typography>
+                                      <Typography variant='body2'>
+                                        {request.rejection_reason}
+                                      </Typography>
                                     </Alert>
                                   )}
                                 </Box>
@@ -313,7 +354,7 @@ const MyRequests = () => {
               {/* Pagination */}
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
-                component="div"
+                component='div'
                 count={total}
                 rowsPerPage={rowsPerPage}
                 page={page}
@@ -329,10 +370,10 @@ const MyRequests = () => {
       </Card>
 
       {/* Cancel Modal */}
-      <Dialog open={cancelModal} onClose={() => setCancelModal(false)} maxWidth="sm" fullWidth>
+      <Dialog open={cancelModal} onClose={() => setCancelModal(false)} maxWidth='sm' fullWidth>
         <DialogTitle>Cancel Request: {selectedRequest?.request_number}</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
-          <Alert severity="warning">
+          <Alert severity='warning'>
             Are you sure you want to cancel this request? This action cannot be undone.
           </Alert>
         </DialogContent>
@@ -340,8 +381,8 @@ const MyRequests = () => {
           <Button onClick={() => setCancelModal(false)}>No, Keep It</Button>
           <Button
             onClick={handleCancelRequest}
-            variant="contained"
-            color="error"
+            variant='contained'
+            color='error'
             disabled={cancelling}
           >
             {cancelling ? <CircularProgress size={20} /> : 'Yes, Cancel Request'}

@@ -66,7 +66,10 @@ export default function UploadZone({ onFileSelect, onClear, file, disabled = fal
     <div>
       <div
         onClick={() => !disabled && inputRef.current?.click()}
-        onDragOver={(e) => { e.preventDefault(); if (!disabled) setDragOver(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!disabled) setDragOver(true);
+        }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         style={{
@@ -75,8 +78,8 @@ export default function UploadZone({ onFileSelect, onClear, file, disabled = fal
           background: dragOver
             ? 'var(--color-primary-soft)'
             : file
-            ? 'var(--color-success-soft)'
-            : 'var(--color-surface-alt)',
+              ? 'var(--color-success-soft)'
+              : 'var(--color-surface-alt)',
           padding: '28px 20px',
           textAlign: 'center',
           cursor: disabled ? 'not-allowed' : 'pointer',
@@ -86,8 +89,8 @@ export default function UploadZone({ onFileSelect, onClear, file, disabled = fal
       >
         <input
           ref={inputRef}
-          type="file"
-          accept=".csv,.xlsx,.xls"
+          type='file'
+          accept='.csv,.xlsx,.xls'
           style={{ display: 'none' }}
           onChange={handleChange}
           disabled={disabled}
@@ -96,21 +99,44 @@ export default function UploadZone({ onFileSelect, onClear, file, disabled = fal
         {file ? (
           /* ── File selected state ── */
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-            <div style={{
-              width: 40, height: 40, borderRadius: 'var(--radius-md)',
-              background: 'var(--color-success)', display: 'flex',
-              alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-            }}>
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 'var(--radius-md)',
+                background: 'var(--color-success)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
               <FileIcon style={{ fontSize: 22, color: '#fff' }} />
             </div>
             <div style={{ textAlign: 'left', minWidth: 0 }}>
-              <p style={{
-                margin: 0, fontWeight: 600, fontSize: 'var(--text-base)',
-                color: 'var(--color-text-primary)', fontFamily: 'var(--font-sans)',
-                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                maxWidth: 220,
-              }}>{file.name}</p>
-              <p style={{ margin: '2px 0 0', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
+              <p
+                style={{
+                  margin: 0,
+                  fontWeight: 600,
+                  fontSize: 'var(--text-base)',
+                  color: 'var(--color-text-primary)',
+                  fontFamily: 'var(--font-sans)',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  maxWidth: 220,
+                }}
+              >
+                {file.name}
+              </p>
+              <p
+                style={{
+                  margin: '2px 0 0',
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--color-text-muted)',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              >
                 {fmtSize(file.size)}
               </p>
             </div>
@@ -118,9 +144,14 @@ export default function UploadZone({ onFileSelect, onClear, file, disabled = fal
               <button
                 onClick={handleClear}
                 style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--color-text-muted)', display: 'flex',
-                  alignItems: 'center', padding: 4, borderRadius: 'var(--radius-sm)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--color-text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: 4,
+                  borderRadius: 'var(--radius-sm)',
                   marginLeft: 8,
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(0,0,0,0.06)')}
@@ -133,12 +164,33 @@ export default function UploadZone({ onFileSelect, onClear, file, disabled = fal
         ) : (
           /* ── Empty state ── */
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <UploadIcon style={{ fontSize: 36, color: dragOver ? 'var(--color-primary)' : 'var(--color-text-muted)' }} />
-            <p style={{ margin: 0, fontSize: 'var(--text-base)', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-sans)' }}>
+            <UploadIcon
+              style={{
+                fontSize: 36,
+                color: dragOver ? 'var(--color-primary)' : 'var(--color-text-muted)',
+              }}
+            />
+            <p
+              style={{
+                margin: 0,
+                fontSize: 'var(--text-base)',
+                color: 'var(--color-text-secondary)',
+                fontFamily: 'var(--font-sans)',
+              }}
+            >
               Drag & drop or{' '}
-              <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>click to browse</span>
+              <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>
+                click to browse
+              </span>
             </p>
-            <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)' }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 'var(--text-xs)',
+                color: 'var(--color-text-muted)',
+                fontFamily: 'var(--font-sans)',
+              }}
+            >
               CSV, XLSX, XLS — max 50 MB
             </p>
           </div>
@@ -146,7 +198,14 @@ export default function UploadZone({ onFileSelect, onClear, file, disabled = fal
       </div>
 
       {fileError && (
-        <p style={{ margin: '6px 0 0', fontSize: 'var(--text-xs)', color: 'var(--color-danger)', fontFamily: 'var(--font-sans)' }}>
+        <p
+          style={{
+            margin: '6px 0 0',
+            fontSize: 'var(--text-xs)',
+            color: 'var(--color-danger)',
+            fontFamily: 'var(--font-sans)',
+          }}
+        >
           {fileError}
         </p>
       )}

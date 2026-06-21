@@ -130,14 +130,14 @@ const startServer = async () => {
     await sequelize.authenticate();
     logger.info('Database connection successful');
 
-    // Sync models with database (for development only)
-    // NOTE: Using { alter: false } — schema is managed by Sequelize migrations.
-    // alter: true causes destructive FK-drop errors on existing tables.
-    if (process.env.NODE_ENV === 'development') {
-      // sync({ force: false }) creates missing tables without altering existing ones.
-      // Use migrations (sequelize db:migrate) for schema changes on existing tables.
-      await sequelize.sync({ force: false });
+    // Skip automatic schema sync on startup to avoid MySQL index-limit issues
+    // and destructive alter operations against an existing database.
+    // Use migrations (for example: npx sequelize-cli db:migrate) for schema changes.
+    if (process.env.RUN_DB_SYNC === 'true') {
+      await sequelize.sync({ force: false, alter: false });
       logger.info('Database synced');
+    } else {
+      logger.info('Automatic schema sync skipped. Set RUN_DB_SYNC=true to enable it explicitly.');
     }
 
     // Initialize cron jobs after database connection is successful and synced

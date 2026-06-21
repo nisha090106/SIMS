@@ -127,7 +127,7 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
 
   return (
     <Drawer
-      anchor="right"
+      anchor='right'
       open={open}
       onClose={onClose}
       PaperProps={{
@@ -135,10 +135,10 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
       }}
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+        <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
           {supplier ? 'Edit Supplier' : 'Add New Supplier'}
         </Typography>
-        <IconButton onClick={onClose} size="small">
+        <IconButton onClick={onClose} size='small'>
           <X size={20} />
         </IconButton>
       </Box>
@@ -148,11 +148,11 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
           {/* Name (required) */}
           <Grid item xs={12}>
             <TextField
-              label="Company Name *"
-              id="supplier-name"
-              name="name"
+              label='Company Name *'
+              id='supplier-name'
+              name='name'
               fullWidth
-              size="small"
+              size='small'
               value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -164,11 +164,11 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
           {/* Contact Person */}
           <Grid item xs={12}>
             <TextField
-              label="Contact Person"
-              id="supplier-contact-person"
-              name="contact_person"
+              label='Contact Person'
+              id='supplier-contact-person'
+              name='contact_person'
               fullWidth
-              size="small"
+              size='small'
               value={formik.values.contact_person}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -178,12 +178,12 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
           {/* Email (required, validated) */}
           <Grid item xs={12}>
             <TextField
-              label="Email *"
-              id="supplier-email"
-              name="email"
-              type="email"
+              label='Email *'
+              id='supplier-email'
+              name='email'
+              type='email'
               fullWidth
-              size="small"
+              size='small'
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -195,11 +195,11 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
           {/* Phone */}
           <Grid item xs={12}>
             <TextField
-              label="Phone"
-              id="supplier-phone"
-              name="phone"
+              label='Phone'
+              id='supplier-phone'
+              name='phone'
               fullWidth
-              size="small"
+              size='small'
               value={formik.values.phone}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -209,13 +209,13 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
           {/* Address */}
           <Grid item xs={12}>
             <TextField
-              label="Address"
-              id="supplier-address"
-              name="address"
+              label='Address'
+              id='supplier-address'
+              name='address'
               fullWidth
               multiline
               rows={2}
-              size="small"
+              size='small'
               value={formik.values.address}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -224,20 +224,20 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
 
           {/* Payment Terms (dropdown) */}
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="payment-terms-label">Payment Terms</InputLabel>
+            <FormControl fullWidth size='small'>
+              <InputLabel id='payment-terms-label'>Payment Terms</InputLabel>
               <Select
-                labelId="payment-terms-label"
-                id="supplier-payment-terms"
-                name="payment_terms"
+                labelId='payment-terms-label'
+                id='supplier-payment-terms'
+                name='payment_terms'
                 value={formik.values.payment_terms}
                 onChange={formik.handleChange}
-                label="Payment Terms"
+                label='Payment Terms'
               >
-                <MenuItem value="net15">Net 15</MenuItem>
-                <MenuItem value="net30">Net 30</MenuItem>
-                <MenuItem value="net60">Net 60</MenuItem>
-                <MenuItem value="COD">COD</MenuItem>
+                <MenuItem value='net15'>Net 15</MenuItem>
+                <MenuItem value='net30'>Net 30</MenuItem>
+                <MenuItem value='net60'>Net 60</MenuItem>
+                <MenuItem value='COD'>COD</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -245,12 +245,12 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
           {/* Lead Time (days, numeric) */}
           <Grid item xs={12} sm={6}>
             <TextField
-              label="Lead Time (days)"
-              id="supplier-lead-time"
-              name="lead_time"
-              type="number"
+              label='Lead Time (days)'
+              id='supplier-lead-time'
+              name='lead_time'
+              type='number'
               fullWidth
-              size="small"
+              size='small'
               inputProps={{ min: 0, step: 1 }}
               value={formik.values.lead_time}
               onChange={formik.handleChange}
@@ -262,19 +262,19 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
 
           {/* Status (dropdown) */}
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="status-label">Status</InputLabel>
+            <FormControl fullWidth size='small'>
+              <InputLabel id='status-label'>Status</InputLabel>
               <Select
-                labelId="status-label"
-                id="supplier-status"
-                name="status"
+                labelId='status-label'
+                id='supplier-status'
+                name='status'
                 value={formik.values.status}
                 onChange={formik.handleChange}
-                label="Status"
+                label='Status'
               >
-                <MenuItem value="active">Active</MenuItem>
-                <MenuItem value="inactive">Inactive</MenuItem>
-                <MenuItem value="blacklisted">Blacklisted</MenuItem>
+                <MenuItem value='active'>Active</MenuItem>
+                <MenuItem value='inactive'>Inactive</MenuItem>
+                <MenuItem value='blacklisted'>Blacklisted</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -282,13 +282,13 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
           {/* Notes */}
           <Grid item xs={12}>
             <TextField
-              label="Notes"
-              id="supplier-notes"
-              name="notes"
+              label='Notes'
+              id='supplier-notes'
+              name='notes'
               fullWidth
               multiline
               rows={3}
-              size="small"
+              size='small'
               value={formik.values.notes}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -310,11 +310,15 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                 <Star size={16} style={{ color: '#000000' }} />
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                <Typography variant='subtitle2' sx={{ fontWeight: 'bold' }}>
                   Supplier Rating
                 </Typography>
               </Box>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
+              <Typography
+                variant='caption'
+                color='text.secondary'
+                sx={{ display: 'block', mb: 1.5 }}
+              >
                 {supplier
                   ? 'Rating is saved separately via its own endpoint. Click the stars then save the form.'
                   : 'Rating can be set after the supplier is created, from the edit view or detail page.'}
@@ -322,52 +326,59 @@ const SupplierForm = ({ open, onClose, supplier, onSubmit, onRatingUpdate }) => 
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Rating
-                  name="supplier-rating"
+                  name='supplier-rating'
                   value={rating}
                   onChange={(event, newValue) => setRating(newValue)}
                   disabled={!supplier} // disable for new suppliers
-                  size="large"
+                  size='large'
                   sx={{
                     '& .MuiRating-iconFilled': { color: '#000000' },
                     '& .MuiRating-iconEmpty': { color: '#000000' },
                   }}
                 />
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant='body2' color='text.secondary'>
                   {rating > 0 ? `${rating} / 5` : 'No rating'}
                 </Typography>
                 {ratingSaving && <CircularProgress size={16} />}
               </Box>
 
               {ratingError && (
-                <Alert severity="error" sx={{ mt: 1 }} variant="outlined" onClose={() => setRatingError('')}>
+                <Alert
+                  severity='error'
+                  sx={{ mt: 1 }}
+                  variant='outlined'
+                  onClose={() => setRatingError('')}
+                >
                   {ratingError}
                 </Alert>
               )}
               {ratingSuccess && (
-                <Alert severity="success" sx={{ mt: 1 }} variant="outlined" onClose={() => setRatingSuccess(false)}>
+                <Alert
+                  severity='success'
+                  sx={{ mt: 1 }}
+                  variant='outlined'
+                  onClose={() => setRatingSuccess(false)}
+                >
                   Rating updated successfully!
                 </Alert>
               )}
 
               {!supplier && (
-                <FormHelperText>Create the supplier first, then edit to set a rating.</FormHelperText>
+                <FormHelperText>
+                  Create the supplier first, then edit to set a rating.
+                </FormHelperText>
               )}
             </Box>
           </Grid>
 
           {/* Action Buttons */}
           <Grid item xs={12} sx={{ mt: 2, display: 'flex', gap: 2 }}>
-            <Button
-              variant="outlined"
-              fullWidth
-              onClick={onClose}
-              sx={{ textTransform: 'none' }}
-            >
+            <Button variant='outlined' fullWidth onClick={onClose} sx={{ textTransform: 'none' }}>
               Cancel
             </Button>
             <Button
-              variant="contained"
-              type="submit"
+              variant='contained'
+              type='submit'
               fullWidth
               disabled={formik.isSubmitting}
               sx={{ textTransform: 'none' }}

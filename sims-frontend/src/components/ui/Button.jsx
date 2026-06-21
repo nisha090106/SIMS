@@ -16,7 +16,8 @@ const BASE = {
   border: 'none',
   cursor: 'pointer',
   borderRadius: 'var(--radius-md)',
-  transition: 'background var(--transition-base), box-shadow var(--transition-base), opacity var(--transition-base)',
+  transition:
+    'background var(--transition-base), box-shadow var(--transition-base), opacity var(--transition-base)',
   outline: 'none',
   textDecoration: 'none',
   whiteSpace: 'nowrap',
@@ -67,69 +68,76 @@ const SIZES = {
   lg: { fontSize: 'var(--text-lg)', padding: '11px 22px', lineHeight: '1' },
 };
 
-const Button = React.forwardRef(({
-  children,
-  variant = 'primary',
-  size = 'md',
-  disabled = false,
-  loading = false,
-  leftIcon = null,
-  rightIcon = null,
-  fullWidth = false,
-  style: extraStyle = {},
-  className = '',
-  onClick,
-  type = 'button',
-  ...rest
-}, ref) => {
-  const variantStyle = VARIANTS[variant] || VARIANTS.primary;
-  const sizeStyle = SIZES[size] || SIZES.md;
+const Button = React.forwardRef(
+  (
+    {
+      children,
+      variant = 'primary',
+      size = 'md',
+      disabled = false,
+      loading = false,
+      leftIcon = null,
+      rightIcon = null,
+      fullWidth = false,
+      style: extraStyle = {},
+      className = '',
+      onClick,
+      type = 'button',
+      ...rest
+    },
+    ref,
+  ) => {
+    const variantStyle = VARIANTS[variant] || VARIANTS.primary;
+    const sizeStyle = SIZES[size] || SIZES.md;
 
-  const [hovered, setHovered] = React.useState(false);
+    const [hovered, setHovered] = React.useState(false);
 
-  const computedStyle = {
-    ...BASE,
-    ...variantStyle,
-    ...sizeStyle,
-    opacity: disabled || loading ? 0.58 : 1,
-    cursor: disabled || loading ? 'not-allowed' : 'pointer',
-    width: fullWidth ? '100%' : undefined,
-    ...(hovered && !disabled && !loading
-      ? { background: variantStyle['--hover-bg'] || variantStyle.background }
-      : {}),
-    ...extraStyle,
-  };
+    const computedStyle = {
+      ...BASE,
+      ...variantStyle,
+      ...sizeStyle,
+      opacity: disabled || loading ? 0.58 : 1,
+      cursor: disabled || loading ? 'not-allowed' : 'pointer',
+      width: fullWidth ? '100%' : undefined,
+      ...(hovered && !disabled && !loading
+        ? { background: variantStyle['--hover-bg'] || variantStyle.background }
+        : {}),
+      ...extraStyle,
+    };
 
-  // clean up the css variable key before spreading onto DOM
-  delete computedStyle['--hover-bg'];
+    // clean up the css variable key before spreading onto DOM
+    delete computedStyle['--hover-bg'];
 
-  return (
-    <button
-      ref={ref}
-      type={type}
-      disabled={disabled || loading}
-      className={className}
-      style={computedStyle}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={onClick}
-      {...rest}
-    >
-      {loading ? (
-        <>
-          <SpinnerInline size={size} />
-          <span>{children}</span>
-        </>
-      ) : (
-        <>
-          {leftIcon && <span style={{ display: 'flex', alignItems: 'center' }}>{leftIcon}</span>}
-          {children}
-          {rightIcon && <span style={{ display: 'flex', alignItems: 'center' }}>{rightIcon}</span>}
-        </>
-      )}
-    </button>
-  );
-});
+    return (
+      <button
+        ref={ref}
+        type={type}
+        disabled={disabled || loading}
+        className={className}
+        style={computedStyle}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={onClick}
+        {...rest}
+      >
+        {loading ? (
+          <>
+            <SpinnerInline size={size} />
+            <span>{children}</span>
+          </>
+        ) : (
+          <>
+            {leftIcon && <span style={{ display: 'flex', alignItems: 'center' }}>{leftIcon}</span>}
+            {children}
+            {rightIcon && (
+              <span style={{ display: 'flex', alignItems: 'center' }}>{rightIcon}</span>
+            )}
+          </>
+        )}
+      </button>
+    );
+  },
+);
 
 Button.displayName = 'Button';
 

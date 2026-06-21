@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from '@mui/material';
+import { Box, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import ReportViewer from './ReportViewer';
 import api from '../../services/api';
 
@@ -57,7 +51,10 @@ const AuditLogReport = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `audit-logs-${new Date().toISOString().split('T')[0]}.${format}`);
+      link.setAttribute(
+        'download',
+        `audit-logs-${new Date().toISOString().split('T')[0]}.${format}`,
+      );
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
@@ -68,7 +65,7 @@ const AuditLogReport = () => {
 
   const getUniqueUsers = () => {
     const usersMap = {};
-    data.forEach(item => {
+    data.forEach((item) => {
       if (item.user) {
         usersMap[item.user] = true;
       }
@@ -76,7 +73,7 @@ const AuditLogReport = () => {
     return Object.keys(usersMap).sort();
   };
 
-  const filteredData = data.filter(item => {
+  const filteredData = data.filter((item) => {
     if (selectedUser === 'ALL') return true;
     return item.user === selectedUser;
   });
@@ -118,7 +115,7 @@ const AuditLogReport = () => {
 
   return (
     <ReportViewer
-      title="Audit Log Report"
+      title='Audit Log Report'
       filters={filters}
       onFiltersChange={setFilters}
       loading={loading}
@@ -130,35 +127,35 @@ const AuditLogReport = () => {
       disableExportForNonAdmin={true}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <FormControl fullWidth size="small">
+        <FormControl fullWidth size='small'>
           <InputLabel>Action Type</InputLabel>
           <Select
             value={filters.action}
             onChange={(e) => setFilters({ ...filters, action: e.target.value })}
-            label="Action Type"
+            label='Action Type'
           >
-            <MenuItem value="">All Actions</MenuItem>
-            <MenuItem value="create">Create</MenuItem>
-            <MenuItem value="update">Update</MenuItem>
-            <MenuItem value="delete">Delete</MenuItem>
-            <MenuItem value="login">Login</MenuItem>
-            <MenuItem value="logout">Logout</MenuItem>
-            <MenuItem value="BARCODE_SCAN">Barcode Scan</MenuItem>
-            <MenuItem value="CREATE_PURCHASE_ORDER">Create PO</MenuItem>
-            <MenuItem value="RECEIVE_PURCHASE_ORDER">Receive PO</MenuItem>
+            <MenuItem value=''>All Actions</MenuItem>
+            <MenuItem value='create'>Create</MenuItem>
+            <MenuItem value='update'>Update</MenuItem>
+            <MenuItem value='delete'>Delete</MenuItem>
+            <MenuItem value='login'>Login</MenuItem>
+            <MenuItem value='logout'>Logout</MenuItem>
+            <MenuItem value='BARCODE_SCAN'>Barcode Scan</MenuItem>
+            <MenuItem value='CREATE_PURCHASE_ORDER'>Create PO</MenuItem>
+            <MenuItem value='RECEIVE_PURCHASE_ORDER'>Receive PO</MenuItem>
           </Select>
         </FormControl>
 
-        <FormControl fullWidth size="small">
+        <FormControl fullWidth size='small'>
           <InputLabel>User Filter</InputLabel>
           <Select
             value={selectedUser}
             onChange={(e) => setSelectedUser(e.target.value)}
-            label="User Filter"
+            label='User Filter'
             disabled={uniqueUsers.length === 0}
           >
-            <MenuItem value="ALL">All Users</MenuItem>
-            {uniqueUsers.map(u => (
+            <MenuItem value='ALL'>All Users</MenuItem>
+            {uniqueUsers.map((u) => (
               <MenuItem key={u} value={u}>
                 {u}
               </MenuItem>

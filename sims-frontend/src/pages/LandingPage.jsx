@@ -13,6 +13,7 @@ import {
   Warehouse,
 } from 'lucide-react';
 import '../styles/LandingPage.css';
+import inventoryIcon from '../assets/inventory-icon.png';
 
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -81,7 +82,11 @@ export default function LandingPage() {
         <div className='nav-container'>
           {/* Logo */}
           <div className='nav-logo'>
-            <Warehouse size={24} />
+            <img
+              src={inventoryIcon}
+              alt='SIMS Icon'
+              style={{ width: 28, height: 28, objectFit: 'contain' }}
+            />
             <span>SIMS</span>
           </div>
 
@@ -160,66 +165,14 @@ export default function LandingPage() {
                 place. Transform how you manage inventory.
               </p>
               <div className='hero-ctas'>
-                <Link to='/register' className='cta-primary'>
-                  Start Free Trial
+                <Link to='/register' className='nav-cta-button'>
+                  Get Started
                 </Link>
-                <button className='cta-outline'>▶ Watch Demo</button>
               </div>
             </div>
 
             {/* Right Visual */}
-            <div className='hero-visual'>
-              {/* CSS Dashboard Mockup */}
-              <div className='dashboard-mockup'>
-                <div className='mockup-header'>
-                  <div className='mockup-dot'></div>
-                  <div className='mockup-dot'></div>
-                  <div className='mockup-dot'></div>
-                </div>
-                <div className='mockup-content'>
-                  <div className='mockup-card'>
-                    <div className='card-header'></div>
-                    <div className='card-bar'></div>
-                    <div className='card-bar short'></div>
-                  </div>
-                  <div className='mockup-card'>
-                    <div className='card-header'></div>
-                    <div className='card-bar'></div>
-                    <div className='card-bar short'></div>
-                  </div>
-                </div>
-                <div className='mockup-chart'>
-                  <div className='chart-bar h-12'></div>
-                  <div className='chart-bar h-16'></div>
-                  <div className='chart-bar h-10'></div>
-                </div>
-              </div>
-
-              {/* Floating Cards */}
-              <div className='floating-card card-1'>
-                <div className='card-icon'>📦</div>
-                <div className='card-text'>
-                  <div className='card-number'>1,240</div>
-                  <div className='card-label'>Products Tracked</div>
-                </div>
-              </div>
-
-              <div className='floating-card card-2'>
-                <div className='card-icon'>🏢</div>
-                <div className='card-text'>
-                  <div className='card-number'>3</div>
-                  <div className='card-label'>Warehouses</div>
-                </div>
-              </div>
-
-              <div className='floating-card card-3'>
-                <div className='card-icon'>⚠️</div>
-                <div className='card-text'>
-                  <div className='card-number'>4</div>
-                  <div className='card-label'>Low Stock Items</div>
-                </div>
-              </div>
-            </div>
+            <div className='hero-visual'></div>
           </div>
         </div>
       </section>

@@ -160,34 +160,48 @@ const BarcodeGenerator = () => {
     <Box sx={{ p: 3 }}>
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="h5" sx={{ mb: 2 }}>Barcode Generator</Typography>
+          <Typography variant='h5' sx={{ mb: 2 }}>
+            Barcode Generator
+          </Typography>
 
           {/* Mode Toggle */}
           <FormControlLabel
-            control={<Checkbox checked={bulkMode} onChange={(e) => setBulkMode(e.target.checked)} />}
-            label="Bulk Generation"
+            control={
+              <Checkbox checked={bulkMode} onChange={(e) => setBulkMode(e.target.checked)} />
+            }
+            label='Bulk Generation'
             sx={{ mb: 2 }}
           />
 
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+          {error && (
+            <Alert severity='error' sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          {success && (
+            <Alert severity='success' sx={{ mb: 2 }}>
+              {success}
+            </Alert>
+          )}
 
           {!bulkMode ? (
             <>
               {/* Single Product Mode */}
-              <Typography variant="h6" sx={{ mb: 2 }}>Search Product</Typography>
+              <Typography variant='h6' sx={{ mb: 2 }}>
+                Search Product
+              </Typography>
               <TextField
-                label="Product Name or SKU"
+                label='Product Name or SKU'
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 fullWidth
-                placeholder="Search products..."
+                placeholder='Search products...'
                 sx={{ mb: 2 }}
               />
 
               {searchResults.length > 0 && (
                 <Paper sx={{ mb: 2, maxHeight: '300px', overflow: 'auto' }}>
-                  <Table size="small">
+                  <Table size='small'>
                     <TableHead>
                       <TableRow sx={{ bgcolor: '#000000' }}>
                         <TableCell>SKU</TableCell>
@@ -202,8 +216,8 @@ const BarcodeGenerator = () => {
                           <TableCell>{product.name}</TableCell>
                           <TableCell>
                             <Button
-                              size="small"
-                              variant="outlined"
+                              size='small'
+                              variant='outlined'
                               onClick={() => handleSelectProduct(product)}
                             >
                               Select
@@ -222,16 +236,16 @@ const BarcodeGenerator = () => {
                     <CardContent>
                       <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
-                          <Typography color="textSecondary">Product Name</Typography>
-                          <Typography variant="h6">{selectedProduct.name}</Typography>
+                          <Typography color='textSecondary'>Product Name</Typography>
+                          <Typography variant='h6'>{selectedProduct.name}</Typography>
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                          <Typography color="textSecondary">SKU</Typography>
-                          <Typography variant="h6">{selectedProduct.sku}</Typography>
+                          <Typography color='textSecondary'>SKU</Typography>
+                          <Typography variant='h6'>{selectedProduct.sku}</Typography>
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                          <Typography color="textSecondary">Barcode</Typography>
-                          <Typography variant="h6">{barcode}</Typography>
+                          <Typography color='textSecondary'>Barcode</Typography>
+                          <Typography variant='h6'>{barcode}</Typography>
                         </Grid>
                         <Grid item xs={12} sm={6}>
                           <FormControl fullWidth>
@@ -240,9 +254,9 @@ const BarcodeGenerator = () => {
                               value={format}
                               onChange={(e) => handleFormatChange(e.target.value)}
                             >
-                              <MenuItem value="CODE128">CODE128</MenuItem>
-                              <MenuItem value="EAN13">EAN13</MenuItem>
-                              <MenuItem value="QR">QR Code</MenuItem>
+                              <MenuItem value='CODE128'>CODE128</MenuItem>
+                              <MenuItem value='EAN13'>EAN13</MenuItem>
+                              <MenuItem value='QR'>QR Code</MenuItem>
                             </Select>
                           </FormControl>
                         </Grid>
@@ -267,7 +281,7 @@ const BarcodeGenerator = () => {
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <Button
-                        variant="contained"
+                        variant='contained'
                         startIcon={<Printer size={20} />}
                         onClick={handlePrint}
                         fullWidth
@@ -277,7 +291,7 @@ const BarcodeGenerator = () => {
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <Button
-                        variant="outlined"
+                        variant='outlined'
                         startIcon={<Download size={20} />}
                         onClick={handleDownload}
                         fullWidth
@@ -292,11 +306,13 @@ const BarcodeGenerator = () => {
           ) : (
             <>
               {/* Bulk Mode */}
-              <Typography variant="h6" sx={{ mb: 2 }}>Select Products for Bulk Generation</Typography>
-              <Typography color="textSecondary" sx={{ mb: 2 }}>
+              <Typography variant='h6' sx={{ mb: 2 }}>
+                Select Products for Bulk Generation
+              </Typography>
+              <Typography color='textSecondary' sx={{ mb: 2 }}>
                 (Feature: Load products and select multiple to generate sheet)
               </Typography>
-              <Alert severity="info">
+              <Alert severity='info'>
                 Bulk barcode generation will create a printable sheet with multiple barcodes.
               </Alert>
             </>

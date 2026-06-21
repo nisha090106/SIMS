@@ -57,30 +57,30 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
 
   // Dynamically build navigation items
   const navigationItems = [...baseNavigationItems];
-  
+
   if (role === 'admin' || role === 'manager') {
     navigationItems.push(
-      { 
-        path: '/requests', 
-        label: 'User Requests', 
-        icon: <AssignmentIcon /> 
+      {
+        path: '/requests',
+        label: 'User Requests',
+        icon: <AssignmentIcon />,
       },
-      { 
-        path: '/import-center', 
-        label: 'Import Center', 
-        icon: <UploadIcon /> 
+      {
+        path: '/import-center',
+        label: 'Import Center',
+        icon: <UploadIcon />,
       },
-      { 
-        path: '/automation', 
-        label: 'Automation', 
-        icon: <AutoModeIcon /> 
-      }
+      {
+        path: '/automation',
+        label: 'Automation',
+        icon: <AutoModeIcon />,
+      },
     );
   }
 
   navigationItems.push(
     { path: '/reports', label: 'Reports', icon: <BarChartIcon /> },
-    { path: '/settings', label: 'Settings', icon: <SettingsIcon /> }
+    { path: '/settings', label: 'Settings', icon: <SettingsIcon /> },
   );
 
   return (

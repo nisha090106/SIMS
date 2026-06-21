@@ -151,9 +151,7 @@ const Table = ({
                     gap: 10,
                   }}
                 >
-                  {emptyIcon && (
-                    <span style={{ fontSize: 32, opacity: 0.35 }}>{emptyIcon}</span>
-                  )}
+                  {emptyIcon && <span style={{ fontSize: 32, opacity: 0.35 }}>{emptyIcon}</span>}
                   <span style={{ fontSize: 'var(--text-base)' }}>{emptyText}</span>
                 </div>
               </td>

@@ -16,7 +16,16 @@ import {
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import ReportViewer from './ReportViewer';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d', '#ffc658', '#ff7c7c'];
+const COLORS = [
+  '#0088FE',
+  '#00C49F',
+  '#FFBB28',
+  '#FF8042',
+  '#8884D8',
+  '#82ca9d',
+  '#ffc658',
+  '#ff7c7c',
+];
 
 const InventoryValuationReport = () => {
   const [filters, setFilters] = useState({
@@ -53,7 +62,7 @@ const InventoryValuationReport = () => {
   const fetchCategories = async () => {
     try {
       const response = await axios.get('/api/products');
-      const uniqueCategories = [...new Set(response.data.data.map(p => p.category))];
+      const uniqueCategories = [...new Set(response.data.data.map((p) => p.category))];
       setCategories(uniqueCategories);
     } catch (err) {
       console.error('Failed to fetch categories');
@@ -71,7 +80,7 @@ const InventoryValuationReport = () => {
         Object.entries(response.data.data.categoryValues).map(([category, value]) => ({
           name: category,
           value: Math.round(value),
-        }))
+        })),
       );
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to fetch report');
@@ -90,7 +99,10 @@ const InventoryValuationReport = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `inventory-valuation-${new Date().toISOString().split('T')[0]}.${format}`);
+      link.setAttribute(
+        'download',
+        `inventory-valuation-${new Date().toISOString().split('T')[0]}.${format}`,
+      );
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
@@ -105,13 +117,18 @@ const InventoryValuationReport = () => {
     { field: 'category', label: 'Category' },
     { field: 'quantity', label: 'Quantity', align: 'right' },
     { field: 'unitCost', label: 'Unit Cost', align: 'right', render: (v) => `$${v.toFixed(2)}` },
-    { field: 'totalValue', label: 'Total Value', align: 'right', render: (v) => `$${v.toFixed(2)}` },
+    {
+      field: 'totalValue',
+      label: 'Total Value',
+      align: 'right',
+      render: (v) => `$${v.toFixed(2)}`,
+    },
     { field: 'warehouse', label: 'Warehouse' },
   ];
 
   return (
     <ReportViewer
-      title="Inventory Valuation Report"
+      title='Inventory Valuation Report'
       filters={filters}
       onFiltersChange={setFilters}
       loading={loading}
@@ -122,15 +139,15 @@ const InventoryValuationReport = () => {
       onExport={handleExport}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <FormControl fullWidth size="small">
+        <FormControl fullWidth size='small'>
           <InputLabel>Warehouse</InputLabel>
           <Select
             value={filters.warehouseId}
             onChange={(e) => setFilters({ ...filters, warehouseId: e.target.value })}
-            label="Warehouse"
+            label='Warehouse'
           >
-            <MenuItem value="">All Warehouses</MenuItem>
-            {warehouses.map(wh => (
+            <MenuItem value=''>All Warehouses</MenuItem>
+            {warehouses.map((wh) => (
               <MenuItem key={wh.warehouse_id} value={wh.warehouse_id}>
                 {wh.name}
               </MenuItem>
@@ -138,15 +155,15 @@ const InventoryValuationReport = () => {
           </Select>
         </FormControl>
 
-        <FormControl fullWidth size="small">
+        <FormControl fullWidth size='small'>
           <InputLabel>Category</InputLabel>
           <Select
             value={filters.categoryId}
             onChange={(e) => setFilters({ ...filters, categoryId: e.target.value })}
-            label="Category"
+            label='Category'
           >
-            <MenuItem value="">All Categories</MenuItem>
-            {categories.map(cat => (
+            <MenuItem value=''>All Categories</MenuItem>
+            {categories.map((cat) => (
               <MenuItem key={cat} value={cat}>
                 {cat}
               </MenuItem>
@@ -159,18 +176,20 @@ const InventoryValuationReport = () => {
         {/* Category Pie Chart */}
         {categoryValues.length > 0 && (
           <Box>
-            <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 'bold' }}>Value by Category</Typography>
-            <ResponsiveContainer width="100%" height={300}>
+            <Typography variant='subtitle2' sx={{ mb: 2, fontWeight: 'bold' }}>
+              Value by Category
+            </Typography>
+            <ResponsiveContainer width='100%' height={300}>
               <PieChart>
                 <Pie
                   data={categoryValues}
-                  cx="50%"
-                  cy="50%"
+                  cx='50%'
+                  cy='50%'
                   labelLine={false}
                   label={({ name, value }) => `${name}: $${value}`}
                   outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
+                  fill='#8884d8'
+                  dataKey='value'
                 >
                   {categoryValues.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

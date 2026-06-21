@@ -5,18 +5,34 @@
 */
 
 /* Ensure root fills viewport */
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
 }
 
 /* Content area scrollbar */
-main::-webkit-scrollbar       { width: 6px; height: 6px; }
-main::-webkit-scrollbar-track { background: transparent; }
-main::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
-main::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+main::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+main::-webkit-scrollbar-track {
+  background: transparent;
+}
+main::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+main::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
 
 /* Spin animation for refresh icon */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

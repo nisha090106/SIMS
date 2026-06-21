@@ -65,7 +65,10 @@ const StockMovementReport = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `stock-movements-${new Date().toISOString().split('T')[0]}.${format}`);
+      link.setAttribute(
+        'download',
+        `stock-movements-${new Date().toISOString().split('T')[0]}.${format}`,
+      );
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
@@ -75,7 +78,7 @@ const StockMovementReport = () => {
   };
 
   // Local filtering by type if selected in UI
-  const filteredData = data.filter(item => {
+  const filteredData = data.filter((item) => {
     if (actionFilter === 'ALL') return true;
     return item.type.toLowerCase() === actionFilter.toLowerCase();
   });
@@ -110,7 +113,7 @@ const StockMovementReport = () => {
         <Chip
           label={v?.toUpperCase()}
           color={getActionChipColor(v)}
-          size="small"
+          size='small'
           sx={{ fontWeight: 'bold' }}
         />
       ),
@@ -127,7 +130,7 @@ const StockMovementReport = () => {
 
   return (
     <ReportViewer
-      title="Stock Movement Report"
+      title='Stock Movement Report'
       filters={filters}
       onFiltersChange={setFilters}
       loading={loading}
@@ -148,24 +151,22 @@ const StockMovementReport = () => {
               productId: newValue ? newValue.product_id : '',
             });
           }}
-          renderInput={(params) => (
-            <TextField {...params} label="Search Product" size="small" />
-          )}
+          renderInput={(params) => <TextField {...params} label='Search Product' size='small' />}
           fullWidth
         />
 
-        <FormControl fullWidth size="small">
+        <FormControl fullWidth size='small'>
           <InputLabel>Action Type</InputLabel>
           <Select
             value={actionFilter}
             onChange={(e) => setActionFilter(e.target.value)}
-            label="Action Type"
+            label='Action Type'
           >
-            <MenuItem value="ALL">All Actions</MenuItem>
-            <MenuItem value="IN">Stock In</MenuItem>
-            <MenuItem value="OUT">Stock Out</MenuItem>
-            <MenuItem value="ADJUST">Stock Adjust</MenuItem>
-            <MenuItem value="TRANSFER">Stock Transfer</MenuItem>
+            <MenuItem value='ALL'>All Actions</MenuItem>
+            <MenuItem value='IN'>Stock In</MenuItem>
+            <MenuItem value='OUT'>Stock Out</MenuItem>
+            <MenuItem value='ADJUST'>Stock Adjust</MenuItem>
+            <MenuItem value='TRANSFER'>Stock Transfer</MenuItem>
           </Select>
         </FormControl>
       </Box>
